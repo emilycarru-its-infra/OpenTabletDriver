@@ -21,7 +21,7 @@ namespace OpenTabletDriver.Plugin
                 {
                     foreach (var message in _backlog!)
                         value.Invoke(null, message);
-                    _backlog.Clear();
+                    _backlog = null;
                     _logAction = WriteLog;
                 }
 

@@ -13,23 +13,29 @@ namespace OpenTabletDriver.Console
     {
         public static async Task Main(string[] args)
         {
+            await Root.Parse(args).InvokeAsync();
+        }
+
+        private static bool pluginsLoaded;
+
+        public static async Task<bool> EnsureDaemonReady()
+        {
             if (!Instance.Exists("OpenTabletDriver.Daemon"))
             {
                 System.Console.WriteLine("OpenTabletDriver Daemon not running");
-                Environment.Exit(1);
+                return false;
             }
 
-            await Driver.Connect();
-            Driver.Disconnected += (sender, eventArgs) =>
+            if (!Driver.IsConnected)
+                await Driver.Connect();
+
+            if (!pluginsLoaded)
             {
-                System.Console.Out.WriteLine("Daemon disconnected, exiting...");
-                Environment.Exit(1);
-            };
+                pluginsLoaded = true;
+                AppInfo.PluginManager.Load();
+            }
 
-            // load plugins
-            AppInfo.PluginManager.Load();
-
-            await Root.Parse(args).InvokeAsync();
+            return true;
         }
 
         private static readonly Lazy<RootCommand> root = new Lazy<RootCommand>(GenerateRoot);

@@ -155,32 +155,34 @@ namespace OpenTabletDriver.Daemon
 
             var appDataOption = new Option<DirectoryInfo>("--appdata", "-a")
             {
-                Description = "Application data directory"
-            };
+                Description = "Application data directory",
+            }.AcceptLegalFilePathsOnly();
 
             var configOption = new Option<DirectoryInfo>("--config", "-c")
             {
-                Description = "Configuration directory"
-            };
+                Description = "Configuration directory",
+            }.AcceptExistingOnly();
 
             rootCommand.Options.Add(appDataOption);
             rootCommand.Options.Add(configOption);
 
-            rootCommand.SetAction(pResult =>
+            var parseResult = rootCommand.Parse(args);
+            if (parseResult.Errors.Any())
             {
-                setupGlobalOptions(pResult.GetRequiredValue(appDataOption), pResult.GetRequiredValue(configOption));
-            });
+                Log.Write(nameof(ParseCmdLineOptions), $"Command line parsing errors encountered: {string.Join(",", parseResult.Errors.Select(x => x.Message))}", LogLevel.Error);
+                Environment.Exit(1);
+            }
 
-            // TODO: handle --help and --version so that it doesn't start the daemon
-            rootCommand.Parse(args).Invoke();
+            cmdLineOptions.AppDataDirectory = parseResult.RootCommandResult.GetValue(appDataOption);
+            cmdLineOptions.ConfigurationDirectory = parseResult.RootCommandResult.GetValue(configOption);
+
+            if (parseResult.Action is not null)
+            {
+                parseResult.Invoke();
+                Environment.Exit(0);
+            }
 
             return cmdLineOptions;
-
-            void setupGlobalOptions(DirectoryInfo appData, DirectoryInfo config)
-            {
-                cmdLineOptions.AppDataDirectory = appData;
-                cmdLineOptions.ConfigurationDirectory = config;
-            }
         }
 
         static DriverDaemon BuildDaemon()

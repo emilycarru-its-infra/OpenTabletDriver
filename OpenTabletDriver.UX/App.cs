@@ -38,8 +38,6 @@ namespace OpenTabletDriver.UX
         public static void Run(string platform, string[] args)
         {
             var commandLineOptions = ParseCmdLineOptions(args);
-            if (commandLineOptions == null)
-                return;
 
             using (var mutex = new Mutex(true, @$"Global\{APPNAME}.Mutex", out var firstInstance))
             {
@@ -133,10 +131,9 @@ namespace OpenTabletDriver.UX
             {
                 // if we hit a built-in like --help or --version
                 results.Invoke();
-                return null;
+                Environment.Exit(0);
             }
 
-            // TODO: Environment.Exit(0) if help is shown
             commandLineOptions.StartMinimized = results.GetValue(minimizedOption);
             commandLineOptions.SkipUpdate = results.GetValue(skipUpdate);
 

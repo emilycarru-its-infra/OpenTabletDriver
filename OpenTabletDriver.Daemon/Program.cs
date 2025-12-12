@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -193,58 +191,55 @@ namespace OpenTabletDriver.Daemon
                 TreatUnmatchedTokensAsErrors = true
             };
 
-            var updateCommand = new Command("update") { IsHidden = true };
+            var updateCommand = new Command("update") { Hidden = true };
 
-            rootCommand.AddCommand(updateCommand);
+            rootCommand.Subcommands.Add(updateCommand);
 
-            var appDataOption = new Option<DirectoryInfo>(
-                aliases: new[] { "--appdata", "-a" },
-                description: "Application data directory"
-            );
+            var appDataOption = new Option<DirectoryInfo>("--appdata", "-a")
+            {
+                Description = "Application data directory"
+            };
 
-            var configOption = new Option<DirectoryInfo>(
-                aliases: new[] { "--config", "-c" },
-                description: "Configuration directory"
-            );
+            var configOption = new Option<DirectoryInfo>("--config", "-c")
+            {
+                Description = "Configuration directory"
+            };
 
-            rootCommand.AddGlobalOption(appDataOption);
-            rootCommand.AddGlobalOption(configOption);
+            rootCommand.Options.Add(appDataOption);
+            rootCommand.Options.Add(configOption);
 
-            rootCommand.SetHandler(setupGlobalOptions, appDataOption, configOption);
+            rootCommand.SetAction(pResult =>
+            {
+                setupGlobalOptions(pResult.GetRequiredValue(appDataOption), pResult.GetRequiredValue(configOption));
+            });
 
             var sourcesArg = new Option<List<DirectoryInfo>>("--sources")
             {
-                IsRequired = true,
+                Required = true,
                 AllowMultipleArgumentsPerToken = true
             };
             var destArg = new Option<DirectoryInfo>("--destination")
             {
-                IsRequired = true
+                Required = true
             };
 
-            updateCommand.AddOption(sourcesArg);
-            updateCommand.AddOption(destArg);
+            updateCommand.Options.Add(sourcesArg);
+            updateCommand.Options.Add(destArg);
 
-            updateCommand.SetHandler((appData, config, src, dest) =>
+            updateCommand.SetAction(pResult =>
             {
+                var appData = pResult.GetValue(appDataOption);
+                var config = pResult.GetValue(configOption);
                 setupGlobalOptions(appData, config);
                 cmdLineOptions.SpecialCommand = new UpdateCommandOptions
                 {
-                    Sources = src,
-                    Destination = dest
+                    Sources = pResult.GetValue(sourcesArg),
+                    Destination = pResult.GetValue(destArg)
                 };
-            }, appDataOption, configOption, sourcesArg, destArg);
+            });
 
-            bool helpShown = false;
-
-            var clb = new CommandLineBuilder(rootCommand)
-                .UseDefaults()
-                .UseHelp(ctx => helpShown = true)
-                .Build();
-            clb.Invoke(args);
-
-            if (helpShown)
-                Environment.Exit(0);
+            // TODO: handle --help and --version so that it doesn't start the daemon
+            rootCommand.Parse(args).Invoke();
 
             return cmdLineOptions;
 

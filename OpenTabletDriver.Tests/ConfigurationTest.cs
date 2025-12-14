@@ -386,7 +386,7 @@ namespace OpenTabletDriver.Tests
             }
 
             if (lpiYResult.HasValue && lpiXResult.HasValue && lpiYResult.Value != lpiXResult.Value)
-                errors.Add("Note that the returned LPI's did not match!");
+                errors.Add("Note that the assumed LPI's did not match across axes!");
 
             if (!skipAxisEqualTest)
             {

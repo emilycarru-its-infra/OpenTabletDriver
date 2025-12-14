@@ -2,8 +2,8 @@
   "Name": "XP-Pen Star G640 (Variant 2)",
   "Specifications": {
     "Digitizer": {
-      "Width": 160,
-      "Height": 100,
+      "Width": 159.99,
+      "Height": 99.99,
       "MaxX": 15999,
       "MaxY": 9999
     },

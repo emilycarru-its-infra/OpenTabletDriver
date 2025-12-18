@@ -209,7 +209,7 @@
 | KENTING K5540                      |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed
 | Monoprice 10594                    |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
 | Parblo A610                        |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
-| Parblo Ninos M                     |    Has Quirks     | Aux buttons are not in order.
+| Parblo Ninos M                     |    Has Quirks     | Aux buttons are not in order. Physical dimensions are unconfirmed. If you have this tablet please help us update the dimensions.
 | Parblo Ninos N7B                   |    Has Quirks     | Physical dimensions are unconfirmed - both axes have mismatching LPI's and neither LPI's are commonly seen. If you have this tablet please help us update the dimensions.
 | Parblo Ninos S                     |    Has Quirks     | Aux buttons are not in order.
 | Trust Flex Design Tablet           |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed

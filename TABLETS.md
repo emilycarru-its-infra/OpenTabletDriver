@@ -65,7 +65,6 @@
 | Parblo A640 V2                     |     Supported     |
 | Parblo Ninos N4                    |     Supported     |
 | Parblo Ninos N7                    |     Supported     |
-| Parblo Ninos N7B                   |     Supported     |
 | RobotPen T9A                       |     Supported     |
 | UC-Logic 1060N                     |     Supported     |
 | UC-Logic PF1209                    |     Supported     |
@@ -211,7 +210,8 @@
 | KENTING K5540                      |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed
 | Monoprice 10594                    |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
 | Parblo A610                        |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
-| Parblo Ninos M                     |    Has Quirks     | Aux buttons are not in order.
+| Parblo Ninos M                     |    Has Quirks     | Aux buttons are not in order. Physical dimensions are unconfirmed. If you have this tablet please help us update the dimensions.
+| Parblo Ninos N7B                   |    Has Quirks     | Physical dimensions are unconfirmed - both axes have mismatching LPI's and neither LPI's are commonly seen. If you have this tablet please help us update the dimensions.
 | Parblo Ninos S                     |    Has Quirks     | Aux buttons are not in order.
 | Trust Flex Design Tablet           |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed
 | Turcom TS-6580                     |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
@@ -244,7 +244,7 @@
 | Huion GT-221 Pro                   |  Missing Features | Touch bar is not yet supported.
 | Huion H1061P                       |  Missing Features | Roller is not yet supported. Group keys act like auxiliary buttons.
 | Huion H1161                        |  Missing Features | Tablet buttons are not yet supported.
-| Huion H610 Pro V3                  |  Missing Features | Tablet buttons are not yet supported. Windows: Requires Zadig's WinUSB to be installed on interface 1
+| Huion H610 Pro V3                  |  Missing Features | Tablet buttons are not yet supported. Windows: Requires Zadig's WinUSB to be installed on interface 1. Current tablet configuration has very low resolution.
 | Huion H951P                        |  Missing Features | Tilt Y-axis is inverted. Wheel is not yet supported. Switching groups is not yet supported; group selectors are mapped as regular buttons.
 | Huion HC16                         |  Missing Features | Wheel is not yet supported.
 | Huion HC16 (Variant 2)             |  Missing Features | Wheel is not yet supported.

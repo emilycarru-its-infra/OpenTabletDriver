@@ -2,8 +2,8 @@
   "Name": "Monoprice MP1060-HA60",
   "Specifications": {
     "Digitizer": {
-      "Width": 254,
-      "Height": 158.75,
+      "Width": 253.99365,
+      "Height": 158.74365,
       "MaxX": 39999,
       "MaxY": 24999
     },

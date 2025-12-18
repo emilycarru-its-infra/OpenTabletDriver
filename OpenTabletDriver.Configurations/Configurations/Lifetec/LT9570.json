@@ -2,8 +2,8 @@
   "Name": "LifeTec LT9570",
   "Specifications": {
     "Digitizer": {
-      "Width": 300,
-      "Height": 225,
+      "Width": 299.95,
+      "Height": 224.95,
       "MaxX": 5999,
       "MaxY": 4499
     },

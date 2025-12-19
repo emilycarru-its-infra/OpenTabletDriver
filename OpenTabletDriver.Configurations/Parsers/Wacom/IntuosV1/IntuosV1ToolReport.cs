@@ -13,7 +13,7 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.IntuosV1
                 (report[6] << 0x04) + (report[7] >> 0x04));
 
             RawToolID = (uint)((report[2] << 4) | (report[3] >> 4) |
-                ((report[7] & 0x0f) << 16) | ((report[8] & 0xf0) << 8));
+                ((report[7] & 0x0f) << 20) | ((report[8] & 0xf0) << 8));
 
             Tool = report[3].IsBitSet(7) ? ToolType.Eraser : ToolType.Pen;
 

@@ -17,8 +17,11 @@ jobs:
       - name: "Pull Request Labeler (automatic)"
         if: "${{ inputs.pull_request_id == '' }}"
         uses: actions/labeler@v5
+        with:
+          configuration-path: .github/pr-labeler.yml
       - name: "Pull Request Labeler (manually input ID's)"
         if: "${{ inputs.pull_request_id != '' }}"
         uses: actions/labeler@v5
         with:
+          configuration-path: .github/pr-labeler.yml
           pr-number: ${{ fromJSON(inputs.pull_request_ids) }}

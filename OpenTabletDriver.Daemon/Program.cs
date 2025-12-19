@@ -40,9 +40,6 @@ namespace OpenTabletDriver.Daemon
         {
             var cmdLineOptions = ParseCmdLineOptions(args);
 
-            if (cmdLineOptions == null)
-                return;
-
             if (!string.IsNullOrWhiteSpace(cmdLineOptions?.AppDataDirectory?.FullName))
                 AppInfo.Current.AppDataDirectory = cmdLineOptions.AppDataDirectory.FullName;
             if (!string.IsNullOrWhiteSpace(cmdLineOptions?.ConfigurationDirectory?.FullName))
@@ -241,7 +238,10 @@ namespace OpenTabletDriver.Daemon
                 .Build();
             clb.Invoke(args);
 
-            return helpShown ? null : cmdLineOptions;
+            if (helpShown)
+                Environment.Exit(0);
+
+            return cmdLineOptions;
 
             void setupGlobalOptions(DirectoryInfo appData, DirectoryInfo config)
             {

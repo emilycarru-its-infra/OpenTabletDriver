@@ -38,9 +38,6 @@ namespace OpenTabletDriver.UX
         {
             var commandLineOptions = ParseCmdLineOptions(args);
 
-            if (commandLineOptions == null)
-                return;
-
             using (var mutex = new Mutex(true, @$"Global\{APPNAME}.Mutex", out var firstInstance))
             {
                 if (firstInstance)
@@ -141,7 +138,11 @@ namespace OpenTabletDriver.UX
                 .Build();
 
             clb.Invoke(args);
-            return helpShown ? null : commandLineOptions;
+
+            if (helpShown)
+                Environment.Exit(0);
+
+            return commandLineOptions;
         }
 
         public static App Current { get; } = new App();

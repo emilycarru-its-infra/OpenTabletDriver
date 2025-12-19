@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
@@ -134,7 +136,18 @@ namespace OpenTabletDriver.UX
                 commandLineOptions.SkipUpdate = skipUpdate;
             }, skipUpdate);
 
-            root.Invoke(args);
+            bool helpShown = false;
+
+            var clb = new CommandLineBuilder(root)
+                .UseDefaults()
+                .UseHelp(ctx => helpShown = true)
+                .Build();
+
+            clb.Invoke(args);
+
+            if (helpShown)
+                Environment.Exit(0);
+
             return commandLineOptions;
         }
 

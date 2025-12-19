@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -228,7 +230,16 @@ namespace OpenTabletDriver.Daemon
                 };
             }, appDataOption, configOption, sourcesArg, destArg);
 
-            rootCommand.Invoke(args);
+            bool helpShown = false;
+
+            var clb = new CommandLineBuilder(rootCommand)
+                .UseDefaults()
+                .UseHelp(ctx => helpShown = true)
+                .Build();
+            clb.Invoke(args);
+
+            if (helpShown)
+                Environment.Exit(0);
 
             return cmdLineOptions;
 

@@ -114,6 +114,7 @@ namespace OpenTabletDriver.Console
             CreateCommand(ListTools, "Lists all available tools"),
             CreateCommand(ListBindings, "Lists all available binding types"),
             CreateCommand(ListPresets, "Lists all available presets"),
+            CreateCommand(ListDisplays, "Lists all available displays"),
         };
 
         private static readonly IEnumerable<Command> ScriptingCommands = new Command[]

@@ -414,6 +414,14 @@ namespace OpenTabletDriver.Console
                 await Out.WriteLineAsync(dir.Name);
         }
 
+        // BUG: DesktopInterop takes the CLI's view of the display layout - this may be desynched
+        private static async Task ListDisplays()
+        {
+            int index = 0;
+            foreach (var display in DesktopInterop.VirtualScreen.Displays)
+                await Out.WriteLineAsync($"{index++}: {display}");
+        }
+
         #endregion
 
         #region Scripting

@@ -1,4 +1,3 @@
-using System;
 using OpenTabletDriver.Desktop.Contracts;
 using OpenTabletDriver.Desktop.RPC;
 

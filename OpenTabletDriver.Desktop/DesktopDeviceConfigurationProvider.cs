@@ -23,7 +23,8 @@ namespace OpenTabletDriver.Desktop
 
             if (Directory.Exists(AppInfo.Current.ConfigurationDirectory))
             {
-                var files = Directory.EnumerateFiles(AppInfo.Current.ConfigurationDirectory, "*.json", SearchOption.AllDirectories);
+                var files = Directory.EnumerateFiles(AppInfo.Current.ConfigurationDirectory, "*.json", SearchOption.AllDirectories)
+                    .ToList();
 
                 Log.Write("Detect",
                     files.Any()

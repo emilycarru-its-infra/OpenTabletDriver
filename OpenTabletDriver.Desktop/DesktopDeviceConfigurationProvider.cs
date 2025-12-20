@@ -48,7 +48,7 @@ namespace OpenTabletDriver.Desktop
                         .Select(m => m.Item2)
                         .FirstOrDefault();
 
-                    if (jsonConfig != null)
+                    if (jsonConfig != null && asmConfig != null)
                         Log.Write("Detect", $"Overriding tablet configuration '{jsonConfig.Name}'");
 
                     return jsonConfig ?? asmConfig!;

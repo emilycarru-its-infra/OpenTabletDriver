@@ -457,7 +457,7 @@ namespace OpenTabletDriver.Console
         private static async Task STDIO()
         {
             while (await System.Console.In.ReadLineAsync() is string cmd)
-                await Root.InvokeAsync(cmd);
+                await Root.Parse(cmd).InvokeAsync();
         }
 
         #endregion

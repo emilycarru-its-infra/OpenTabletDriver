@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Parsing;
 using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
@@ -112,13 +110,15 @@ namespace OpenTabletDriver.UX
         {
             var commandLineOptions = new CommandLineOptions();
 
-            var minimizedOption = new Option<bool>(
-                aliases: new[] { "-m", "--minimized" },
-                description: "Start the application minimized");
+            var minimizedOption = new Option<bool>("--minimized", "-m")
+            {
+                Description = "Start the application minimized"
+            };
 
-            var skipUpdate = new Option<bool>(
-                aliases: new[] { "--skipupdate" },
-                description: "Skip checking for updates");
+            var skipUpdate = new Option<bool>("--skipupdate")
+            {
+                Description = "Skip checking for updates"
+            };
 
             var root = new RootCommand("OpenTabletDriver UX")
             {
@@ -126,27 +126,16 @@ namespace OpenTabletDriver.UX
                 skipUpdate
             };
 
-            root.SetHandler((minimized) =>
+            var results = root.Parse(args);
+            if (results.Action is not null)
             {
-                commandLineOptions.StartMinimized = minimized;
-            }, minimizedOption);
-
-            root.SetHandler((skipUpdate) =>
-            {
-                commandLineOptions.SkipUpdate = skipUpdate;
-            }, skipUpdate);
-
-            bool helpShown = false;
-
-            var clb = new CommandLineBuilder(root)
-                .UseDefaults()
-                .UseHelp(ctx => helpShown = true)
-                .Build();
-
-            clb.Invoke(args);
-
-            if (helpShown)
+                // if we hit a built-in like --help or --version
+                results.Invoke();
                 Environment.Exit(0);
+            }
+
+            commandLineOptions.StartMinimized = results.GetValue(minimizedOption);
+            commandLineOptions.SkipUpdate = results.GetValue(skipUpdate);
 
             return commandLineOptions;
         }

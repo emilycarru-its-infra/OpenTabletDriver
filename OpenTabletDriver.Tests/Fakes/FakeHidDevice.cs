@@ -18,6 +18,11 @@ namespace OpenTabletDriver.Tests.Fakes
 
         public override string DevicePath => _devicePath;
         public override bool CanOpen => _canOpen;
+        public override bool IsSibling(HidDevice device)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override int ProductID => _productId;
         public override int VendorID => _vendorId;
         public override int ReleaseNumberBcd => _releaseNumberBcd;

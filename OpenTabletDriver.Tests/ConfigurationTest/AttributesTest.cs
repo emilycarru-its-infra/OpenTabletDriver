@@ -58,7 +58,7 @@ namespace OpenTabletDriver.Tests.ConfigurationTest
             /// Checks if <c>WinUsage</c> key value falls within the expected range
             /// </summary>
             /// <param name="attributeValue">The value of the <c>WinUsage</c> key</param>
-            /// <returns><c>true</c> if string is a zero-padded string uint value that is exactly 2 characters</returns>
+            /// <returns><c>true</c> if string is a zero-padded string <see cref="uint"/> value that is exactly 2 characters</returns>
             internal static bool CheckWinUsage(string attributeValue) =>
                 uint.TryParse(attributeValue, out _) && attributeValue.Length == 2;
         }

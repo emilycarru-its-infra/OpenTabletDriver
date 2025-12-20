@@ -22,8 +22,6 @@ namespace OpenTabletDriver.UX
                 return;
             Application.Instance.Invoke(() =>
             {
-                exception = exception.GetBaseException();
-
                 var dialog = new ExceptionDialog(exception);
                 MessageBoxActive = true;
                 dialog.ShowModal(Application.Instance.MainForm);

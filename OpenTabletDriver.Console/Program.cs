@@ -75,6 +75,7 @@ namespace OpenTabletDriver.Console
             CreateCommand<string[]>(EnableTools, "Enables the specified tools"),
             CreateCommand<string[]>(DisableTools, "Disables the specified tools"),
             CreateCommand<string, float, float, float, float>(SetDisplayArea, "Sets the display area"),
+            CreateCommand<string, uint>(MapToDisplayIndex, "Map tablet to display index"),
             CreateCommand<string, float, float, float, float, float>(SetTabletArea, "Sets the tablet area"),
             CreateCommand<string, float, float, float>(SetSensitivity, "Sets the relative sensitivity"),
             CreateCommand<string, string, float>(SetTipBinding, "Sets the current tip binding"),

@@ -208,7 +208,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
             App.Driver.DeviceReport += HandleReport;
             App.Driver.TabletsChanged += HandleTabletsChanged;
-            App.Driver.Instance.SetTabletDebug(true);
+            Application.Instance.AsyncInvoke(async void () => await App.Driver.Instance.SetTabletDebug(true));
 
             string fileName = "tablet-data_" + DateTimeOffset.UtcNow.ToUnixTimeSeconds() + ".txt";
 

@@ -64,7 +64,7 @@ namespace OpenTabletDriver.UX.Controls
             this.Items.Add(new StackLayoutItem(messageList, HorizontalAlignment.Stretch, true));
             this.Items.Add(new StackLayoutItem(toolbar, HorizontalAlignment.Stretch));
 
-            _ = InitializeAsync();
+            Application.Instance.AsyncInvoke(async void () => await InitializeAsync());
         }
 
         private async Task InitializeAsync()

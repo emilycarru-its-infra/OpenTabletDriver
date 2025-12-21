@@ -8,16 +8,10 @@ using StreamJsonRpc;
 
 namespace OpenTabletDriver.Desktop.RPC
 {
-    public class RpcHost<T> where T : class
+    public class RpcHost<T>(string pipeName)
+        where T : class
     {
-        private readonly string pipeName;
-
         public event EventHandler<bool> ConnectionStateChanged;
-
-        public RpcHost(string pipeName)
-        {
-            this.pipeName = pipeName;
-        }
 
         public async Task Run(T host, CancellationToken ct)
         {
@@ -55,7 +49,7 @@ namespace OpenTabletDriver.Desktop.RPC
         private NamedPipeServerStream CreateStream()
         {
             return new NamedPipeServerStream(
-                this.pipeName,
+                pipeName,
                 PipeDirection.InOut,
                 NamedPipeServerStream.MaxAllowedServerInstances,
                 PipeTransmissionMode.Byte,

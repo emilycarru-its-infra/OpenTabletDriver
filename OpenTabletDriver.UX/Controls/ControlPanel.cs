@@ -117,7 +117,8 @@ namespace OpenTabletDriver.UX.Controls
 
         public event EventHandler<EventArgs> ProfileChanged;
 
-        protected virtual void OnProfileChanged() => Application.Instance.AsyncInvoke(async () =>
+        // ReSharper disable once AsyncVoidMethod
+        protected virtual void OnProfileChanged() => Application.Instance.AsyncInvoke(async void () =>
         {
             ProfileChanged?.Invoke(this, EventArgs.Empty);
 

@@ -54,7 +54,8 @@ namespace OpenTabletDriver.UX.Controls
             tabletSwitcher.ProfilesBinding.BindDataContext<App>(a => a.Settings.Profiles);
 
             App.Driver.TabletsChanged += HandleTabletsChanged;
-            Application.Instance.AsyncInvoke(async () => HandleTabletsChanged(this, await App.Driver.Instance.GetTablets()));
+            // ReSharper disable once AsyncVoidMethod
+            Application.Instance.AsyncInvoke(async void () => HandleTabletsChanged(this, await App.Driver.Instance.GetTablets()));
         }
 
         private StackLayout layout;

@@ -29,6 +29,7 @@ namespace OpenTabletDriver.UX.Windows.Updater
                 }
             };
 
+            // ReSharper disable once AsyncVoidMethod
             Application.Instance.AsyncInvoke(async void () => await InitializeAsync());
         }
 

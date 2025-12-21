@@ -208,6 +208,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
             App.Driver.DeviceReport += HandleReport;
             App.Driver.TabletsChanged += HandleTabletsChanged;
+            // ReSharper disable once AsyncVoidMethod
             Application.Instance.AsyncInvoke(async void () => await App.Driver.Instance.SetTabletDebug(true));
 
             string fileName = "tablet-data_" + DateTimeOffset.UtcNow.ToUnixTimeSeconds() + ".txt";

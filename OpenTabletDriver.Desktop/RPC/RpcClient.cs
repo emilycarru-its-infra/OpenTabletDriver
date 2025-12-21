@@ -36,6 +36,7 @@ namespace OpenTabletDriver.Desktop.RPC
                 OnDisconnected();
                 rpc.Dispose();
             };
+            rpc.ExceptionStrategy = ExceptionProcessing.ISerializable;
 
             this.Instance = this.rpc.Attach<T>();
             rpc.StartListening();

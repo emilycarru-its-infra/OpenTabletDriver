@@ -32,8 +32,10 @@ namespace OpenTabletDriver.Desktop.RPC
         {
             try
             {
+                using var rpc = new JsonRpc(stream, stream, host);
+                rpc.ExceptionStrategy = ExceptionProcessing.ISerializable;
                 ConnectionStateChanged?.Invoke(this, true);
-                using var rpc = JsonRpc.Attach(stream, host);
+                rpc.StartListening();
                 await rpc.Completion.WaitAsync(ct);
             }
             catch (TaskCanceledException) { } // ignore exceptions caused by daemon shutting down

@@ -23,45 +23,33 @@ namespace OpenTabletDriver.Desktop.RPC
         {
             while (!ct.IsCancellationRequested)
             {
-                await Task.Run(async () =>
+                var stream = CreateStream();
+                try
                 {
-                    await using var stream = CreateStream();
-                    try
-                    {
-                        await stream.WaitForConnectionAsync(ct);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // avoid throwing for intentionally canceled operations
-                        if (ct.IsCancellationRequested)
-                            return;
+                    await stream.WaitForConnectionAsync(ct);
+                }
+                catch (OperationCanceledException) { } // ignore exceptions caused by daemon shutting down
 
-                        throw;
-                    }
-
-                    try
-                    {
-                        ConnectionStateChanged?.Invoke(this, true);
-                        using var rpc = JsonRpc.Attach(stream, host);
-                        await rpc.Completion.WaitAsync(ct);
-
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        // TODO: this empty catch clause can probably be removed now that
-                        // the `stream` is self-contained within the delegate
-                    }
-                    catch (IOException)
-                    {
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Exception(ex);
-                    }
-
-                    ConnectionStateChanged?.Invoke(this, false);
-                }, CancellationToken.None);
+                _ = RespondToRpcRequestAsync(host, stream, ct);
             }
+        }
+
+        private async Task RespondToRpcRequestAsync(T host, Stream stream, CancellationToken ct)
+        {
+            try
+            {
+                ConnectionStateChanged?.Invoke(this, true);
+                using var rpc = JsonRpc.Attach(stream, host);
+                await rpc.Completion.WaitAsync(ct);
+            }
+            catch (TaskCanceledException) { } // ignore exceptions caused by daemon shutting down
+            catch (Exception ex)
+            {
+                Log.Exception(ex);
+            }
+
+            ConnectionStateChanged?.Invoke(this, false);
+            await stream.DisposeAsync();
         }
 
         private NamedPipeServerStream CreateStream()

@@ -15,6 +15,13 @@ namespace OpenTabletDriver.UX.Tools
             return BitConverter.ToString(report.Raw).Replace('-', ' ');
         }
 
+        public static string GetStringRawAsBinary(IDeviceReport report)
+        {
+            return string.Join(" ", report.Raw.Select(ByteToBinary));
+
+            static string ByteToBinary(byte val) => Convert.ToString(val, 2).PadLeft(8, '0');
+        }
+
         public static string GetStringFormat(IDeviceReport report)
         {
             var sb = new StringBuilder();

@@ -183,6 +183,15 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                     this.Close();
             };
 
+
+            this.Menu = new MenuBar
+            {
+                QuitItem = new ButtonMenuItem((_, x) => Application.Instance.AsyncInvoke(this.Close))
+                {
+                    Text = "Close Window",
+                },
+            };
+
             deviceName.TextBinding.BindDataContext((TDVM vm) => vm.DeviceName, DualBindingMode.OneWay);
             rawTablet.TextBinding.BindDataContext((TDVM vm) => vm.RawTabletData, DualBindingMode.OneWay);
             tablet.TextBinding.BindDataContext((TDVM vm) => vm.DecodedTabletData, DualBindingMode.OneWay);

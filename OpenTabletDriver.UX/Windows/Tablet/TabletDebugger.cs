@@ -28,7 +28,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         public TabletDebugger()
             : base(Application.Instance.MainForm)
         {
-            Title = "Tablet Debugger";
+            SetTitle(App.Driver.Instance.GetTablets().Result);
 
             var viewmodel = new TDVM();
             this.DataContext = viewmodel;
@@ -214,17 +214,22 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         private DebuggerGroup reportsRecordedGroup;
         private CheckBox enableDataRecording;
 
-        private void HandleTabletsChanged(object sender, IEnumerable<TabletReference> tablets) => Application.Instance.AsyncInvoke(() =>
+        private void SetTitle(IEnumerable<TabletReference> tablets)
         {
             StringBuilder sb = new StringBuilder("Tablet Debugger");
-            if (tablets != null && tablets.Any())
+            var tabletReferenceArr = tablets as TabletReference[] ?? tablets.ToArray();
+
+            if (tabletReferenceArr.Length != 0)
             {
-                var numTablets = Math.Min(tablets.Count(), 3);
+                var numTablets = Math.Min(tabletReferenceArr.Length, 3);
                 sb.Append(" - ");
-                sb.Append(string.Join(", ", tablets.Take(numTablets).Select(t => t.Properties.Name)));
+                sb.Append(string.Join(", ", tabletReferenceArr.Take(numTablets).Select(t => t.Properties.Name)));
             }
             this.Title = sb.ToString();
-        });
+        }
+
+        private void HandleTabletsChanged(object sender, IEnumerable<TabletReference> tablets) =>
+            Application.Instance.AsyncInvoke(() => SetTitle(tablets));
 
         private class DebuggerGroup : Group
         {

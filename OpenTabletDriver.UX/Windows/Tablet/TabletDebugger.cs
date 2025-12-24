@@ -190,6 +190,10 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 {
                     Text = "Close Window",
                 },
+                Items =
+                {
+                    _activeTablets,
+                },
             };
 
             deviceName.TextBinding.BindDataContext((TDVM vm) => vm.DeviceName, DualBindingMode.OneWay);
@@ -202,10 +206,36 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             enableDataRecording.CheckedBinding.BindDataContext((TDVM vm) => vm.DataRecordingEnabled);
             reportsRecordedGroup.BindDataContext(x => x.Visible, (TDVM vm) => vm.HasReportsRecorded);
 
+            // handle ActiveTabletsMenuItems updates directly
+            viewmodel.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == null) return;
+                if (!args.PropertyName.Equals(nameof(TDVM.ActiveTabletsMenuItems))) return;
+
+                SetupItems();
+            };
+
             App.Driver.DeviceReport += viewmodel.HandleReport;
             App.Driver.TabletsChanged += HandleTabletsChanged;
             App.Driver.Instance.SetTabletDebug(true);
         }
+
+        private void SetupItems()
+        {
+            if (DataContext is not TDVM viewmodel) return;
+
+            _activeTablets.Items.Clear();
+            _activeTablets.Items.AddRange(viewmodel.ActiveTabletsMenuItems);
+
+            // hide if only 1 tablet active
+            _activeTablets.Visible = _activeTablets.Items.Count > 1;
+        }
+
+        private readonly ButtonMenuItem _activeTablets = new()
+        {
+            Text = "Debugged Tablets",
+            Visible = false,
+        };
 
         protected override async void OnClosing(CancelEventArgs e)
         {

@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Eto.Forms;
 using JetBrains.Annotations;
 using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.RPC;
@@ -34,8 +36,14 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
         get => _reportData;
         set
         {
+            // early exit if ignored
+            if (value != null && _ignoredTablets.Contains(value.Tablet.Properties.Name)) return;
+
             RaiseAndSetIfChanged(ref _reportData, value);
             if (value == null) return;
+
+            if (_seenTablets.Add(value.Tablet.Properties.Name))
+                RaiseChanged(nameof(ActiveTabletsMenuItems));
 
             var timeDelta = _stopwatch.Restart();
             ReportRate += (timeDelta.TotalMilliseconds - ReportRate) * 0.01f;
@@ -43,6 +51,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
             DeviceName = value.Tablet.Properties.Name;
 
             var dataObject = value.ToObject();
+
             if (dataObject is ITabletReport tabletReport)
                 HandleMaxPosition(tabletReport);
 
@@ -148,6 +157,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
         set
         {
             RaiseAndSetIfChanged(ref _dataRecordingEnabled, value);
+
             if (value)
             {
                 ReportsRecorded = 0;
@@ -170,6 +180,49 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
 
     private Vector2 _maxPosition = Vector2.Zero;
     public string MaxPosition => $"Max Position: {_maxPosition}";
+
+    private const string _ACTIVE_TABLET_MENU_ITEM_PREFIX = "activeTabletMenuItem-";
+
+    private readonly HashSet<string> _seenTablets = new();
+    private readonly HashSet<string> _ignoredTablets = new();
+
+    public IEnumerable<CheckMenuItem> ActiveTabletsMenuItems
+    {
+        get
+        {
+            foreach (string tablet in _seenTablets)
+            {
+                bool isIgnored = _ignoredTablets.Contains(tablet);
+
+                var command = new CheckCommand(HandleActiveTabletPress)
+                {
+                    ID = $"{_ACTIVE_TABLET_MENU_ITEM_PREFIX}{tablet}",
+                    Checked = !isIgnored,
+                };
+
+                var menuItem = new CheckMenuItem(command)
+                {
+                    Text = tablet,
+                };
+
+                yield return menuItem;
+            }
+        }
+    }
+
+    private void HandleActiveTabletPress(object? sender, EventArgs e)
+    {
+        if (sender is not CheckCommand checkCommand) return;
+
+        string tabletName = checkCommand.ID.Replace(_ACTIVE_TABLET_MENU_ITEM_PREFIX, "");
+
+        if (checkCommand.Checked)
+            _ignoredTablets.Remove(tabletName);
+        else if (_seenTablets.Count > _ignoredTablets.Count + 1) // don't allow removing last tablet
+            _ignoredTablets.Add(tabletName);
+        else
+            checkCommand.Checked = true;
+    }
 
     private void CleanupLocks()
     {

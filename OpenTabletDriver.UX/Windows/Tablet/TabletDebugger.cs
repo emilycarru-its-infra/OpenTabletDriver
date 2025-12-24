@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using Eto.Drawing;
 using Eto.Forms;
-using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.RPC;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet;
@@ -172,12 +169,12 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 Height = 550,
                 FixedPanel = SplitterFixedPanel.Panel2,
                 Panel1 = visualizerGroup,
-                Panel2 = debugger
+                Panel2 = debugger,
             };
 
             this.Content = new Scrollable
             {
-                Content = splitter
+                Content = splitter,
             };
 
             this.KeyDown += (_, args) =>
@@ -242,7 +239,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             private static readonly Color AccentColor = SystemColors.Highlight;
 
             public DebugReportData ReportData { set; get; }
-            private List<int> _warnedDigitizers = [];
+            private readonly List<int> _warnedDigitizers = [];
 
             public BindableBinding<TabletVisualizer, DebugReportData> ReportDataBinding
             {

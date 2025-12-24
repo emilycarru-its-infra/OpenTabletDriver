@@ -1,6 +1,8 @@
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Numerics;
+using JetBrains.Annotations;
 using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.RPC;
 using OpenTabletDriver.Plugin.Tablet;
@@ -13,10 +15,10 @@ namespace OpenTabletDriver.UX.Windows.Tablet.ViewModel;
 
 public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
 {
-    private const TabletDebuggerEnums.DecodingMode DEFAULT_DECODING_MODE =
+    private const TabletDebuggerEnums.DecodingMode _DEFAULT_DECODING_MODE =
         TabletDebuggerEnums.DecodingMode.Hex;
 
-    private HPETDeltaStopwatch _stopwatch = new();
+    private readonly HPETDeltaStopwatch _stopwatch = new();
 
     public void HandleReport(object sender, DebugReportData data) => ReportData = data;
 
@@ -59,7 +61,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
         if (!DataRecordingEnabled || _tabletRecordingStreamWriter == null)
             return;
 
-        var output = ReportFormatter.GetStringFormatOneLine(reportData.Tablet.Properties,
+        string? output = ReportFormatter.GetStringFormatOneLine(reportData.Tablet.Properties,
             report,
             timeDelta,
             reportData.Path);
@@ -106,7 +108,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
         set => RaiseAndSetIfChanged(ref _decodedTabletData, value);
     }
 
-    private TabletDebuggerEnums.DecodingMode _decodingMode = DEFAULT_DECODING_MODE;
+    private TabletDebuggerEnums.DecodingMode _decodingMode = _DEFAULT_DECODING_MODE;
     public TabletDebuggerEnums.DecodingMode DecodingMode
     {
         get => _decodingMode;
@@ -133,6 +135,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
     public bool DataRecordingEnabled
     {
         get => _dataRecordingEnabled;
+        [UsedImplicitly]
         set
         {
             RaiseAndSetIfChanged(ref _dataRecordingEnabled, value);

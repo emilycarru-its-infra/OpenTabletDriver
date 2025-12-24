@@ -19,7 +19,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 {
     using TDVM = TabletDebuggerViewModel;
 
-    public class TabletDebugger : DesktopForm
+    public sealed class TabletDebugger : DesktopForm
     {
         const int LARGE_FONTSIZE = 14;
         const int FONTSIZE = LARGE_FONTSIZE - 4;

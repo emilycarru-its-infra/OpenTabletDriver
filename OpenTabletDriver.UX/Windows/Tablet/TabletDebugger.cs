@@ -28,6 +28,11 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         public TabletDebugger()
             : base(Application.Instance.MainForm)
         {
+            Label deviceName, rawTablet, tablet, reportRate, reportsRecorded, maxReportedPosition;
+            TabletVisualizer tabletVisualizer;
+            DebuggerGroup reportsRecordedGroup;
+            CheckBox enableDataRecording;
+
             SetTitle(App.Driver.Instance.GetTablets().Result);
 
             var viewmodel = new TDVM();
@@ -208,11 +213,6 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
             base.OnClosing(e);
         }
-
-        private Label deviceName, rawTablet, tablet, reportRate, reportsRecorded, maxReportedPosition;
-        private TabletVisualizer tabletVisualizer;
-        private DebuggerGroup reportsRecordedGroup;
-        private CheckBox enableDataRecording;
 
         private void SetTitle(IEnumerable<TabletReference> tablets)
         {

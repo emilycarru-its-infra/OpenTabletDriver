@@ -40,6 +40,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
 
             RaiseAndSetIfChanged(ref _reportData, value);
             if (value == null) return;
+            RaiseChanged(nameof(DeviceName));
 
             if (_seenTablets.Add(GetNameKeyForFilter(value.Tablet, value.Path)))
                 RaiseChanged(nameof(ActiveTabletReportMenuItems));

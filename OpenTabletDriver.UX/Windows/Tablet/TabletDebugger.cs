@@ -22,6 +22,9 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         private const int _FONT_SIZE = _LARGE_FONT_SIZE - 4;
         private const int _SPACING = 5;
 
+        // spacing + padding + content padding
+        private const int _GROUP_BOX_EXTRA_WIDTH = _SPACING * 6;
+
         private static readonly Font s_LargeMonospaceFont = Fonts.Monospace(_LARGE_FONT_SIZE);
         private static readonly Font s_MonospaceFont = Fonts.Monospace(_FONT_SIZE);
 
@@ -92,7 +95,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                                         new DebuggerGroup
                                         {
                                             Text = "Report Rate",
-                                            Width = (int)s_LargeMonospaceFont.MeasureString("8888Hz").Width + _SPACING * 6,
+                                            Width = (int)s_LargeMonospaceFont.MeasureString("8888Hz").Width + _GROUP_BOX_EXTRA_WIDTH,
                                             Content = _reportRate,
                                         },
                                     },
@@ -136,7 +139,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                                 Control = new DebuggerGroup
                                 {
                                     Text = "Maximum Position",
-                                    MinimumSize = (Size)MeasureMonospaceString("Max Position: <123456, 78901>") + _SPACING * 6,
+                                    MinimumSize = (Size)MeasureMonospaceString("Max Position: <123456, 78901>") + _GROUP_BOX_EXTRA_WIDTH,
                                     Content = _maxReportedPosition,
                                 },
                             },
@@ -269,8 +272,8 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             TabletDebuggerEnums.DecodingMode decodingMode = TabletDebuggerEnums.DecodingMode.Hex) =>
             decodingMode switch
             {
-                TabletDebuggerEnums.DecodingMode.Binary => (int)_rawTabletLineFontSizeBinary.Width + _SPACING * 6,
-                TabletDebuggerEnums.DecodingMode.Hex => (int)_rawTabletLineFontSizeHex.Width + _SPACING * 6,
+                TabletDebuggerEnums.DecodingMode.Binary => (int)_rawTabletLineFontSizeBinary.Width + _GROUP_BOX_EXTRA_WIDTH,
+                TabletDebuggerEnums.DecodingMode.Hex => (int)_rawTabletLineFontSizeHex.Width + _GROUP_BOX_EXTRA_WIDTH,
                 _ => throw new ArgumentOutOfRangeException(nameof(decodingMode)),
             };
 

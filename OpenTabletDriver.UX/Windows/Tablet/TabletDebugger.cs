@@ -202,6 +202,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             _reportRate.TextBinding.BindDataContext((TDVM vm) => vm.ReportRateString, DualBindingMode.OneWay);
             _reportsRecorded.TextBinding.Convert(null, (int value) => $"{value}").BindDataContext((TDVM vm) => vm.ReportsRecorded, DualBindingMode.OneWay);
             _tabletVisualizer.ReportDataBinding.BindDataContext((TDVM vm) => vm.ReportData, DualBindingMode.OneWay);
+            _tabletVisualizer.BindDataContext(x => x.Enabled, (TDVM vm) => vm.IsVisualizerEnabled);
             _enableDataRecording.CheckedBinding.BindDataContext((TDVM vm) => vm.DataRecordingEnabled);
             _reportsRecordedGroup.BindDataContext(x => x.Visible, (TDVM vm) => vm.HasReportsRecorded);
         }
@@ -225,9 +226,19 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 decodingSwitchMenuItem.Items.Add(item);
             }
 
+            var visualizerEnabledMenuItem = new CheckMenuItem
+            {
+                Text = "Visualizer",
+            };
+            visualizerEnabledMenuItem.BindDataContext(x => x.Checked, (TDVM vm) => vm.IsVisualizerEnabled);
+
             Menu = new MenuBar
             {
-                ApplicationItems = { decodingSwitchMenuItem },
+                ApplicationItems =
+                {
+                    visualizerEnabledMenuItem,
+                    decodingSwitchMenuItem,
+                },
                 QuitItem = new ButtonMenuItem((_, _) => Application.Instance.AsyncInvoke(Close))
                 {
                     Text = "Close Window",

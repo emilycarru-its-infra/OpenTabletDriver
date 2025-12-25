@@ -141,6 +141,13 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
         }
     }
 
+    private bool _isVisualizerEnabled = true;
+    public bool IsVisualizerEnabled
+    {
+        get => _isVisualizerEnabled;
+        set => RaiseAndSetIfChanged(ref _isVisualizerEnabled, value);
+    }
+
     private Vector2 _maxPosition = Vector2.Zero;
     public string MaxPosition => $"Max Position: {_maxPosition}";
 

@@ -183,9 +183,16 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                     this.Close();
             };
 
+            var decodingSwitchMenuItem = new ButtonMenuItem
+            {
+                Text = "Raw Data Mode",
+            };
+
+            AddDecodingModes(decodingSwitchMenuItem);
 
             this.Menu = new MenuBar
             {
+                ApplicationItems = { decodingSwitchMenuItem },
                 QuitItem = new ButtonMenuItem((_, x) => Application.Instance.AsyncInvoke(this.Close))
                 {
                     Text = "Close Window",
@@ -222,6 +229,21 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             App.Driver.DeviceReport += viewmodel.HandleReport;
             App.Driver.TabletsChanged += HandleTabletsChanged;
             App.Driver.Instance.SetTabletDebug(true);
+        }
+
+        private static void AddDecodingModes(ButtonMenuItem decodingSwitchMenuItem)
+        {
+            foreach (var decodingMode in Enum.GetValues<TabletDebuggerEnums.DecodingMode>())
+            {
+                string modeName = decodingMode.ToString();
+
+                var item = new CheckMenuItem();
+                item.Text = modeName;
+                item.BindDataContext(x => x.Checked,
+                    Binding.Property((TDVM vm) => vm.DecodingMode).ToBool(decodingMode));
+
+                decodingSwitchMenuItem.Items.Add(item);
+            }
         }
 
         private void RefreshActiveTabletsMenu()

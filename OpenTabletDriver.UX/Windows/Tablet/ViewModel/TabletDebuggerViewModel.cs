@@ -92,7 +92,6 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
         private set => RaiseAndSetIfChanged(ref _decodedTabletData, value);
     }
 
-    // TODO: bind a control to this
     private TabletDebuggerEnums.DecodingMode _decodingMode = _DEFAULT_DECODING_MODE;
     public TabletDebuggerEnums.DecodingMode DecodingMode
     {

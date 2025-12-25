@@ -28,8 +28,8 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         private static readonly Font s_LargeMonospaceFont = Fonts.Monospace(_LARGE_FONT_SIZE);
         private static readonly Font s_MonospaceFont = Fonts.Monospace(_FONT_SIZE);
 
-        private readonly SizeF _rawTabletLineFontSizeHex = MeasureMonospaceString("FF ", 8);
-        private readonly SizeF _rawTabletLineFontSizeBinary = MeasureMonospaceString("10101010 ", 4);
+        private readonly SizeF _rawTabletLineFontSizeHex = s_MonospaceFont.Measure("FF ", 8);
+        private readonly SizeF _rawTabletLineFontSizeBinary = s_MonospaceFont.Measure("10101010 ", 4);
 
         private readonly TabletVisualizer _tabletVisualizer = new();
         private readonly Label _deviceName = new() { Font = s_LargeMonospaceFont };
@@ -95,7 +95,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                                         new DebuggerGroup
                                         {
                                             Text = "Report Rate",
-                                            Width = (int)s_LargeMonospaceFont.MeasureString("8888Hz").Width + _GROUP_BOX_EXTRA_WIDTH,
+                                            Width = (int)s_LargeMonospaceFont.Measure("8888Hz").Width + _GROUP_BOX_EXTRA_WIDTH,
                                             Content = _reportRate,
                                         },
                                     },
@@ -139,7 +139,8 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                                 Control = new DebuggerGroup
                                 {
                                     Text = "Maximum Position",
-                                    MinimumSize = (Size)MeasureMonospaceString("Max Position: <123456, 78901>") + _GROUP_BOX_EXTRA_WIDTH,
+                                    MinimumSize = (Size)s_MonospaceFont
+                                        .Measure("Max Position: <123456, 78901>") + _GROUP_BOX_EXTRA_WIDTH,
                                     Content = _maxReportedPosition,
                                 },
                             },
@@ -260,13 +261,6 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             // hide if only 1 tablet active
             _activeTablets.Visible = _activeTablets.Items.Count > 1;
         }
-
-        // TODO: as extension method on Eto.Drawing.Fonts or some other way?
-        private static SizeF MeasureMonospaceString(string text, int repeats = 1) =>
-            s_MonospaceFont.MeasureString(
-                repeats > 1
-                    ? string.Concat(Enumerable.Repeat(text, repeats))
-                    : text);
 
         private int GetWidthOfRawTabletDataGroupBox(
             TabletDebuggerEnums.DecodingMode decodingMode = TabletDebuggerEnums.DecodingMode.Hex) =>

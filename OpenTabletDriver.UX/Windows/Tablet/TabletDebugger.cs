@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Eto.Drawing;
 using Eto.Forms;
 using OpenTabletDriver.Desktop.RPC;
@@ -33,15 +36,16 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
         private readonly TabletVisualizer _tabletVisualizer = new();
         private readonly Label _deviceName = new() { Font = s_LargeMonospaceFont };
-        private readonly Label _rawTabletData = new() { Font = s_MonospaceFont };
-        private readonly Label _tabletData = new() { Font = s_MonospaceFont };
-        private readonly Label _reportRate = new() { Font = s_LargeMonospaceFont };
+        private readonly UnitLabel _reportRate = new(s_LargeMonospaceFont, "1234.56", "Hz");
+
         private readonly Label _reportsRecorded = new() { Font = s_MonospaceFont };
-        private readonly Label _maxReportedPosition = new() { Font = s_MonospaceFont };
-        private readonly CheckBox _enableDataRecording = new() { Text = "Enable Data Recording" };
+        private readonly Label _tabletData = new() { Font = s_MonospaceFont };
+
+        private readonly Label _rawTabletData = new() { Font = s_MonospaceFont };
 
         private readonly DebuggerGroup _reportsRecordedGroup = new() { Text = "Reports Recorded" };
-        private readonly DebuggerGroup _rawTabletGroup;
+        private readonly DebuggerGroup _rawTabletDataGroup;
+        private readonly Group _additionalStatsGroup = new() { Text = "Additional Stats" };
 
         private readonly ButtonMenuItem _activeTablets = new() { Text = "Debugged Tablets", Visible = false };
 
@@ -59,7 +63,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 VerticalContentAlignment = VerticalAlignment.Stretch,
                 Spacing = 5,
                 Padding = 5,
-                MinimumSize = new Size(800, 420),
+                MinimumSize = new Size(940, 560),
                 Items =
                 {
                     new StackLayoutItem
@@ -69,7 +73,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                         {
                             Padding = _SPACING,
                             Spacing = _SPACING,
-                            MinimumSize = new Size(200, -1),
+                            MinimumSize = new Size(240, -1),
                             Items =
                             {
                                 new StackLayoutItem
@@ -95,11 +99,15 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                                         new DebuggerGroup
                                         {
                                             Text = "Report Rate",
-                                            Width = (int)s_LargeMonospaceFont.Measure("8888Hz").Width + _GROUP_BOX_EXTRA_WIDTH,
                                             Content = _reportRate,
                                         },
                                     },
                                 },
+                                new StackLayout
+                                {
+                                    Orientation = Orientation.Horizontal,
+                                    Items = { _additionalStatsGroup },
+                                }
                             },
                         },
                     },
@@ -110,18 +118,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                         HorizontalContentAlignment = HorizontalAlignment.Stretch,
                         Items =
                         {
-                            new StackLayoutItem
-                            {
-                                Control = new DebuggerGroup
-                                {
-                                    Text = "Options",
-                                    Content = _enableDataRecording,
-                                },
-                            },
-                            new StackLayoutItem
-                            {
-                                Control = _reportsRecordedGroup,
-                            },
+                            _reportsRecordedGroup,
                             new StackLayoutItem
                             {
                                 Expand = true,
@@ -134,20 +131,10 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                                     Content = _tabletData,
                                 },
                             },
-                            new StackLayoutItem
-                            {
-                                Control = new DebuggerGroup
-                                {
-                                    Text = "Maximum Position",
-                                    MinimumSize = (Size)s_MonospaceFont
-                                        .Measure("Max Position: <123456, 78901>") + _GROUP_BOX_EXTRA_WIDTH,
-                                    Content = _maxReportedPosition,
-                                },
-                            },
                         },
                     },
                     {
-                        _rawTabletGroup = new DebuggerGroup
+                        _rawTabletDataGroup = new DebuggerGroup
                         {
                             Padding = _SPACING,
                             Text = "Raw Tablet Data",
@@ -160,7 +147,6 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 },
             };
 
-            _rawTabletGroup.Content = _rawTabletData;
             _reportsRecordedGroup.Content = _reportsRecorded;
 
             SetupMenu();
@@ -188,6 +174,20 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 }
             };
 
+            CancellationTokenSource? cts = null;
+
+            viewmodel.CollectionChanged += void (sender, args) =>
+            {
+                cts?.Cancel();
+                cts = new CancellationTokenSource();
+                // debounce event and parse afterwards
+                _ = Task.Delay(250, cts.Token).ContinueWith(void (t) =>
+                {
+                    if (t.IsCompletedSuccessfully)
+                        UpdateAdditionalStatisticsFields();
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            };
+
             App.Driver.DeviceReport += viewmodel.HandleReport;
             App.Driver.TabletsChanged += HandleTabletsChanged;
             App.Driver.Instance.SetTabletDebug(true);
@@ -198,17 +198,33 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             _deviceName.TextBinding.BindDataContext((TDVM vm) => vm.DeviceName, DualBindingMode.OneWay);
             _rawTabletData.TextBinding.BindDataContext((TDVM vm) => vm.RawTabletData, DualBindingMode.OneWay);
             _tabletData.TextBinding.BindDataContext((TDVM vm) => vm.DecodedTabletData, DualBindingMode.OneWay);
-            _maxReportedPosition.TextBinding.BindDataContext((TDVM vm) => vm.MaxPosition, DualBindingMode.OneWay);
             _reportRate.TextBinding.BindDataContext((TDVM vm) => vm.ReportRateString, DualBindingMode.OneWay);
             _reportsRecorded.TextBinding.Convert(null, (int value) => $"{value}").BindDataContext((TDVM vm) => vm.ReportsRecorded, DualBindingMode.OneWay);
             _tabletVisualizer.ReportDataBinding.BindDataContext((TDVM vm) => vm.ReportData, DualBindingMode.OneWay);
             _tabletVisualizer.BindDataContext(x => x.Enabled, (TDVM vm) => vm.IsVisualizerEnabled);
-            _enableDataRecording.CheckedBinding.BindDataContext((TDVM vm) => vm.DataRecordingEnabled);
             _reportsRecordedGroup.BindDataContext(x => x.Visible, (TDVM vm) => vm.HasReportsRecorded);
+
+            _additionalStatsGroup.BindDataContext(x => x.Visible, (TDVM vm) => vm.ShowAdditionalStatistics);
         }
 
         private void SetupMenu()
         {
+            var dataRecordingMenuItem = new CheckMenuItem
+            {
+                Text = "Data Recording",
+            };
+
+            dataRecordingMenuItem.BindDataContext(x => x.Checked, (TDVM vm) => vm.DataRecordingEnabled);
+
+
+            var visualizerEnabledMenuItem = new CheckMenuItem
+            {
+                Text = "Visualizer",
+            };
+
+            visualizerEnabledMenuItem.BindDataContext(x => x.Checked, (TDVM vm) => vm.IsVisualizerEnabled);
+
+
             var decodingSwitchMenuItem = new ButtonMenuItem
             {
                 Text = "Raw Data Mode",
@@ -226,18 +242,23 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 decodingSwitchMenuItem.Items.Add(item);
             }
 
-            var visualizerEnabledMenuItem = new CheckMenuItem
+
+            var additionalStatisticsMenuItem = new CheckMenuItem()
             {
-                Text = "Visualizer",
+                Text = "Additional Statistics",
             };
-            visualizerEnabledMenuItem.BindDataContext(x => x.Checked, (TDVM vm) => vm.IsVisualizerEnabled);
+
+            additionalStatisticsMenuItem.BindDataContext(x => x.Checked, (TDVM vm) => vm.ShowAdditionalStatistics);
+
 
             Menu = new MenuBar
             {
                 ApplicationItems =
                 {
+                    dataRecordingMenuItem,
                     visualizerEnabledMenuItem,
                     decodingSwitchMenuItem,
+                    additionalStatisticsMenuItem,
                 },
                 QuitItem = new ButtonMenuItem((_, _) => Application.Instance.AsyncInvoke(Close))
                 {
@@ -254,9 +275,10 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         {
             if (DataContext is not TDVM viewmodel) return;
 
-            _rawTabletGroup.Width = GetWidthOfRawTabletDataGroupBox(viewmodel.DecodingMode);
+            _rawTabletDataGroup.Width = GetWidthOfRawTabletDataGroupBox(viewmodel.DecodingMode);
         }
 
+        // TODO: can GeneratedItemList<T> be used?
         private void RefreshActiveTabletsMenu()
         {
             if (DataContext is not TDVM viewmodel) return;
@@ -267,6 +289,57 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             // hide if only 1 tablet active
             _activeTablets.Visible = _activeTablets.Items.Count > 1;
         }
+
+        private void UpdateAdditionalStatisticsFields()
+        {
+            if (DataContext is not TDVM viewmodel) return;
+
+            var container = new StackLayout()
+            {
+                Spacing = _SPACING,
+                //Padding = _SPACING,
+                Orientation = Orientation.Horizontal,
+            };
+
+            foreach (var group in viewmodel.AdditionalStatistics.Children)
+            {
+                var children = new StackLayout();
+
+                foreach (var child in group.Children)
+                {
+                    string exampleValue = child.Value switch
+                    {
+                        Vector2 => new Vector2(123456).ToString(),
+                        short => "255",
+                        int => "10000",
+                        float => "1000.000",
+                        double => "1000.000",
+                        _ => "1234",
+                    };
+
+                    var label = new UnitLabel(s_MonospaceFont, exampleValue, child.Unit);
+                    var item = new DebuggerGroup
+                    {
+                        Text = child.Name,
+                        Content = label,
+                    };
+                    label.TextBinding.Bind(child, nameof(child.ValueString));
+                    children.Items.Add(item);
+                }
+
+                var groupContainer = new Group
+                {
+                    Text = group.Name,
+                    Padding =  _SPACING,
+                    Content = children,
+                };
+
+                container.Items.Add(groupContainer);
+            }
+
+            _additionalStatsGroup.Content = container;
+        }
+
 
         private int GetWidthOfRawTabletDataGroupBox(
             TabletDebuggerEnums.DecodingMode decodingMode = TabletDebuggerEnums.DecodingMode.Hex) =>

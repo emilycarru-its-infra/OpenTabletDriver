@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using Eto.Forms;
 using JetBrains.Annotations;
@@ -14,7 +17,7 @@ using OpenTabletDriver.UX.Tools;
 
 namespace OpenTabletDriver.UX.Windows.Tablet.ViewModel;
 
-public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
+public class TabletDebuggerViewModel : Desktop.ViewModel, INotifyCollectionChanged, IDisposable
 {
     private const TabletDebuggerEnums.DecodingMode _DEFAULT_DECODING_MODE =
         TabletDebuggerEnums.DecodingMode.Hex;
@@ -25,6 +28,11 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
 
     private FileStream? _tabletRecordingFileStream;
     private StreamWriter? _tabletRecordingStreamWriter;
+
+    public TabletDebuggerViewModel()
+    {
+        _additionalStatistics.CollectionChanged += (sender, args) => this.CollectionChanged?.Invoke(sender, args);
+    }
 
     public void HandleReport(object sender, DebugReportData data) => ReportData = data;
 
@@ -47,11 +55,15 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
 
             var timeDelta = _stopwatch.Restart();
             ReportRate += (timeDelta.TotalMilliseconds - ReportRate) * 0.01f;
+            AdditionalStatistics["Report Rate"].SaveMinMax(timeDelta.TotalMilliseconds, "ms");
 
             var dataObject = value.ToObject();
 
+            if (dataObject is IAbsolutePositionReport absolutePositionReport)
+                AdditionalStatistics["Position"].SaveMinMax(absolutePositionReport.Position);
+
             if (dataObject is ITabletReport tabletReport)
-                HandleMaxPosition(tabletReport);
+                AdditionalStatistics["Pressure"].SaveMinMax(tabletReport.Pressure);
 
             if (dataObject is IDeviceReport deviceReport)
             {
@@ -77,6 +89,14 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
     }
 
     public string ReportRateString => $"{Math.Round(1000 / _reportRate)}hz";
+
+    private readonly Statistic _additionalStatistics = new("Additional Statistics");
+
+    public Statistic AdditionalStatistics
+    {
+        get => _additionalStatistics;
+        init => RaiseAndSetIfChanged(ref _additionalStatistics, value);
+    }
 
     private string _rawTabletData = string.Empty;
     public string RawTabletData
@@ -148,21 +168,18 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
         set => RaiseAndSetIfChanged(ref _isVisualizerEnabled, value);
     }
 
-    private Vector2 _maxPosition = Vector2.Zero;
-    public string MaxPosition => $"Max Position: {_maxPosition}";
+    private bool _showAdditionalStatistics;
+    public bool ShowAdditionalStatistics
+    {
+        get => _showAdditionalStatistics;
+        set => RaiseAndSetIfChanged(ref _showAdditionalStatistics, value);
+    }
 
     public IEnumerable<CheckMenuItem> ActiveTabletReportMenuItems => GenerateMenuItem(_seenTablets, _ignoredTablets);
 
     #endregion
 
     #region Class Functions
-
-    private void HandleMaxPosition(ITabletReport report)
-    {
-        _maxPosition.X = Math.Max(report.Position.X, _maxPosition.X);
-        _maxPosition.Y = Math.Max(report.Position.Y, _maxPosition.Y);
-        RaiseChanged(nameof(MaxPosition));
-    }
 
     private void SetRawTabletData(IDeviceReport report)
     {
@@ -249,6 +266,8 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, IDisposable
     }
 
     #endregion
+
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 }
 
 public static class TabletDebuggerEnums
@@ -258,4 +277,103 @@ public static class TabletDebuggerEnums
         Hex,
         Binary
     }
+}
+
+public class Statistic : Desktop.ViewModel, INotifyCollectionChanged
+{
+    private readonly string _name = null!;
+    private object? _value;
+    private string? _unit;
+    private string _valueStringFormat;
+    private ObservableCollection<Statistic> _children = [];
+
+    public Statistic(string name, string? value = null, string? unit = null, string? valueStringFormat = null)
+    {
+        Name = name;
+        Value = value;
+        _unit = unit;
+        _valueStringFormat = valueStringFormat ?? "{0}";
+        Children.CollectionChanged += (sender, args) => CollectionChanged?.Invoke(sender, args);
+    }
+
+    public ObservableCollection<Statistic> Children
+    {
+        get => _children;
+        set => RaiseAndSetIfChanged(ref _children, value);
+    }
+
+    public string Name
+    {
+        get => _name;
+        private init => RaiseAndSetIfChanged(ref _name, value);
+    }
+
+    public object? Value
+    {
+        get => _value;
+        set
+        {
+            RaiseAndSetIfChanged(ref _value, value);
+            RaiseChanged(nameof(ValueString));
+        }
+    }
+
+    public string? Unit
+    {
+        get => _unit;
+        set => RaiseAndSetIfChanged(ref _unit, value);
+    }
+
+    public string ValueStringFormat
+    {
+        get => _valueStringFormat;
+        set
+        {
+            RaiseAndSetIfChanged(ref _valueStringFormat, value);
+            RaiseChanged(nameof(ValueString));
+        }
+    }
+
+    public string ValueString => Value != null ? string.Format(ValueStringFormat, Value) : "<null>";
+
+    public Statistic this[string childName]
+    {
+        get
+        {
+            var rv = Children.FirstOrDefault(x => x.Name == childName);
+            if (rv == null) Children.Add(rv = new Statistic(childName));
+            return rv;
+        }
+    }
+
+    public Statistic SaveMinMax(double source, string? unit = null, int precision = 2) => SaveMinMax(source, Math.Min, Math.Max, unit, precision);
+    public Statistic SaveMinMax(uint source, string? unit = null) => SaveMinMax(source, Math.Min, Math.Max, unit, null);
+    public Statistic SaveMinMax(Vector2 source, string? unit = null, int precision = 0) => SaveMinMax(source, Vector2.Min, Vector2.Max, unit, precision);
+
+    private Statistic SaveMinMax<T>(T source, Func<T, T, T> minFunc, Func<T, T, T> maxFunc, string? unit, int? precision)
+    {
+        var min = this["Min"];
+        min.Value = minFunc(source, (T)(min.Value ?? source)!);
+        min.Unit = unit;
+        var max = this["Max"];
+        max.Value = maxFunc(source, (T)(max.Value ?? source)!);
+        max.Unit = unit;
+
+        if (precision != null)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(precision.Value, nameof(precision));
+            string format;
+
+            if (precision.Value == 0)
+                format = "{0:0}";
+            else
+                format = "{0:0." + string.Concat(Enumerable.Repeat("0", precision.Value)) + "}";
+
+            min.ValueStringFormat = max.ValueStringFormat = format;
+        }
+
+        return this;
+    }
+
+    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 }

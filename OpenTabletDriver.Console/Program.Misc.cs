@@ -61,7 +61,7 @@ namespace OpenTabletDriver.Console
                     profile = Profile.GetDefaults(tablet);
             }
 
-            return profile;
+            return profile ?? throw new ArgumentException($"Cannot find profile for tablet '{profileName}'");
         }
 
         static async Task ListTypes<T>(Func<Type, bool> predicate = null)

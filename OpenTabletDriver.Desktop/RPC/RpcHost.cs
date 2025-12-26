@@ -8,66 +8,48 @@ using StreamJsonRpc;
 
 namespace OpenTabletDriver.Desktop.RPC
 {
-    public class RpcHost<T> where T : class
+    public class RpcHost<T>(string pipeName)
+        where T : class
     {
-        private readonly string pipeName;
-
         public event EventHandler<bool> ConnectionStateChanged;
-
-        public RpcHost(string pipeName)
-        {
-            this.pipeName = pipeName;
-        }
 
         public async Task Run(T host, CancellationToken ct)
         {
             while (!ct.IsCancellationRequested)
             {
-                await Task.Run(async () =>
+                var stream = CreateStream();
+                try
                 {
-                    await using var stream = CreateStream();
-                    try
-                    {
-                        await stream.WaitForConnectionAsync(ct);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // avoid throwing for intentionally canceled operations
-                        if (ct.IsCancellationRequested)
-                            return;
+                    await stream.WaitForConnectionAsync(ct);
+                }
+                catch (OperationCanceledException) { } // ignore exceptions caused by daemon shutting down
 
-                        throw;
-                    }
-
-                    try
-                    {
-                        ConnectionStateChanged?.Invoke(this, true);
-                        using var rpc = JsonRpc.Attach(stream, host);
-                        await rpc.Completion.WaitAsync(ct);
-
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        // TODO: this empty catch clause can probably be removed now that
-                        // the `stream` is self-contained within the delegate
-                    }
-                    catch (IOException)
-                    {
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Exception(ex);
-                    }
-
-                    ConnectionStateChanged?.Invoke(this, false);
-                }, CancellationToken.None);
+                _ = RespondToRpcRequestAsync(host, stream, ct);
             }
+        }
+
+        private async Task RespondToRpcRequestAsync(T host, Stream stream, CancellationToken ct)
+        {
+            try
+            {
+                ConnectionStateChanged?.Invoke(this, true);
+                using var rpc = JsonRpc.Attach(stream, host);
+                await rpc.Completion.WaitAsync(ct);
+            }
+            catch (TaskCanceledException) { } // ignore exceptions caused by daemon shutting down
+            catch (Exception ex)
+            {
+                Log.Exception(ex);
+            }
+
+            ConnectionStateChanged?.Invoke(this, false);
+            await stream.DisposeAsync();
         }
 
         private NamedPipeServerStream CreateStream()
         {
             return new NamedPipeServerStream(
-                this.pipeName,
+                pipeName,
                 PipeDirection.InOut,
                 NamedPipeServerStream.MaxAllowedServerInstances,
                 PipeTransmissionMode.Byte,

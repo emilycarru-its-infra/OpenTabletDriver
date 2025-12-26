@@ -174,6 +174,7 @@
 | XP-Pen Deco Fun XS (CT430)         |     Supported     |
 | XP-Pen Deco M                      |     Supported     |
 | XP-Pen Deco L                      |     Supported     |
+| XP-Pen Deco LW                     |     Supported     |
 | XP-Pen Deco mini4                  |     Supported     |
 | XP-Pen Deco mini7                  |     Supported     |
 | XP-Pen Deco mini7 V2               |     Supported     |

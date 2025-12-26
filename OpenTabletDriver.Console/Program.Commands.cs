@@ -450,7 +450,7 @@ namespace OpenTabletDriver.Console
             }
             catch (Exception ex)
             {
-                Log.Exception(ex);
+                await Out.WriteLineAsync(ex.ToString());
             }
         }
 

@@ -273,6 +273,21 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                     _activeTablets,
                 },
             };
+
+#if DEBUG
+            Menu.Items.Add(new ButtonMenuItem
+            {
+                Text = "Force Refresh",
+                Items =
+                {
+                    new ButtonMenuItem(
+                    (_, _) => Application.Instance.AsyncInvoke(UpdateAdditionalStatisticsFields))
+                    {
+                        Text = "Additional Statistics",
+                    },
+                },
+            });
+#endif
         }
 
         private void ResizeRawBasedOnDecodingMode()

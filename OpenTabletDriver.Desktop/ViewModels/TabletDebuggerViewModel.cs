@@ -25,7 +25,6 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
 
     private readonly HPETDeltaStopwatch _stopwatch = new();
     private readonly HashSet<string> _seenTablets = [];
-    private readonly HashSet<string> _ignoredTablets = [];
 
     private FileStream? _tabletRecordingFileStream;
     private StreamWriter? _tabletRecordingStreamWriter;
@@ -45,7 +44,7 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
         private set
         {
             // early exit if ignored
-            if (value != null && _ignoredTablets.Contains(GetNameKeyForFilter(value.Tablet, value.Path))) return;
+            if (value != null && IgnoredTablets.Contains(GetNameKeyForFilter(value.Tablet, value.Path))) return;
 
             RaiseAndSetIfChanged(ref _reportData, value);
             if (value == null) return;
@@ -171,7 +170,7 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
                 _tabletRecordingStreamWriter = new StreamWriter(_tabletRecordingFileStream);
             }
             else
-                CleanupLocks();
+                StopDataRecordingAsNeeded();
         }
     }
 
@@ -190,7 +189,7 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
     }
 
     public ReadOnlyCollection<string> SeenTablets => _seenTablets.ToArray().AsReadOnly();
-    public HashSet<string> IgnoredTablets => _ignoredTablets;
+    public HashSet<string> IgnoredTablets { get; } = [];
 
     #endregion
 
@@ -236,7 +235,7 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
         _additionalStatistics.Children.Clear();
     }
 
-    private void CleanupLocks()
+    private void StopDataRecordingAsNeeded()
     {
         // dump stats
         if (_tabletRecordingStreamWriter != null && _additionalStatistics.Children.Count > 0)
@@ -251,7 +250,7 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
 
     public void Dispose()
     {
-        CleanupLocks();
+        StopDataRecordingAsNeeded();
         GC.SuppressFinalize(this);
     }
 

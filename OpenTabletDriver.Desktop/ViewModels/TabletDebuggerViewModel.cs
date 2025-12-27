@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using OpenTabletDriver.Desktop.RPC;
 using OpenTabletDriver.Plugin;
@@ -251,7 +253,7 @@ public static class TabletDebuggerEnums
     }
 }
 
-public class Statistic : ViewModel, INotifyCollectionChanged
+public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
 {
     private readonly string _name = null!;
     private object? _value;
@@ -266,7 +268,7 @@ public class Statistic : ViewModel, INotifyCollectionChanged
         Value = value;
         _unit = unit;
         _valueStringFormat = valueStringFormat ?? "{0}";
-        Children.CollectionChanged += (sender, args) => CollectionChanged?.Invoke(sender, args);
+        Children = [];
     }
 
     /// <summary>
@@ -275,7 +277,13 @@ public class Statistic : ViewModel, INotifyCollectionChanged
     public ObservableCollection<Statistic> Children
     {
         get => _children;
-        set => RaiseAndSetIfChanged(ref _children, value);
+        set
+        {
+            if (!SetField(ref _children, value)) return;
+
+            Children.CollectionChanged += (sender, args) => CollectionChanged?.Invoke(sender, args);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
     }
 
     /// <summary>
@@ -284,7 +292,7 @@ public class Statistic : ViewModel, INotifyCollectionChanged
     public string Name
     {
         get => _name;
-        private init => RaiseAndSetIfChanged(ref _name, value);
+        private init => SetField(ref _name, value);
     }
 
     /// <summary>
@@ -295,8 +303,8 @@ public class Statistic : ViewModel, INotifyCollectionChanged
         get => _value;
         set
         {
-            RaiseAndSetIfChanged(ref _value, value);
-            RaiseChanged(nameof(ValueString));
+            SetField(ref _value, value);
+            OnPropertyChanged(nameof(ValueString));
         }
     }
 
@@ -306,7 +314,7 @@ public class Statistic : ViewModel, INotifyCollectionChanged
     public string? Unit
     {
         get => _unit;
-        set => RaiseAndSetIfChanged(ref _unit, value);
+        set => SetField(ref _unit, value);
     }
 
     /// <summary>
@@ -318,8 +326,8 @@ public class Statistic : ViewModel, INotifyCollectionChanged
         get => _valueStringFormat;
         set
         {
-            RaiseAndSetIfChanged(ref _valueStringFormat, value);
-            RaiseChanged(nameof(ValueString));
+            SetField(ref _valueStringFormat, value);
+            OnPropertyChanged(nameof(ValueString));
         }
     }
 
@@ -329,7 +337,7 @@ public class Statistic : ViewModel, INotifyCollectionChanged
     public bool Hidden
     {
         get => _hidden;
-        set => RaiseAndSetIfChanged(ref _hidden, value);
+        set => SetField(ref _hidden, value);
     }
 
     /// <summary>
@@ -455,4 +463,21 @@ public class Statistic : ViewModel, INotifyCollectionChanged
     }
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+
+        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, field));
+
+        field = value;
+        OnPropertyChanged(propertyName);
+        return true;
+    }
 }

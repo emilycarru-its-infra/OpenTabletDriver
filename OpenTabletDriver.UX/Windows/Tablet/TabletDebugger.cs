@@ -348,7 +348,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                     var groupContainer = new Group
                     {
                         Text = group.Name,
-                        Padding =  _SPACING,
+                        Padding = _SPACING,
                         Content = children,
                     };
 

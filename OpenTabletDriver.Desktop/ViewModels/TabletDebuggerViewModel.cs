@@ -67,11 +67,14 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
                 AdditionalStatistics["Touch Position"].SaveMinMax(touchReport.Touches);
 
             if (dataObject is ITabletReport tabletReport)
+            {
                 AdditionalStatistics["Pressure"].SaveMinMax(tabletReport.Pressure);
+                AdditionalStatistics["Pen Buttons"].SaveButtons(tabletReport.PenButtons, (int)value.Tablet.Properties.Specifications.Pen.ButtonCount);
+            }
 
             if (dataObject is IAuxReport auxReport)
                 if (auxReport.AuxButtons.Length > 0)
-                    AdditionalStatistics["Aux Buttons"].SaveButtons(auxReport.AuxButtons, value.Tablet);
+                    AdditionalStatistics["Aux Buttons"].SaveButtons(auxReport.AuxButtons, (int)(value.Tablet.Properties.Specifications.AuxiliaryButtons?.ButtonCount ?? 0));
 
             if (dataObject is ITiltReport tiltReport)
                 AdditionalStatistics["Tilt Axes"].SaveMinMax(tiltReport.Tilt);
@@ -407,10 +410,8 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
     // true: have seen false and then true but haven't seen false after true
     private readonly Dictionary<int, bool?> _seenButtons = new();
 
-    public void SaveButtons(bool[] auxReportAuxButtons, TabletReference tabletReference)
+    public void SaveButtons(bool[] auxReportAuxButtons, int expectedButtons)
     {
-        uint expectedButtons = tabletReference.Properties.Specifications.AuxiliaryButtons?.ButtonCount ?? 0;
-
         // no buttons expected, don't log anything
         if (expectedButtons == 0) return;
 

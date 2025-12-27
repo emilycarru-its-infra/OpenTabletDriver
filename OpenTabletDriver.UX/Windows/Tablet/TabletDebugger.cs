@@ -336,6 +336,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             var outerContainer = new StackLayout
             {
                 Spacing = _SPACING,
+                HorizontalContentAlignment = HorizontalAlignment.Center,
             };
 
             var relevantGroups =

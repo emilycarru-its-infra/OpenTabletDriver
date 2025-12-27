@@ -508,6 +508,13 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
         return this;
     }
 
+    public override string ToString()
+    {
+        string hiddenText = Hidden ? "Hidden" : string.Empty;
+        string groupText = Children.Count > 0 ? "Group" : string.Empty;
+        return $"{hiddenText} {groupText} {Name} {ValueString} {Unit}".Trim();
+    }
+
     #region Event Handling
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public event PropertyChangedEventHandler? PropertyChanged;

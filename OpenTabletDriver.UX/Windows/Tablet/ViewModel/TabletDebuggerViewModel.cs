@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.RPC;
 using OpenTabletDriver.Plugin.Tablet;
+using OpenTabletDriver.Plugin.Tablet.Touch;
 using OpenTabletDriver.Plugin.Timing;
 using OpenTabletDriver.UX.Tools;
 
@@ -60,7 +61,10 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, INotifyCollectionChang
             var dataObject = value.ToObject();
 
             if (dataObject is IAbsolutePositionReport absolutePositionReport)
-                AdditionalStatistics["Position"].SaveMinMax(absolutePositionReport.Position);
+                AdditionalStatistics["Tablet Position"].SaveMinMax(absolutePositionReport.Position);
+
+            if (dataObject is ITouchReport touchReport)
+                AdditionalStatistics["Touch Position"].SaveMinMax(touchReport.Touches);
 
             if (dataObject is ITabletReport tabletReport)
                 AdditionalStatistics["Pressure"].SaveMinMax(tabletReport.Pressure);
@@ -362,6 +366,17 @@ public class Statistic : Desktop.ViewModel, INotifyCollectionChanged
     public Statistic SaveMinMax(double source, string? unit = null, int precision = 2) => SaveMinMax(source, Math.Min, Math.Max, unit, precision);
     public Statistic SaveMinMax(uint source, string? unit = null) => SaveMinMax(source, Math.Min, Math.Max, unit, null);
     public Statistic SaveMinMax(Vector2 source, string? unit = null, int precision = 0) => SaveMinMax(source, Vector2.Min, Vector2.Max, unit, precision);
+    public Statistic SaveMinMax(TouchPoint?[] touchPoints)
+    {
+        var validTouchPoints = touchPoints.Where(x => x != null).Select(x => x!.Position).ToArray();
+        if (validTouchPoints.Length == 0) return this;
+
+        // Vector2 doesn't implement IComparable, do naive method:
+        foreach (var touchPoint in validTouchPoints)
+            SaveMinMax(touchPoint);
+
+        return this;
+    }
 
     private Statistic SaveMinMax<T>(T source, Func<T, T, T> minFunc, Func<T, T, T> maxFunc, string? unit, int? precision)
     {

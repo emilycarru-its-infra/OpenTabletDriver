@@ -359,7 +359,11 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
     /// <summary>
     /// Formatted string of the value using the specified <see cref="ValueStringFormat"/>
     /// </summary>
-    public string ValueString => Value != null ? string.Format(ValueStringFormat, Value) : "<null>";
+    public string ValueString => Value != null
+            ? string.Format(ValueStringFormat, Value)
+            : Children.Count == 0 // don't show <null> on groups
+                ? "<null>"
+                : string.Empty;
 
     /// <summary>
     /// Retrieve the child group <see cref="Statistic"/> from the current instance

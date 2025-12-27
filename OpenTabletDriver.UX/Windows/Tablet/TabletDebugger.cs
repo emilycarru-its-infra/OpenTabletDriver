@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 using Eto.Drawing;
 using Eto.Forms;
 using OpenTabletDriver.Desktop.RPC;
+using OpenTabletDriver.Desktop.ViewModels;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using OpenTabletDriver.UX.Controls.Generic;
-using OpenTabletDriver.UX.Windows.Tablet.ViewModel;
 
 namespace OpenTabletDriver.UX.Windows.Tablet
 {
@@ -163,7 +163,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             {
                 switch (args.PropertyName)
                 {
-                    case nameof(TDVM.ActiveTabletReportMenuItems):
+                    case nameof(TDVM.SeenTablets) or nameof(TDVM.IgnoredTablets):
                         RefreshActiveTabletsMenu();
                         break;
                     case nameof(TDVM.DecodingMode):
@@ -173,8 +173,9 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                         return;
                 }
             };
-
+#nullable enable
             CancellationTokenSource? cts = null;
+#nullable restore
 
             viewmodel.CollectionChanged += void (sender, args) =>
             {
@@ -278,13 +279,48 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             _rawTabletDataGroup.Width = GetWidthOfRawTabletDataGroupBox(viewmodel.DecodingMode);
         }
 
+        private static IEnumerable<CheckMenuItem> GenerateMenuItem(IReadOnlyCollection<string> seenIDs, HashSet<string> ignoredIDs)
+        {
+            foreach (string id in seenIDs)
+            {
+                bool isIgnored = ignoredIDs.Contains(id);
+
+                var command = new CheckCommand(HandleCheckCommand)
+                {
+                    Checked = !isIgnored,
+                    Tag = (id, seenIDs, ignoredIDs),
+                };
+
+                var menuItem = new CheckMenuItem(command)
+                {
+                    Text = id,
+                };
+
+                yield return menuItem;
+            }
+        }
+
+        private static void HandleCheckCommand(object sender, EventArgs e)
+        {
+            if (sender is not CheckCommand checkCommand) return;
+
+            (string name, var seenIDs, var ignoredIDs) = (ValueTuple<string, IReadOnlyCollection<string>, HashSet<string>>)checkCommand.Tag;
+
+            if (checkCommand.Checked)
+                ignoredIDs.Remove(name);
+            else if (seenIDs.Count > ignoredIDs.Count + 1) // don't allow removing last entry
+                ignoredIDs.Add(name);
+            else
+                checkCommand.Checked = true;
+        }
+
         // TODO: can GeneratedItemList<T> be used?
         private void RefreshActiveTabletsMenu()
         {
             if (DataContext is not TDVM viewmodel) return;
 
             _activeTablets.Items.Clear();
-            _activeTablets.Items.AddRange(viewmodel.ActiveTabletReportMenuItems);
+            _activeTablets.Items.AddRange(GenerateMenuItem(viewmodel.SeenTablets, viewmodel.IgnoredTablets));
 
             // hide if only 1 tablet active
             _activeTablets.Visible = _activeTablets.Items.Count > 1;

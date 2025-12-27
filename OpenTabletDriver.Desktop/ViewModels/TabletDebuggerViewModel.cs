@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -5,20 +7,16 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using Eto.Forms;
 using JetBrains.Annotations;
-using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.RPC;
+using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 using OpenTabletDriver.Plugin.Timing;
-using OpenTabletDriver.UX.Tools;
 
-#nullable enable
+namespace OpenTabletDriver.Desktop.ViewModels;
 
-namespace OpenTabletDriver.UX.Windows.Tablet.ViewModel;
-
-public class TabletDebuggerViewModel : Desktop.ViewModel, INotifyCollectionChanged, IDisposable
+public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDisposable
 {
     private const TabletDebuggerEnums.DecodingMode _DEFAULT_DECODING_MODE =
         TabletDebuggerEnums.DecodingMode.Hex;
@@ -35,7 +33,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, INotifyCollectionChang
         _additionalStatistics.CollectionChanged += (sender, args) => this.CollectionChanged?.Invoke(sender, args);
     }
 
-    public void HandleReport(object sender, DebugReportData data) => ReportData = data;
+    public void HandleReport(object? sender, DebugReportData data) => ReportData = data;
 
     #region View Model Properties (and backing fields)
     private DebugReportData? _reportData;
@@ -52,7 +50,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, INotifyCollectionChang
             RaiseChanged(nameof(DeviceName));
 
             if (_seenTablets.Add(GetNameKeyForFilter(value.Tablet, value.Path)))
-                RaiseChanged(nameof(ActiveTabletReportMenuItems));
+                RaiseChanged(nameof(SeenTablets));
 
             var timeDelta = _stopwatch.Restart();
             AdditionalStatistics["Report Rate"].SaveMinMax(timeDelta.TotalMilliseconds, "ms");
@@ -182,7 +180,8 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, INotifyCollectionChang
         set => RaiseAndSetIfChanged(ref _showAdditionalStatistics, value);
     }
 
-    public IEnumerable<CheckMenuItem> ActiveTabletReportMenuItems => GenerateMenuItem(_seenTablets, _ignoredTablets);
+    public ReadOnlyCollection<string> SeenTablets => _seenTablets.ToArray().AsReadOnly();
+    public HashSet<string> IgnoredTablets => _ignoredTablets;
 
     #endregion
 
@@ -216,41 +215,6 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, INotifyCollectionChang
 
     #region Static Functions
 
-    private static IEnumerable<CheckMenuItem> GenerateMenuItem(HashSet<string> seenIDs, HashSet<string> ignoredIDs)
-    {
-        foreach (string id in seenIDs)
-        {
-            bool isIgnored = ignoredIDs.Contains(id);
-
-            var command = new CheckCommand(HandleCheckCommand)
-            {
-                Checked = !isIgnored,
-                Tag = (id, seenIDs, ignoredIDs),
-            };
-
-            var menuItem = new CheckMenuItem(command)
-            {
-                Text = id,
-            };
-
-            yield return menuItem;
-        }
-    }
-
-    private static void HandleCheckCommand(object? sender, EventArgs e)
-    {
-        if (sender is not CheckCommand checkCommand) return;
-
-        (string name, var seenIDs, var ignoredIDs) = (ValueTuple<string, HashSet<string>, HashSet<string>>)checkCommand.Tag;
-
-        if (checkCommand.Checked)
-            ignoredIDs.Remove(name);
-        else if (seenIDs.Count > ignoredIDs.Count + 1) // don't allow removing last entry
-            ignoredIDs.Add(name);
-        else
-            checkCommand.Checked = true;
-    }
-
     private static string GetNameKeyForFilter(TabletReference tabletReference, string path) =>
         $"{tabletReference.Properties.Name}: {path}";
 
@@ -260,6 +224,7 @@ public class TabletDebuggerViewModel : Desktop.ViewModel, INotifyCollectionChang
 
     private void CleanupLocks()
     {
+        // TODO: print statistics before closing
         _tabletRecordingStreamWriter?.Dispose();
         _tabletRecordingStreamWriter = null;
         _tabletRecordingFileStream?.Dispose();
@@ -286,7 +251,7 @@ public static class TabletDebuggerEnums
     }
 }
 
-public class Statistic : Desktop.ViewModel, INotifyCollectionChanged
+public class Statistic : ViewModel, INotifyCollectionChanged
 {
     private readonly string _name = null!;
     private object? _value;
@@ -295,7 +260,7 @@ public class Statistic : Desktop.ViewModel, INotifyCollectionChanged
     private bool _hidden;
     private ObservableCollection<Statistic> _children = [];
 
-    public Statistic(string name, string? value = null, string? unit = null, string? valueStringFormat = null)
+    internal Statistic(string name, string? value = null, string? unit = null, string? valueStringFormat = null)
     {
         Name = name;
         Value = value;
@@ -455,8 +420,6 @@ public class Statistic : Desktop.ViewModel, INotifyCollectionChanged
         var status = this["Status"];
         status.Value = string.Join(" ", _seenButtons.Select(SelectEmojisFromButtonBool));
 
-        // TODO/FIXME: don't commit this, it's for debugging breakpoint assistance
-        _ = _seenButtons;
         return;
 
         string SelectEmojisFromButtonBool(KeyValuePair<int, bool?> button) =>

@@ -432,13 +432,13 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
     // true: have seen false and then true but haven't seen false after true
     private readonly Dictionary<int, bool?> _seenButtons = new();
 
-    public void SaveButtons(bool[] buttons, int expectedButtons)
+    public Statistic SaveButtons(bool[] buttons, int expectedButtons)
     {
         // no buttons expected, don't log anything
-        if (expectedButtons == 0) return;
+        if (expectedButtons == 0) return this;
 
         // skip if more than 1 button pressed
-        if (buttons.Take(expectedButtons).Count(x => x) > 1) return;
+        if (buttons.Take(expectedButtons).Count(x => x) > 1) return this;
 
         for (int i = 0; i < expectedButtons; i++)
         {
@@ -477,7 +477,7 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
         var status = this["Status"];
         status.Value = string.Join(" ", _seenButtons.Select(SelectEmojisFromButtonBool));
 
-        return;
+        return this;
 
         string SelectEmojisFromButtonBool(KeyValuePair<int, bool?> button) =>
             button.Value switch
@@ -488,6 +488,27 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
             };
     }
 
+    public Statistic SaveCountAdd1(string valuePath)
+    {
+        valuePath = valuePath.Replace("OpenTabletDriver.Configurations.Parsers.", "")
+            .Replace("OpenTabletDriver.Plugin.Tablet.", "");
+
+        var key = this[valuePath];
+        key.Value ??= 0;
+        key.Value = (int)key.Value + 1;
+
+        return this;
+    }
+
+    public Statistic HideAllChildren()
+    {
+        foreach (var child in Children)
+            child.Hidden = true;
+
+        return this;
+    }
+
+    #region Event Handling
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -506,4 +527,5 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
         OnPropertyChanged(propertyName);
         return true;
     }
+    #endregion
 }

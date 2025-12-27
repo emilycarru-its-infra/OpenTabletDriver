@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eto.Drawing;
 using Eto.Forms;
+using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.RPC;
 using OpenTabletDriver.Desktop.ViewModels;
 using OpenTabletDriver.Plugin;
@@ -48,6 +49,8 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         private readonly Group _additionalStatsGroup = new() { Text = "Additional Stats" };
 
         private readonly ButtonMenuItem _activeTablets = new() { Text = "Debugged Tablets", Visible = false };
+
+        public int AdditionalStatColumnsPerRow { get; set; } = 4;
 
         public TabletDebugger()
             : base(Application.Instance.MainForm)
@@ -339,19 +342,18 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 viewmodel.AdditionalStatistics.Children.Where(x =>
                     x.Children.Count > 0 && x.Children.Any(c => !c.Hidden)).ToArray();
 
-            int groupCount = relevantGroups.Length;
+            int[] groupsPerRow = Helpers.SplitIntoBuckets(relevantGroups.Length, AdditionalStatColumnsPerRow);
 
-            // try to avoid runt elements (sorry to count of 13 users)
-            int maxGroupsPerRow = (groupCount % 4 == 1) ? 3 : 4;
+            int takenElements = 0;
 
-            for (int chunk = 0; chunk <= groupCount / maxGroupsPerRow; chunk++)
+            foreach (int groupsForThisRow in groupsPerRow)
             {
                 var container = new StackLayout
                 {
                     Orientation = Orientation.Horizontal,
                 };
 
-                foreach (var group in relevantGroups.Skip(chunk * maxGroupsPerRow).Take(maxGroupsPerRow))
+                foreach (var group in relevantGroups.Skip(takenElements).Take(takenElements += groupsForThisRow))
                 {
                     var children = new StackLayout();
 

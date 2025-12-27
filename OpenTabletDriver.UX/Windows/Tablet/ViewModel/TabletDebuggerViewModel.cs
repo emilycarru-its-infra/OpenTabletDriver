@@ -284,6 +284,7 @@ public class Statistic : Desktop.ViewModel, INotifyCollectionChanged
     private object? _value;
     private string? _unit;
     private string _valueStringFormat;
+    private bool _hidden;
     private ObservableCollection<Statistic> _children = [];
 
     public Statistic(string name, string? value = null, string? unit = null, string? valueStringFormat = null)
@@ -331,6 +332,15 @@ public class Statistic : Desktop.ViewModel, INotifyCollectionChanged
             RaiseAndSetIfChanged(ref _valueStringFormat, value);
             RaiseChanged(nameof(ValueString));
         }
+    }
+
+    /// <summary>
+    /// Should the value normally be displayed/designed for in a UI
+    /// </summary>
+    public bool Hidden
+    {
+        get => _hidden;
+        set => RaiseAndSetIfChanged(ref _hidden, value);
     }
 
     public string ValueString => Value != null ? string.Format(ValueStringFormat, Value) : "<null>";

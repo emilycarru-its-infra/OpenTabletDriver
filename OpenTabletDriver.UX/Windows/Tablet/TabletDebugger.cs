@@ -290,54 +290,70 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             _activeTablets.Visible = _activeTablets.Items.Count > 1;
         }
 
+        private const int _MAX_GROUPS_PER_ROW = 3;
+
         private void UpdateAdditionalStatisticsFields()
         {
             if (DataContext is not TDVM viewmodel) return;
 
-            var container = new StackLayout()
+            var outerContainer = new StackLayout
             {
                 Spacing = _SPACING,
-                //Padding = _SPACING,
-                Orientation = Orientation.Horizontal,
             };
 
-            foreach (var group in viewmodel.AdditionalStatistics.Children)
+            var relevantGroups =
+                viewmodel.AdditionalStatistics.Children.Where(x =>
+                    x.Children.Count > 0 && x.Children.Any(c => !c.Hidden)).ToArray();
+
+            int groupCount = relevantGroups.Length;
+
+            for (int chunk = 0; chunk <= groupCount / _MAX_GROUPS_PER_ROW; chunk++)
             {
-                var children = new StackLayout();
-
-                foreach (var child in group.Children)
+                var container = new StackLayout
                 {
-                    string exampleValue = child.Value switch
-                    {
-                        Vector2 => new Vector2(123456).ToString(),
-                        short => "255",
-                        int => "10000",
-                        float => "1000.000",
-                        double => "1000.000",
-                        _ => "1234",
-                    };
-
-                    var label = new UnitLabel(s_MonospaceFont, exampleValue, child.Unit);
-                    var item = new DebuggerGroup
-                    {
-                        Text = child.Name,
-                        Content = label,
-                    };
-                    label.TextBinding.Bind(child, nameof(child.ValueString));
-                    children.Items.Add(item);
-                }
-
-                var groupContainer = new Group
-                {
-                    Text = group.Name,
-                    Padding =  _SPACING,
-                    Content = children,
+                    Orientation = Orientation.Horizontal,
                 };
 
-                container.Items.Add(groupContainer);
+                foreach (var group in relevantGroups.Skip(chunk * _MAX_GROUPS_PER_ROW).Take(_MAX_GROUPS_PER_ROW))
+                {
+                    var children = new StackLayout();
+
+                    foreach (var groupChild in group.Children.Where(x => !x.Hidden))
+                    {
+                        string exampleValue = groupChild.Value switch
+                        {
+                            Vector2 => new Vector2(123456).ToString(),
+                            short => "255",
+                            int => "10000",
+                            float => "1000.000",
+                            double => "1000.000",
+                            _ => "1234",
+                        };
+
+                        var label = new UnitLabel(s_MonospaceFont, exampleValue, groupChild.Unit);
+
+                        var item = new DebuggerGroup
+                        {
+                            Text = groupChild.Name,
+                            Content = label,
+                        };
+                        label.TextBinding.Bind(groupChild, nameof(groupChild.ValueString));
+                        children.Items.Add(item);
+                    }
+
+                    var groupContainer = new Group
+                    {
+                        Text = group.Name,
+                        Padding =  _SPACING,
+                        Content = children,
+                    };
+
+                    container.Items.Add(groupContainer);
+                }
+                outerContainer.Items.Add(container);
             }
 
-            _additionalStatsGroup.Content = container;
+            _additionalStatsGroup.Content = outerContainer;
         }
 
 

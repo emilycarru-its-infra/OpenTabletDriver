@@ -282,7 +282,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             _rawTabletDataGroup.Width = GetWidthOfRawTabletDataGroupBox(viewmodel.DecodingMode);
         }
 
-        private static IEnumerable<CheckMenuItem> GenerateMenuItem(IReadOnlyCollection<string> seenIDs, HashSet<string> ignoredIDs)
+        private static IEnumerable<CheckMenuItem> GenerateTabletFilterMenuItem(IReadOnlyCollection<string> seenIDs, HashSet<string> ignoredIDs)
         {
             foreach (string id in seenIDs)
             {
@@ -323,7 +323,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             if (DataContext is not TDVM viewmodel) return;
 
             _activeTablets.Items.Clear();
-            _activeTablets.Items.AddRange(GenerateMenuItem(viewmodel.SeenTablets, viewmodel.IgnoredTablets));
+            _activeTablets.Items.AddRange(GenerateTabletFilterMenuItem(viewmodel.SeenTablets, viewmodel.IgnoredTablets));
 
             // hide if only 1 tablet active
             _activeTablets.Visible = _activeTablets.Items.Count > 1;

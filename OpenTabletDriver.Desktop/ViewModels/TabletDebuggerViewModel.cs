@@ -164,6 +164,7 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
             if (value)
             {
                 ReportsRecorded = 0;
+                ResetStatistics();
 
                 string fileName = "tablet-data_" + DateTimeOffset.UtcNow.ToUnixTimeSeconds() + ".txt";
                 _tabletRecordingFileStream = File.OpenWrite(Path.Join(AppInfo.Current.AppDataDirectory, fileName));
@@ -229,6 +230,11 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
     #endregion
 
     #region Cleanup/Management
+
+    public void ResetStatistics()
+    {
+        _additionalStatistics.Children.Clear();
+    }
 
     private void CleanupLocks()
     {

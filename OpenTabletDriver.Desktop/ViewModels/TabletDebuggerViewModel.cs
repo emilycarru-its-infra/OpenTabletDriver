@@ -380,7 +380,7 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
 
     public IEnumerable<string> DumpTreeAsStrings()
     {
-        yield return $"{Name}: {ValueString} {Unit}";
+        yield return $"{Name}: {ValueString} {Unit}".TrimEnd();
 
         foreach (var child in Children)
             foreach (var s in child.DumpTreeAsStrings())

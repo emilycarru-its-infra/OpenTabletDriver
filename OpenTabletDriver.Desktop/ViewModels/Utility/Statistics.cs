@@ -8,6 +8,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 
+#nullable enable
+
 namespace OpenTabletDriver.Desktop.ViewModels.Utility
 {
     public class Statistic : INotifyPropertyChanged, IComparable

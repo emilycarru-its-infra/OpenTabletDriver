@@ -46,6 +46,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
         private readonly DebuggerGroup _reportsRecordedGroup = new() { Text = "Reports Recorded" };
         private readonly DebuggerGroup _rawTabletDataGroup;
+        private readonly DebuggerGroup _tabletVisualizerGroup = new() { Text = "Visualizer" };
         private readonly Group _additionalStatsGroup = new()
         {
             Text = "Additional Stats",
@@ -76,45 +77,45 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                     new StackLayoutItem
                     {
                         Expand = true,
-                        Control = new StackLayout
+                        Control = new Scrollable
                         {
-                            Padding = _SPACING,
-                            Spacing = _SPACING,
-                            MinimumSize = new Size(240, -1),
-                            Items =
+                            Border = BorderType.None,
+                            Content = new StackLayout
                             {
-                                new StackLayoutItem
+                                Padding = _SPACING,
+                                Spacing = _SPACING,
+                                MinimumSize = new Size(240, -1),
+                                Items =
                                 {
-                                    Expand = true,
-                                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                                    Control = new DebuggerGroup
+                                    new StackLayoutItem
                                     {
-                                        Text = "Visualizer",
-                                        Content = _tabletVisualizer,
+                                        Expand = true,
+                                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                                        Control = _tabletVisualizerGroup,
                                     },
-                                },
-                                new StackLayout
-                                {
-                                    Orientation = Orientation.Horizontal,
-                                    Items =
+                                    new StackLayout
                                     {
-                                        new DebuggerGroup
+                                        Orientation = Orientation.Horizontal,
+                                        Items =
                                         {
-                                            Text = "Device",
-                                            Content = _deviceName,
-                                        },
-                                        new DebuggerGroup
-                                        {
-                                            Text = "Report Rate",
-                                            Content = _reportRate,
+                                            new DebuggerGroup
+                                            {
+                                                Text = "Device",
+                                                Content = _deviceName,
+                                            },
+                                            new DebuggerGroup
+                                            {
+                                                Text = "Report Rate",
+                                                Content = _reportRate,
+                                            },
                                         },
                                     },
+                                    new StackLayout
+                                    {
+                                        Orientation = Orientation.Horizontal,
+                                        Items = { _additionalStatsGroup },
+                                    }
                                 },
-                                new StackLayout
-                                {
-                                    Orientation = Orientation.Horizontal,
-                                    Items = { _additionalStatsGroup },
-                                }
                             },
                         },
                     },
@@ -155,6 +156,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             };
 
             _reportsRecordedGroup.Content = _reportsRecorded;
+            _tabletVisualizerGroup.Content = _tabletVisualizer;
 
             SetupMenu();
             SetupBindings();

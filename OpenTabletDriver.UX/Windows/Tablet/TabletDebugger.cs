@@ -46,11 +46,15 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
         private readonly DebuggerGroup _reportsRecordedGroup = new() { Text = "Reports Recorded" };
         private readonly DebuggerGroup _rawTabletDataGroup;
-        private readonly Group _additionalStatsGroup = new() { Text = "Additional Stats" };
+        private readonly Group _additionalStatsGroup = new()
+        {
+            Text = "Additional Stats",
+            Content = new Label { Text = "No stats observed yet" },
+        };
 
         private readonly ButtonMenuItem _activeTablets = new() { Text = "Debugged Tablets", Visible = false };
 
-        public int AdditionalStatColumnsPerRow { get; set; } = 4;
+        public int AdditionalStatColumnsPerRow { get; set; } = 3;
 
         public TabletDebugger()
             : base(Application.Instance.MainForm)
@@ -184,12 +188,29 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             {
                 cts?.Cancel();
                 cts = new CancellationTokenSource();
-                // debounce event and parse afterwards
+                // debounce event and parse afterwards, this may fire a lot of times otherwise
                 _ = Task.Delay(250, cts.Token).ContinueWith(void (t) =>
                 {
                     if (t.IsCompletedSuccessfully)
-                        UpdateAdditionalStatisticsFields();
+                        UpdateAdditionalStatisticsFields().ConfigureAwait(false);
                 }, TaskScheduler.FromCurrentSynchronizationContext());
+            };
+
+            this.SizeChanged += async (_, args) =>
+            {
+                // readjust AdditionalStats box on window resize
+                int oldValue = this.AdditionalStatColumnsPerRow;
+                int newValue = this.Width switch
+                {
+                    >= 1600 => 5,
+                    > 1160 => 4,
+                    <= 1160 => 3,
+                };
+
+                if (oldValue == newValue) return;
+
+                this.AdditionalStatColumnsPerRow = newValue;
+                await UpdateAdditionalStatisticsFields().ConfigureAwait(false);
             };
 
             App.Driver.DeviceReport += viewmodel.HandleReport;
@@ -281,7 +302,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 Items =
                 {
                     new ButtonMenuItem(
-                    (_, _) => Application.Instance.AsyncInvoke(UpdateAdditionalStatisticsFields))
+                    (_, _) => Application.Instance.InvokeAsync(UpdateAdditionalStatisticsFields).ConfigureAwait(false))
                     {
                         Text = "Additional Statistics",
                     },
@@ -344,77 +365,90 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             _activeTablets.Visible = _activeTablets.Items.Count > 1;
         }
 
-        private void UpdateAdditionalStatisticsFields()
+        private async Task UpdateAdditionalStatisticsFields()
         {
             if (DataContext is not TDVM viewmodel) return;
 
-            var outerContainer = new StackLayout
+            // don't do anything if there isn't anything to do anyway
+            if (viewmodel.AdditionalStatistics.Children.Count == 0) return;
+
+            await Task.Run(async () =>
             {
-                Spacing = _SPACING,
-                HorizontalContentAlignment = HorizontalAlignment.Center,
-            };
+                if (!_additionalStatsGroup.Content?.IsDisposed ?? false)
+                    _additionalStatsGroup.Content.Dispose();
 
-            var relevantGroups =
-                viewmodel.AdditionalStatistics.Children.Where(x =>
-                    x.Children.Count > 0 && x.Children.Any(c => !c.Hidden)).ToArray();
-
-            int[] groupsPerRow = Helpers.SplitIntoBuckets(relevantGroups.Length, AdditionalStatColumnsPerRow);
-
-            int takenElements = 0;
-
-            foreach (int groupsForThisRow in groupsPerRow)
-            {
-                var container = new StackLayout
+                var outerContainer = new StackLayout
                 {
-                    Orientation = Orientation.Horizontal,
+                    Spacing = _SPACING,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
                 };
 
-                foreach (var group in relevantGroups.Skip(takenElements).Take(groupsForThisRow))
+                var relevantGroups =
+                    viewmodel.AdditionalStatistics.Children.Where(x =>
+                        x.Children.Count > 0 && x.Children.Any(c => !c.Hidden)).ToArray();
+
+                int[] groupsPerRow = Helpers.SplitIntoBuckets(relevantGroups.Length, AdditionalStatColumnsPerRow);
+
+                int takenElements = 0;
+
+                foreach (int groupsForThisRow in groupsPerRow)
                 {
-                    takenElements += 1;
-
-                    var children = new StackLayout();
-
-                    foreach (var groupChild in group.Children.Where(x => !x.Hidden))
+                    var container = new StackLayout
                     {
-                        string exampleValue = groupChild.Value switch
-                        {
-                            Vector2 => new Vector2(123456).ToString(),
-                            short => "255",
-                            int => "10000",
-                            float => "1000.000",
-                            double => "1000.000",
-                            string => "not too short",
-                            _ => "1234",
-                        };
-
-                        var label = new UnitLabel(s_MonospaceFont, exampleValue, groupChild.Unit);
-
-                        if (groupChild.Value is string)
-                            label.TextAlignment = TextAlignment.Left;
-
-                        var item = new DebuggerGroup
-                        {
-                            Text = groupChild.Name,
-                            Content = label,
-                        };
-                        label.TextBinding.Bind(groupChild, nameof(groupChild.ValueString));
-                        children.Items.Add(item);
-                    }
-
-                    var groupContainer = new Group
-                    {
-                        Text = group.Name,
-                        Padding = _SPACING,
-                        Content = children,
+                        Orientation = Orientation.Horizontal,
                     };
 
-                    container.Items.Add(groupContainer);
-                }
-                outerContainer.Items.Add(container);
-            }
+                    foreach (var group in relevantGroups.Skip(takenElements).Take(groupsForThisRow))
+                    {
+                        takenElements += 1;
 
-            _additionalStatsGroup.Content = outerContainer;
+                        var children = new StackLayout();
+
+                        foreach (var groupChild in group.Children.Where(x => !x.Hidden))
+                        {
+                            string exampleValue = groupChild.Value switch
+                            {
+                                Vector2 => new Vector2(123456).ToString(),
+                                short => "255",
+                                int => "10000",
+                                float => "1000.000",
+                                double => "1000.000",
+                                string => "not too short",
+                                _ => "1234",
+                            };
+
+                            var label = new UnitLabel(s_MonospaceFont, exampleValue, groupChild.Unit);
+
+                            if (groupChild.Value is string)
+                                label.TextAlignment = TextAlignment.Left;
+
+                            var item = new DebuggerGroup
+                            {
+                                Text = groupChild.Name,
+                                Content = label,
+                            };
+
+                            label.TextBinding.Bind(groupChild, nameof(groupChild.ValueString));
+                            children.Items.Add(item);
+                            await Task.Yield();
+                        }
+
+                        var groupContainer = new Group
+                        {
+                            Text = group.Name,
+                            Padding = _SPACING,
+                            Content = children,
+                        };
+
+                        container.Items.Add(groupContainer);
+                    }
+
+                    outerContainer.Items.Add(container);
+                }
+
+                await Application.Instance.InvokeAsync(() => _additionalStatsGroup.Content = outerContainer)
+                    .ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
 
 

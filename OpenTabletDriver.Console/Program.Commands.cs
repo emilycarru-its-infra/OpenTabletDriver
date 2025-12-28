@@ -1,18 +1,17 @@
 using System;
-using System.Collections.Generic;
-using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.Diagnostics;
+using OpenTabletDriver.Desktop.Interop;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Output;
+using OpenTabletDriver.Plugin.Platform.Display;
 using OpenTabletDriver.Plugin.Tablet;
 using static System.Console;
 
@@ -107,6 +106,39 @@ namespace OpenTabletDriver.Console
                 p.AbsoluteModeSettings.Display.X = x;
                 p.AbsoluteModeSettings.Display.Y = y;
             });
+        }
+
+        private static async Task MapToDisplayIndex(string tablet, uint index)
+        {
+            var displays = DesktopInterop.VirtualScreen.Displays.ToArray();
+
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(index, (uint)displays.Length);
+
+            var display = displays[index];
+
+            float width = display.Width;
+            float height = display.Height;
+
+            // account for monitor layouts with negative offsets (e.g. Wayland supports this)
+            // skip IVirtualScreen's as these tend to be normalized to 0,0, which may confuse these methods
+            float xOffset = displays.Where(d => d is not IVirtualScreen).MinBy(d => d.Position.X).Position.X;
+            float yOffset = displays.Where(d => d is not IVirtualScreen).MinBy(d => d.Position.Y).Position.Y;
+
+            float x, y;
+
+            if (display is IVirtualScreen virtualScreen)
+            {
+                x = virtualScreen.Width / 2;
+                y = virtualScreen.Height / 2;
+            }
+            else
+            {
+                virtualScreen = DesktopInterop.VirtualScreen;
+                x = display.Position.X - xOffset + virtualScreen.Position.X + (width / 2);
+                y = display.Position.Y - yOffset + virtualScreen.Position.Y + (height / 2);
+            }
+
+            await SetDisplayArea(tablet, width, height, x, y);
         }
 
         private static async Task SetTabletArea(string tablet, float width, float height, float x, float y, float rotation = 0)
@@ -377,6 +409,14 @@ namespace OpenTabletDriver.Console
         {
             foreach (var dir in AppInfo.PluginManager.PluginDirectory.EnumerateDirectories())
                 await Out.WriteLineAsync(dir.Name);
+        }
+
+        // BUG: DesktopInterop takes the CLI's view of the display layout - this may be desynched
+        private static async Task ListDisplays()
+        {
+            int index = 0;
+            foreach (var display in DesktopInterop.VirtualScreen.Displays)
+                await Out.WriteLineAsync($"{index++}: {display}");
         }
 
         #endregion

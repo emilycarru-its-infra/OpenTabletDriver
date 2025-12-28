@@ -378,9 +378,6 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
             await Task.Run(async () =>
             {
-                if (!_additionalStatsGroup.Content?.IsDisposed ?? false)
-                    _additionalStatsGroup.Content.Dispose();
-
                 var outerContainer = new StackLayout
                 {
                     Spacing = _SPACING,
@@ -451,8 +448,12 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                     outerContainer.Items.Add(container);
                 }
 
-                await Application.Instance.InvokeAsync(() => _additionalStatsGroup.Content = outerContainer)
-                    .ConfigureAwait(false);
+                await Application.Instance.InvokeAsync(delegate
+                {
+                    if (!_additionalStatsGroup.Content?.IsDisposed ?? false)
+                        _additionalStatsGroup.Content.Dispose();
+                    _additionalStatsGroup.Content = outerContainer;
+                });
             }).ConfigureAwait(false);
         }
 

@@ -30,9 +30,11 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
     private FileStream? _tabletRecordingFileStream;
     private StreamWriter? _tabletRecordingStreamWriter;
 
+    public NotifyCollectionChangedEventHandler? StatisticsCollectionChanged;
+
     public TabletDebuggerViewModel()
     {
-        _additionalStatistics.CollectionChanged += (sender, args) => this.CollectionChanged?.Invoke(sender, args);
+        _additionalStatistics.ChildCollectionChanged += (sender, args) => StatisticsCollectionChanged?.Invoke(sender, args);
     }
 
     public void HandleReport(object? sender, DebugReportData data) => ReportData = data;
@@ -316,7 +318,7 @@ public static class TabletDebuggerEnums
     }
 }
 
-public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
+public class Statistic : INotifyPropertyChanged
 {
     private readonly string _name = null!;
     private object? _value;
@@ -331,7 +333,7 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
         Value = value;
         _unit = unit;
         _valueStringFormat = valueStringFormat ?? "{0}";
-        Children = [];
+        _children.CollectionChanged += ChildCollectionChangedHandler;
     }
 
     /// <summary>
@@ -342,11 +344,29 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
         get => _children;
         set
         {
+            var oldState = _children;
             if (!SetField(ref _children, value)) return;
 
-            Children.CollectionChanged += (sender, args) => CollectionChanged?.Invoke(sender, args);
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            // TODO: are these 2 events needed?
+            oldState.CollectionChanged -= ChildCollectionChangedHandler;
+            value.CollectionChanged += ChildCollectionChangedHandler;
+
+            ChildCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldState));
         }
+    }
+
+    public void ChildCollectionChangedHandler(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        ChildCollectionChanged?.Invoke(sender, e);
+
+        // TODO: only subscribe if it's our child
+
+        if (e is { OldItems: not null })
+            foreach (Statistic item in e.OldItems)
+                item.ChildCollectionChanged -= ChildCollectionChangedHandler;
+        if (e is { NewItems: not null })
+            foreach (Statistic item in e.NewItems)
+                item.ChildCollectionChanged += ChildCollectionChangedHandler;
     }
 
     /// <summary>
@@ -423,12 +443,11 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
         {
             var rv = Children.FirstOrDefault(x => x.Name == childName);
 
-            // BUG: seems like this addition doesn't cause an update in the viewmodel?
-            //     known workaround: add children as fast as possible (no empty groups!)
-            //     Fixing this seem interesting since the viewmodel currently does some action subscription jank
-            //     with a delay/debounce to ensure that all elements are picked up correctly
-            //     ..but new outer groups seem to be observed? idk lmao
-            if (rv == null) Children.Add(rv = new Statistic(childName));
+            if (rv == null)
+            {
+                Children.Add(rv = new Statistic(childName));
+                ChildCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, rv));
+            }
 
             return rv;
         }
@@ -572,7 +591,8 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
     }
 
     #region Event Handling
-    public event NotifyCollectionChangedEventHandler? CollectionChanged;
+
+    public event NotifyCollectionChangedEventHandler? ChildCollectionChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -583,9 +603,6 @@ public class Statistic : INotifyPropertyChanged, INotifyCollectionChanged
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-
-        // TODO: is this even necessary?
-        CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, field));
 
         field = value;
         OnPropertyChanged(propertyName);

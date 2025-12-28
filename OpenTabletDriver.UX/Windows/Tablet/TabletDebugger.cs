@@ -180,7 +180,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             CancellationTokenSource? cts = null;
 #nullable restore
 
-            viewmodel.CollectionChanged += void (sender, args) =>
+            viewmodel.StatisticsCollectionChanged += void (sender, args) =>
             {
                 cts?.Cancel();
                 cts = new CancellationTokenSource();

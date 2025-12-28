@@ -17,7 +17,7 @@ using OpenTabletDriver.Plugin.Timing;
 
 namespace OpenTabletDriver.Desktop.ViewModels;
 
-public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDisposable
+public class TabletDebuggerViewModel : ViewModel, IDisposable
 {
     private const DecodingMode _DEFAULT_DECODING_MODE = DecodingMode.Hex;
 
@@ -325,7 +325,5 @@ public class TabletDebuggerViewModel : ViewModel, INotifyCollectionChanged, IDis
     }
 
     #endregion
-
-    public event NotifyCollectionChangedEventHandler? CollectionChanged;
 }
 

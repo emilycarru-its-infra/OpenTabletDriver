@@ -205,7 +205,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 int oldValue = this.AdditionalStatColumnsPerRow;
                 int newValue = this.Width switch
                 {
-                    >= 1600 => 5,
+                    >= 1300 => 5,
                     > 1160 => 4,
                     <= 1160 => 3,
                 };

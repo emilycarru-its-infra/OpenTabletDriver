@@ -229,9 +229,10 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             _reportRate.TextBinding.BindDataContext((TDVM vm) => vm.ReportRateString, DualBindingMode.OneWay);
             _reportsRecorded.TextBinding.Convert(null, (int value) => $"{value}").BindDataContext((TDVM vm) => vm.ReportsRecorded, DualBindingMode.OneWay);
             _tabletVisualizer.ReportDataBinding.BindDataContext((TDVM vm) => vm.ReportData, DualBindingMode.OneWay);
-            _tabletVisualizer.BindDataContext(x => x.Enabled, (TDVM vm) => vm.IsVisualizerEnabled);
-            _reportsRecordedGroup.BindDataContext(x => x.Visible, (TDVM vm) => vm.HasReportsRecorded);
 
+            _tabletVisualizer.BindDataContext(x => x.Enabled, (TDVM vm) => vm.IsVisualizerEnabled);
+            _tabletVisualizerGroup.BindDataContext(x => x.Visible, (TDVM vm) => vm.IsVisualizerEnabled);
+            _reportsRecordedGroup.BindDataContext(x => x.Visible, (TDVM vm) => vm.HasReportsRecorded);
             _additionalStatsGroup.BindDataContext(x => x.Visible, (TDVM vm) => vm.ShowAdditionalStatistics);
         }
 

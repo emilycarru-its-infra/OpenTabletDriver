@@ -12,6 +12,7 @@ using Eto.Forms;
 using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.RPC;
 using OpenTabletDriver.Desktop.ViewModels;
+using OpenTabletDriver.Desktop.ViewModels.Utility;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.Plugin.Tablet.Touch;
@@ -259,7 +260,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 Text = "Raw Data Mode",
             };
 
-            foreach (var decodingMode in Enum.GetValues<TabletDebuggerEnums.DecodingMode>())
+            foreach (var decodingMode in Enum.GetValues<DecodingMode>())
             {
                 string modeName = decodingMode.ToString();
 
@@ -459,11 +460,11 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
 
         private int GetWidthOfRawTabletDataGroupBox(
-            TabletDebuggerEnums.DecodingMode decodingMode = TabletDebuggerEnums.DecodingMode.Hex) =>
+            DecodingMode decodingMode = DecodingMode.Hex) =>
             decodingMode switch
             {
-                TabletDebuggerEnums.DecodingMode.Binary => (int)_rawTabletLineFontSizeBinary.Width + _GROUP_BOX_EXTRA_WIDTH,
-                TabletDebuggerEnums.DecodingMode.Hex => (int)_rawTabletLineFontSizeHex.Width + _GROUP_BOX_EXTRA_WIDTH,
+                DecodingMode.Binary => (int)_rawTabletLineFontSizeBinary.Width + _GROUP_BOX_EXTRA_WIDTH,
+                DecodingMode.Hex => (int)_rawTabletLineFontSizeHex.Width + _GROUP_BOX_EXTRA_WIDTH,
                 _ => throw new ArgumentOutOfRangeException(nameof(decodingMode)),
             };
 

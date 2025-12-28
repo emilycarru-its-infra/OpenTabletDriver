@@ -12,14 +12,24 @@ using OpenTabletDriver.Plugin.Tablet.Touch;
 
 namespace OpenTabletDriver.Desktop.ViewModels.Utility
 {
+    public static class StatisticSubGroup
+    {
+        public const string Min = "Minimum Value";
+        public const string Max = "Maximum Value";
+        public const string Status = "Status";
+    }
+
     public class Statistic : INotifyPropertyChanged, IComparable
     {
-        private readonly string _name = null!;
         private object? _value;
         private string? _unit;
         private string _valueStringFormat;
         private bool _hidden;
-        private ObservableCollection<Statistic> _children = [];
+
+        // null: valid (full 'false -> true -> false' transition happened)
+        // false: only seen false
+        // true: have seen false and then true but haven't seen false after true
+        private readonly Dictionary<int, bool?> _seenButtons = new();
 
         internal Statistic(string name, object? value = null, string? unit = null, string? valueStringFormat = null)
         {
@@ -27,50 +37,20 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
             Value = value;
             _unit = unit;
             _valueStringFormat = valueStringFormat ?? "{0}";
-            _children.CollectionChanged += ChildCollectionChangedHandler;
+            Children.CollectionChanged += ChildCollectionChangedHandler;
         }
+
+        #region Properties
 
         /// <summary>
         /// If <c>Children</c> has any elements, this instance effectively becomes a group
         /// </summary>
-        public ObservableCollection<Statistic> Children
-        {
-            get => _children;
-            set
-            {
-                var oldState = _children;
-                if (!SetField(ref _children, value)) return;
-
-                // TODO: are these 2 events needed?
-                oldState.CollectionChanged -= ChildCollectionChangedHandler;
-                value.CollectionChanged += ChildCollectionChangedHandler;
-
-                ChildCollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, oldState));
-            }
-        }
-
-        public void ChildCollectionChangedHandler(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            ChildCollectionChanged?.Invoke(sender, e);
-
-            // TODO: only subscribe if it's our child
-
-            if (e is { OldItems: not null })
-                foreach (Statistic item in e.OldItems)
-                    item.ChildCollectionChanged -= ChildCollectionChangedHandler;
-            if (e is { NewItems: not null })
-                foreach (Statistic item in e.NewItems)
-                    item.ChildCollectionChanged += ChildCollectionChangedHandler;
-        }
+        public ObservableCollection<Statistic> Children { get; } = [];
 
         /// <summary>
         /// The key name of the instance
         /// </summary>
-        public string Name
-        {
-            get => _name;
-            private init => SetField(ref _name, value);
-        }
+        public string Name { get; }
 
         /// <summary>
         /// The optional value of the instance
@@ -126,11 +106,14 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
                 ? "<null>"
                 : string.Empty;
 
+        #endregion
+
+        #region Class Functions
+
         /// <summary>
         /// Retrieve the child group <see cref="Statistic"/> from the current instance
         /// </summary>
         /// <param name="childName">The <see cref="Name"/> of the child</param>
-        /// TODO: make this take an enum or similar instead of a string
         public Statistic this[string childName]
         {
             get
@@ -147,6 +130,10 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
             }
         }
 
+        /// <summary>
+        /// Return this object and its children's full string representation
+        /// </summary>
+        /// <returns>A string per this and per child</returns>
         public IEnumerable<string> DumpTreeAsStrings()
         {
             yield return $"{Name}: {ValueString} {Unit}".TrimEnd();
@@ -155,6 +142,10 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
             foreach (var s in child.DumpTreeAsStrings())
                 yield return $"  {s}";
         }
+
+        #endregion
+
+        #region Class "Extension Methods"
 
         public Statistic SaveMinMax(double source, string? unit = null, int precision = 2) => SaveMinMax(source, Math.Min, Math.Max, unit, precision);
         public Statistic SaveMinMax(uint source, string? unit = null) => SaveMinMax(source, Math.Min, Math.Max, unit, null);
@@ -173,10 +164,10 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
 
         private Statistic SaveMinMax<T>(T source, Func<T, T, T> minFunc, Func<T, T, T> maxFunc, string? unit, int? precision)
         {
-            var min = this["Min"];
+            var min = this[StatisticSubGroup.Min];
             min.Value = minFunc(source, (T)(min.Value ?? source)!);
             min.Unit = unit;
-            var max = this["Max"];
+            var max = this[StatisticSubGroup.Max];
             max.Value = maxFunc(source, (T)(max.Value ?? source)!);
             max.Unit = unit;
 
@@ -196,11 +187,14 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
             return this;
         }
 
-        // null: valid (full 'false -> true -> false' transition happened)
-        // false: only seen false
-        // true: have seen false and then true but haven't seen false after true
-        private readonly Dictionary<int, bool?> _seenButtons = new();
-
+        /// <summary>
+        /// Save up to <paramref name="expectedButtons"/> values from <paramref name="buttons"/> into this group.
+        /// This function also tracks the complete state range of the button,
+        ///   to ensure a full <c>false</c> -> <c>true</c> -> <c>false</c> transition has happened
+        /// </summary>
+        /// <param name="buttons">The buttons to save</param>
+        /// <param name="expectedButtons">The maximum number of buttons to save</param>
+        /// <returns></returns>
         public Statistic SaveButtons(bool[] buttons, int expectedButtons)
         {
             // no buttons expected, don't log anything
@@ -243,7 +237,7 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
                 }
             }
 
-            var status = this["Status"];
+            var status = this[StatisticSubGroup.Status];
             status.Value = string.Join(" ", _seenButtons.Select(SelectEmojisFromButtonBool));
 
             return this;
@@ -257,6 +251,11 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
                 };
         }
 
+        /// <summary>
+        /// Save the <paramref name="valuePath"/> as a subgroup and increment its count if it has been seen before.
+        /// </summary>
+        /// <param name="valuePath">The value of the group</param>
+        /// <returns><c>this</c> (for LINQ-style chaining)</returns>
         public Statistic SaveCountAdd1(string valuePath)
         {
             valuePath = valuePath.Replace("OpenTabletDriver.Configurations.Parsers.", "")
@@ -269,13 +268,21 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
             return this;
         }
 
+        /// <summary>
+        /// Recursively enable <see cref="Hidden"/> on everything in this hierarchy
+        /// </summary>
+        /// <returns><c>this</c> (for LINQ-style chaining)</returns>
         public Statistic HideAllChildren()
         {
+            this.Hidden = true;
+
             foreach (var child in Children)
-                child.Hidden = true;
+                child.HideAllChildren();
 
             return this;
         }
+
+        #endregion
 
         public override string ToString()
         {
@@ -284,6 +291,7 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
             return $"{hiddenText} {groupText} {Name} {ValueString} {Unit}".Trim();
         }
 
+        // to support sorting, e.g. SortedHashMap
         public int CompareTo(object? obj) =>
             obj is Statistic statistic
                 ? string.CompareOrdinal(this.Name, statistic.Name)
@@ -291,8 +299,19 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
 
         #region Event Handling
 
-        public event NotifyCollectionChangedEventHandler? ChildCollectionChanged;
-        public event PropertyChangedEventHandler? PropertyChanged;
+        private void ChildCollectionChangedHandler(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            ChildCollectionChanged?.Invoke(sender, e);
+
+            // TODO: only subscribe if it's our child
+
+            if (e is { OldItems: not null })
+                foreach (Statistic item in e.OldItems)
+                    item.ChildCollectionChanged -= ChildCollectionChangedHandler;
+            if (e is { NewItems: not null })
+                foreach (Statistic item in e.NewItems)
+                    item.ChildCollectionChanged += ChildCollectionChangedHandler;
+        }
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
@@ -307,6 +326,9 @@ namespace OpenTabletDriver.Desktop.ViewModels.Utility
             OnPropertyChanged(propertyName);
             return true;
         }
+
+        public event NotifyCollectionChangedEventHandler? ChildCollectionChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         #endregion
     }
 }

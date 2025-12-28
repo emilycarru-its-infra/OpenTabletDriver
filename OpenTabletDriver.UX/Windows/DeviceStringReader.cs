@@ -1,9 +1,11 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eto.Drawing;
 using Eto.Forms;
+using OpenTabletDriver.Plugin.Devices;
 using OpenTabletDriver.UX.Controls.Generic;
 
 namespace OpenTabletDriver.UX.Windows
@@ -67,6 +69,7 @@ namespace OpenTabletDriver.UX.Windows
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
                 Items =
                 {
+                    new Group("Connected Devices", deviceDropDown, Orientation.Horizontal, false),
                     vendorIdCtrl,
                     productIdCtrl,
                     stringIndexCtrl,
@@ -91,6 +94,19 @@ namespace OpenTabletDriver.UX.Windows
                 if (args.Key == Keys.Escape)
                     this.Close();
             };
+
+            deviceDropDown.SelectedItemBinding
+                .Convert(x => x.VendorID.ToString())
+                .Bind(vendorIdText.TextBinding);
+
+            deviceDropDown.SelectedItemBinding
+                .Convert(x => x.ProductID.ToString())
+                .Bind(productIdText.TextBinding);
+
+            this.deviceDropDown.DataStore =
+                App.Driver.Instance.GetDevices().Result
+                    .Where(x => x.CanOpen)
+                    .DistinctBy(x => new { x.VendorID, x.ProductID });
         }
 
         private const int NUMERICBOX_WIDTH = 150;
@@ -181,6 +197,7 @@ namespace OpenTabletDriver.UX.Windows
             return result == DialogResult.Ok;
         }
 
+        private readonly DropDown<SerializedDeviceEndpoint> deviceDropDown = new();
         private readonly NumericMaskedTextBox<ushort> vendorIdText, productIdText, stringIndexText;
         private readonly TextBox deviceStringText;
         private readonly Group vendorIdCtrl, productIdCtrl, stringIndexCtrl;

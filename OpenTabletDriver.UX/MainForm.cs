@@ -57,32 +57,44 @@ namespace OpenTabletDriver.UX
             Driver.Connected += HandleDaemonConnected;
             Driver.Disconnected += HandleDaemonDisconnected;
 
-            Application.Instance.AsyncInvoke(async () =>
+            Application.Instance.InvokeAsync(ConnectToDaemon);
+        }
+
+        private async Task ConnectToDaemon()
+        {
+            try
             {
-                try
+                while (true)
                 {
                     var timeout = Task.Delay(TimeSpan.FromSeconds(15));
                     var result = await Task.WhenAny(Driver.Connect(), timeout);
-                    if (result == timeout)
-                    {
-                        var message = SystemInterop.CurrentPlatform switch
-                        {
-                            PluginPlatform.Windows => "Connecting to daemon has timed out.\nVerify that OpenTabletDriver.Daemon is running or is in the same folder as OpenTabletDriver.UX",
-                            _ => "Connecting to daemon has timed out. Verify that OpenTabletDriver.Daemon is running."
-                        };
-                        MessageBox.Show(this, message, "Daemon Connection Error", MessageBoxType.Error);
-                        Environment.Exit(1);
-                    }
 
-                    if (!this.SkipUpdate)
-                        CheckForUpdates();
+                    if (result != timeout)
+                        break; // daemon connected
+
+                    var message = SystemInterop.CurrentPlatform switch
+                    {
+                        PluginPlatform.Windows =>
+                            "Connecting to daemon has timed out.\nVerify that OpenTabletDriver.Daemon is running or is in the same folder as OpenTabletDriver.UX\nPress OK to retry",
+                        _ =>
+                            "Connecting to daemon has timed out. Verify that OpenTabletDriver.Daemon is running.\nPress OK to retry"
+                    };
+
+                    var dialogResult = MessageBox.Show(this, message, "Daemon Connection Error",
+                        MessageBoxButtons.OKCancel, MessageBoxType.Error);
+
+                    if (dialogResult == DialogResult.Cancel)
+                        Environment.Exit(1);
                 }
-                catch (Exception ex)
-                {
-                    ex.ShowMessageBox();
-                    Environment.Exit(2);
-                }
-            });
+
+                if (!this.SkipUpdate)
+                    CheckForUpdates();
+            }
+            catch (Exception ex)
+            {
+                ex.ShowMessageBox();
+                Environment.Exit(2);
+            }
         }
 
         private const int DEFAULT_CLIENT_WIDTH = 960;
@@ -439,12 +451,7 @@ namespace OpenTabletDriver.UX
                 base.Content = placeholder;
                 base.Menu = null;
 
-                MessageBox.Show(
-                    "Lost connection to daemon, exiting...",
-                    MessageBoxType.Error
-                );
-
-                Environment.Exit(1);
+                Application.Instance.InvokeAsync(ConnectToDaemon).ConfigureAwait(false);
             });
         }
 

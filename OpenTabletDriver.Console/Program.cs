@@ -20,6 +20,11 @@ namespace OpenTabletDriver.Console
             }
 
             await Driver.Connect();
+            Driver.Disconnected += (sender, eventArgs) =>
+            {
+                System.Console.Out.WriteLine("Daemon disconnected, exiting...");
+                Environment.Exit(1);
+            };
 
             // load plugins
             AppInfo.PluginManager.Load();

@@ -85,6 +85,9 @@ namespace OpenTabletDriver.UX
 
                     if (dialogResult == DialogResult.Cancel)
                         Environment.Exit(1);
+
+                    if (App.EnableDaemonWatchdog)
+                        StartDaemonWatchdog();
                 }
 
                 if (!this.SkipUpdate)
@@ -176,25 +179,29 @@ namespace OpenTabletDriver.UX
             if (App.EnableDaemonWatchdog)
             {
                 // Check if daemon is already active, if not then start it as a subprocess if it exists in the local path.
-                if (!Instance.Exists("OpenTabletDriver.Daemon") && DaemonWatchdog.CanExecute)
+                StartDaemonWatchdog();
+
+                AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
                 {
-                    var watchdog = new DaemonWatchdog();
-                    watchdog.Start();
-                    App.DaemonWatchdog = watchdog;
+                    App.DaemonWatchdog?.Dispose();
+                    App.DaemonWatchdog = null;
+                };
 
-                    AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-                    {
-                        App.DaemonWatchdog?.Dispose();
-                        App.DaemonWatchdog = null;
-                    };
-
-                    this.Closing += (sender, e) =>
-                    {
-                        App.DaemonWatchdog?.Dispose();
-                        App.DaemonWatchdog = null;
-                    };
-                }
+                this.Closing += (sender, e) =>
+                {
+                    App.DaemonWatchdog?.Dispose();
+                    App.DaemonWatchdog = null;
+                };
             }
+        }
+
+        private static void StartDaemonWatchdog()
+        {
+            if (Instance.Exists("OpenTabletDriver.Daemon") || !DaemonWatchdog.CanExecute) return;
+
+            var watchdog = new DaemonWatchdog();
+            watchdog.Start();
+            App.DaemonWatchdog = watchdog;
         }
 
         private MenuBar ConstructLimitedMenu()

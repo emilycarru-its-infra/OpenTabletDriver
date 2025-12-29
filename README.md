@@ -86,6 +86,11 @@ Run `PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" $(brew --prefix)/bin
   - Windows: `Windows Presentation Foundation`
   - Linux: `GTK+3`
   - MacOS: `MonoMac`
+- Multi-tablet support
+  - Handles multiple tablets from a large selection of models and
+    manufacturers, each with its own plugin pipeline and settings
+- Validated tablet specifications, ensuring the smoothest transition if
+  switching tablets
 - Fully fledged console tool
   - Quickly acquire, change, load, or save settings
   - Scripting support (json output)
@@ -95,22 +100,40 @@ Run `PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" $(brew --prefix)/bin
   - Precise area rotation
 - Relative cursor positioning
   - px/mm horizontal and vertical sensitivity
+- Advanced tablet feature compatibility
+  - Pressure output
+    - Windows: Needs Windows Ink OpenTabletDriver plugin for Windows Ink output
+      mode, and VMulti system driver
+    - Linux: Natively supported with "Linux Artist Mode" output mode
+    - MacOS: Natively supported in all output modes
+  - Pen tilt
+  - Partial tablet pad wheel/slider support
+  - Auxiliary/Express Keys
 - Pen bindings
   - Tip by pressure bindings
   - Express key bindings
   - Pen button bindings
   - Mouse button bindings
+  - Wheel bindings
   - Keyboard bindings
+  - Preset bindings
   - External plugin bindings
 - Saving and loading settings
-  - Auto-loads user settings via `settings.json` in the active user `%localappdata%` or `.config` settings root directory.
-- Configuration Editor
-  - Allows you to create, modify, and delete configurations.
-  - Generate configurations from visible HID devices
+  - Persistent settings
+  - Presets for quick-access to prior saved settings
 - Plugins
-  - Filters
+  - Plugin Manager (via
+    [Plugin-Repository](https://github.com/OpenTabletDriver/Plugin-Repository))
+  - Filters, including asynchronous filters (interpolators)
   - Output modes
-  - Tools
+- Device debugging tools
+  - Simple tablet data analyzer ("Tablet Debugger")
+  - USB Device String readings
+- Automatic version update notification
+  - Can be disabled with `--skipupdate` command line flag
+- Vendor driver area conversions
+  - Supports transforming your Wacom / XP-Pen / Huion / Gaomon / VEIKK area
+- Standalone daemon, for low-spec or headless systems.
 
 # Contributing to OpenTabletDriver
 

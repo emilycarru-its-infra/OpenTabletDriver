@@ -396,10 +396,10 @@ namespace OpenTabletDriver.Daemon
             string group = dev.Properties.Name;
 
             var elements = (from store in profile.Filters
-                           where store.Enable
-                           let filter = store.Construct<IPositionedPipelineElement<IDeviceReport>>(outputMode.Tablet)
-                           where filter != null
-                           select filter!).ToArray();
+                            where store.Enable
+                            let filter = store.Construct<IPositionedPipelineElement<IDeviceReport>>(outputMode.Tablet)
+                            where filter != null
+                            select filter!).ToArray();
 
             outputMode.Elements = elements.Append(bindingHandler).ToList();
 

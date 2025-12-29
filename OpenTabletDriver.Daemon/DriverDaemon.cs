@@ -86,7 +86,7 @@ namespace OpenTabletDriver.Daemon
                 Log.WriteNotify("Detect", message.ToString(), LogLevel.Warning);
             }
 
-            LoadUserSettings();
+            LoadUserSettings().Wait();
 
             SleepDetector.Slept += async () =>
             {
@@ -339,7 +339,7 @@ namespace OpenTabletDriver.Daemon
             await SetSettings(Settings.GetDefaults());
         }
 
-        private async void LoadUserSettings()
+        private async Task LoadUserSettings()
         {
             AppInfo.PluginManager.Clean();
             await LoadPlugins();

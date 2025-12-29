@@ -111,7 +111,7 @@ Run `PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" $(brew --prefix)/bin
   - Auxiliary/Express Keys
 - Pen bindings
   - Tip by pressure bindings
-  - Express key bindings
+  - Express ("Aux") key bindings
   - Pen button bindings
   - Mouse button bindings
   - Wheel bindings

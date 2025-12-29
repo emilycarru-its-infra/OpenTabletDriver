@@ -22,7 +22,7 @@ namespace OpenTabletDriver.Console
             await Driver.Connect();
             Driver.Disconnected += (sender, eventArgs) =>
             {
-                System.Console.Out.Write("Daemon disconnected, exiting...");
+                System.Console.Out.WriteLine("Daemon disconnected, exiting...");
                 Environment.Exit(1);
             };
 

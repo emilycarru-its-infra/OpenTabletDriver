@@ -23,8 +23,13 @@ namespace OpenTabletDriver.Desktop
 
             if (Directory.Exists(AppInfo.Current.ConfigurationDirectory))
             {
-                Log.Write("Detect", $"Configuration overrides exist in '{AppInfo.Current.ConfigurationDirectory}', overriding built-in configurations.", LogLevel.Debug);
-                var files = Directory.EnumerateFiles(AppInfo.Current.ConfigurationDirectory, "*.json", SearchOption.AllDirectories);
+                var files = Directory.EnumerateFiles(AppInfo.Current.ConfigurationDirectory, "*.json", SearchOption.AllDirectories)
+                    .ToList();
+
+                Log.Write("Detect",
+                    files.Any()
+                        ? $"{files.Count} configurations exist in '{AppInfo.Current.ConfigurationDirectory}'. Built-in configurations may be overridden if the Name matches exactly."
+                        : $"Configuration overrides specified as '{AppInfo.Current.ConfigurationDirectory}' but folder is empty.");
 
                 jsonConfigurations = files.Select(path => Serialization.Deserialize<TabletConfiguration>(File.OpenRead(path)))
                     .Select(jsonConfig => (ConfigurationSource.File, jsonConfig));
@@ -42,6 +47,9 @@ namespace OpenTabletDriver.Desktop
                     var jsonConfig = multiSourcedConfig.Where(m => m.Item1 == ConfigurationSource.File)
                         .Select(m => m.Item2)
                         .FirstOrDefault();
+
+                    if (jsonConfig != null && asmConfig != null)
+                        Log.Write("Detect", $"Overriding tablet configuration '{jsonConfig.Name}'");
 
                     return jsonConfig ?? asmConfig!;
                 });

@@ -408,16 +408,12 @@ namespace OpenTabletDriver.Daemon
                 var pluginSettings = profile.Filters.First(x => x.Path == filter.GetType().FullName);
                 if (pluginSettings == null) continue;
 
-                var filterSettingsList = new List<string>();
+                var filterSettingsText =
+                    from setting in pluginSettings.Settings
+                    let settingValue = setting.HasValue ? setting.Value.ToString() : "<null>"
+                    select $"[ {setting.Property}: '{settingValue}' ]";
 
-                foreach (var setting in pluginSettings.Settings)
-                {
-                    var settingValue = setting.HasValue ? setting.Value.ToString() : "<null>";
-
-                    filterSettingsList.Add($"[ {setting.Property}: '{settingValue}' ]");
-                }
-
-                Log.Write(group, $"Filter Settings \"{filter.GetType().FullName}\": {string.Join(", ", filterSettingsList)}");
+                Log.Write(group, $"Filter Settings \"{filter.GetType().FullName}\": {string.Join(", ", filterSettingsText)}");
             }
         }
 

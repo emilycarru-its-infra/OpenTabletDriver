@@ -150,7 +150,8 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
 
             if (dataObject is IDeviceReport deviceReport)
             {
-                SetRawTabletData(deviceReport);
+                _deviceReport = deviceReport;
+                RaiseChanged(nameof(RawTabletData));
                 DecodedTabletData = ReportFormatter.GetStringFormat(deviceReport);
                 HandleDataRecording(value, deviceReport, timeDelta);
             }
@@ -180,11 +181,21 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
     private double ReportRateAverage => 1000 / (_reportRates.Count > 0 ? _reportRates.Average() : 0);
     public string ReportRateString => $"{ReportRateAverage:0.00}";
 
-    private string _rawTabletData = string.Empty;
+    private IDeviceReport? _deviceReport;
+
     public string RawTabletData
     {
-        get => _rawTabletData;
-        private set => RaiseAndSetIfChanged(ref _rawTabletData, value);
+        get
+        {
+           if (_deviceReport == null) return string.Empty;
+
+           return DecodingMode switch
+           {
+               DecodingMode.Hex => ReportFormatter.GetStringRaw(_deviceReport),
+               DecodingMode.Binary => ReportFormatter.GetStringRawAsBinary(_deviceReport),
+               _ => throw new ArgumentOutOfRangeException(nameof(DecodingMode)),
+           };
+        }
     }
 
     private string _decodedTabletData = string.Empty;
@@ -198,7 +209,11 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
     public DecodingMode DecodingMode
     {
         get => _decodingMode;
-        set => RaiseAndSetIfChanged(ref _decodingMode, value);
+        set
+        {
+            RaiseAndSetIfChanged(ref _decodingMode, value);
+            RaiseChanged(nameof(RawTabletData));
+        }
     }
 
     private int _reportsRecorded;
@@ -267,16 +282,6 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
     #endregion
 
     #region Class Functions
-
-    private void SetRawTabletData(IDeviceReport report)
-    {
-        RawTabletData = DecodingMode switch
-        {
-            DecodingMode.Hex => ReportFormatter.GetStringRaw(report),
-            DecodingMode.Binary => ReportFormatter.GetStringRawAsBinary(report),
-            _ => throw new ArgumentOutOfRangeException(nameof(report)),
-        };
-    }
 
     private void HandleDataRecording(DebugReportData reportData, IDeviceReport report, TimeSpan timeDelta)
     {

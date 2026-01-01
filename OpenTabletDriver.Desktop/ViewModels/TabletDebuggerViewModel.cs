@@ -46,6 +46,7 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
         {
             // early exit if ignored
             if (value != null && IgnoredReports.Contains(GetNameKeyForFilter(value.Tablet, value.Path))) return;
+            if (value != null && IgnoredTablets.Contains(value.Tablet.Properties.Name)) return;
 
             RaiseAndSetIfChanged(ref _reportData, value);
             if (value == null) return;
@@ -260,6 +261,8 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
     public ReadOnlyCollection<string> SeenReports => _seenReports.ToArray().AsReadOnly();
     // TODO: make this an ObservableHashSet so that we can reset AdditionalStats on changes
     public HashSet<string> IgnoredReports { get; } = [];
+
+    public HashSet<string> IgnoredTablets { get; } = [];
 
     #endregion
 

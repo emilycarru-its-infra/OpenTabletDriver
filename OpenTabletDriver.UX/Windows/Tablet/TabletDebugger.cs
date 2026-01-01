@@ -59,13 +59,14 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         };
 
         private readonly ButtonMenuItem _debuggedReports = new() { Text = "Debugged Reports", Visible = false };
+        private readonly ButtonMenuItem _debuggedTablets = new() { Text = "Debugged Tablets", Visible = false };
 
         private int AdditionalStatColumnsPerRow { get; set; } = 3;
 
         public TabletDebugger()
             : base(Application.Instance.MainForm)
         {
-            SetTitle(App.Driver.Instance.GetTablets().Result);
+            HandleTabletsChanged(null, App.Driver.Instance.GetTablets().Result);
 
             var viewmodel = new TDVM();
             DataContext = viewmodel;
@@ -297,6 +298,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 },
                 Items =
                 {
+                    _debuggedTablets,
                     _debuggedReports,
                 },
             };
@@ -502,8 +504,19 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             Title = sb.ToString();
         }
 
-        private void HandleTabletsChanged(object? sender, IEnumerable<TabletReference> tablets) =>
+        private void HandleTabletsChanged(object? sender, IEnumerable<TabletReference> tablets)
+        {
             Application.Instance.AsyncInvoke(() => SetTitle(tablets));
+            Application.Instance.AsyncInvoke(() => UpdateTablets(tablets));
+        }
+
+        private void UpdateTablets(IEnumerable<TabletReference> tablets)
+        {
+            if (DataContext is not TDVM viewmodel) return;
+
+            var tabletNames = tablets.Select(x => x.Properties.Name);
+            UpdateFilterList(_debuggedTablets, tabletNames.ToArray(), viewmodel.IgnoredTablets);
+        }
 
         private class DebuggerGroup : Group
         {

@@ -22,7 +22,7 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
     private const DecodingMode _DEFAULT_DECODING_MODE = DecodingMode.Hex;
 
     private readonly HPETDeltaStopwatch _stopwatch = new();
-    private readonly HashSet<string> _seenTablets = [];
+    private readonly HashSet<string> _seenReports = [];
 
     private FileStream? _tabletRecordingFileStream;
     private StreamWriter? _tabletRecordingStreamWriter;
@@ -45,14 +45,14 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
         private set
         {
             // early exit if ignored
-            if (value != null && IgnoredTablets.Contains(GetNameKeyForFilter(value.Tablet, value.Path))) return;
+            if (value != null && IgnoredReports.Contains(GetNameKeyForFilter(value.Tablet, value.Path))) return;
 
             RaiseAndSetIfChanged(ref _reportData, value);
             if (value == null) return;
             RaiseChanged(nameof(DeviceName));
 
-            if (_seenTablets.Add(GetNameKeyForFilter(value.Tablet, value.Path)))
-                RaiseChanged(nameof(SeenTablets));
+            if (_seenReports.Add(GetNameKeyForFilter(value.Tablet, value.Path)))
+                RaiseChanged(nameof(SeenReports));
 
             var timeDelta = _stopwatch.Restart();
             AdditionalStatistics["Report Rate"].SaveMinMax(timeDelta.TotalMilliseconds, "ms");
@@ -257,9 +257,9 @@ public class TabletDebuggerViewModel : ViewModel, IDisposable
         set => RaiseAndSetIfChanged(ref _showAdditionalStatistics, value);
     }
 
-    public ReadOnlyCollection<string> SeenTablets => _seenTablets.ToArray().AsReadOnly();
+    public ReadOnlyCollection<string> SeenReports => _seenReports.ToArray().AsReadOnly();
     // TODO: make this an ObservableHashSet so that we can reset AdditionalStats on changes
-    public HashSet<string> IgnoredTablets { get; } = [];
+    public HashSet<string> IgnoredReports { get; } = [];
 
     #endregion
 

@@ -58,7 +58,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             Content = new Label { Text = "No stats observed yet" },
         };
 
-        private readonly ButtonMenuItem _activeTablets = new() { Text = "Debugged Tablets", Visible = false };
+        private readonly ButtonMenuItem _debuggedReports = new() { Text = "Debugged Reports", Visible = false };
 
         private int AdditionalStatColumnsPerRow { get; set; } = 3;
 
@@ -176,7 +176,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             {
                 switch (args.PropertyName)
                 {
-                    case nameof(TDVM.SeenTablets) or nameof(TDVM.IgnoredTablets):
+                    case nameof(TDVM.SeenReports) or nameof(TDVM.IgnoredReports):
                         RefreshActiveTabletsMenu();
                         break;
                     case nameof(TDVM.DecodingMode):
@@ -297,7 +297,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 },
                 Items =
                 {
-                    _activeTablets,
+                    _debuggedReports,
                 },
             };
 
@@ -364,11 +364,16 @@ namespace OpenTabletDriver.UX.Windows.Tablet
         {
             if (DataContext is not TDVM viewmodel) return;
 
-            _activeTablets.Items.Clear();
-            _activeTablets.Items.AddRange(GenerateTabletFilterMenuItem(viewmodel.SeenTablets, viewmodel.IgnoredTablets));
+            UpdateFilterList(_debuggedReports, viewmodel.SeenReports, viewmodel.IgnoredReports);
+        }
+
+        private static void UpdateFilterList(ButtonMenuItem menuItem, IReadOnlyCollection<string> seenIDs, HashSet<string> ignoredIDs)
+        {
+            menuItem.Items.Clear();
+            menuItem.Items.AddRange(GenerateTabletFilterMenuItem(seenIDs, ignoredIDs));
 
             // hide if only 1 tablet active
-            _activeTablets.Visible = _activeTablets.Items.Count > 1;
+            menuItem.Visible = menuItem.Items.Count > 1;
         }
 
         private async Task UpdateAdditionalStatisticsFields()

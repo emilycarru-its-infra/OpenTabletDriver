@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Eto.Drawing;
 using Eto.Forms;
@@ -42,6 +43,16 @@ namespace OpenTabletDriver.UX
             };
 
             trayIcon?.Indicator?.Show();
+
+            saveButton = new Button(async (s, e) => await SaveSettings())
+            {
+                Text = "Save"
+            };
+
+            applyButton = new Button(async (s, e) => await ApplySettings())
+            {
+                Text = "Apply"
+            };
 
             Driver.Connected += HandleDaemonConnected;
             Driver.Disconnected += HandleDaemonDisconnected;
@@ -396,14 +407,8 @@ namespace OpenTabletDriver.UX
                     Spacing = 5,
                     Items =
                     {
-                        new Button(async (s, e) => await SaveSettings())
-                        {
-                            Text = "Save"
-                        },
-                        new Button(async (s, e) => await ApplySettings())
-                        {
-                            Text = "Apply"
-                        }
+                        saveButton,
+                        applyButton,
                     }
                 }
             };
@@ -415,6 +420,9 @@ namespace OpenTabletDriver.UX
             if (await Driver.Instance.GetTablets() is IEnumerable<TabletReference> tablets)
                 SetTitle(tablets);
         });
+
+        private Button saveButton;
+        private Button applyButton;
 
         private void HandleDaemonDisconnected(object sender, EventArgs e)
         {
@@ -510,6 +518,8 @@ namespace OpenTabletDriver.UX
 
         private async Task SaveSettings()
         {
+            DisableApplySaveButtons();
+
             if (App.Current.Settings is Settings settings)
             {
                 if (settings.Profiles.Any(p => p.AbsoluteModeSettings.Tablet.Width + p.AbsoluteModeSettings.Tablet.Height == 0))
@@ -530,8 +540,34 @@ namespace OpenTabletDriver.UX
             }
         }
 
+        private CancellationTokenSource _disableApplySaveButtons = new();
+
+        private void DisableApplySaveButtons(bool disableSave = true)
+        {
+            Application.Instance.InvokeAsync(async () =>
+            {
+                await _disableApplySaveButtons.CancelAsync();
+                _disableApplySaveButtons = new CancellationTokenSource();
+                if (disableSave)
+                    saveButton.Enabled = false;
+
+                applyButton.Enabled = false;
+
+                // debounce re-enabling task
+                await Task.Delay(1000, _disableApplySaveButtons.Token).ContinueWith(task =>
+                {
+                    if (task.IsCanceled) return;
+
+                    saveButton.Enabled = true;
+                    applyButton.Enabled = true;
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            }).ConfigureAwait(false);
+        }
+
         private async Task ApplySettings()
         {
+            DisableApplySaveButtons(false);
+
             try
             {
                 if (App.Current.Settings is Settings settings)

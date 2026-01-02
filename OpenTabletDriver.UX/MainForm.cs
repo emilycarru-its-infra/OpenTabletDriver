@@ -266,6 +266,9 @@ namespace OpenTabletDriver.UX
             var exportDiagnostics = new Command { MenuText = "Export diagnostics..." };
             exportDiagnostics.Executed += async (sender, e) => await ExportDiagnostics();
 
+            var exportDiagnosticsToClipboard = new Command { MenuText = "Export diagnostics to Clipboard..." };
+            exportDiagnosticsToClipboard.Executed += async (sender, e) => await ExportDiagnosticsToClipboard();
+
             var updater = new Command { MenuText = "Check for updates..." };
             updater.Executed += (sender, e) => Current.UpdaterWindow.Show();
 
@@ -328,6 +331,7 @@ namespace OpenTabletDriver.UX
                         {
                             wikiUrl,
                             exportDiagnostics,
+                            exportDiagnosticsToClipboard,
                             showGuide
                         }
                     }
@@ -712,7 +716,22 @@ namespace OpenTabletDriver.UX
                 ex.ShowMessageBox();
             }
         }
+        private async Task ExportDiagnosticsToClipboard()
+        {
+            try
+            {
+                var log = await Driver.Instance.GetCurrentLog();
+                var diagnosticDump = new DiagnosticInfo(log, await Driver.Instance.GetDevices());
 
+                Clipboard.Instance.Clear();
+                Clipboard.Instance.Text = diagnosticDump.ToString();
+            }
+            catch (Exception ex)
+            {
+                Log.Exception(ex);
+                ex.ShowMessageBox();
+            }
+        }
         private void CheckForUpdates()
         {
             Application.Instance.AsyncInvoke(async () =>

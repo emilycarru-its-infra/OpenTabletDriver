@@ -556,7 +556,7 @@ namespace OpenTabletDriver.UX
                 // debounce re-enabling task
                 await Task.Delay(1000, _disableApplySaveButtons.Token).ContinueWith(task =>
                 {
-                    if (!task.IsCompletedSuccessfully) return;
+                    if (task.IsCanceled) return;
 
                     saveButton.Enabled = true;
                     applyButton.Enabled = true;

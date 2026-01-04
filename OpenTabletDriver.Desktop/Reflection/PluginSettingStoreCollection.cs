@@ -39,7 +39,8 @@ namespace OpenTabletDriver.Desktop.Reflection
             while (Count > expectedCount)
             {
                 var me = this[Count - 1];
-                Log.Write(nameof(PluginSettingStoreCollection), $"Removing '{me.GetHumanReadableString()}'", LogLevel.Debug);
+                var meName = me?.GetHumanReadableString() ?? "<null>";
+                Log.Write(nameof(PluginSettingStoreCollection), $"Removing '{meName}'", LogLevel.Debug);
                 trimmed++;
                 RemoveAt(Count - 1);
             }

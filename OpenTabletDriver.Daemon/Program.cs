@@ -111,6 +111,7 @@ namespace OpenTabletDriver.Daemon
             }
             catch (Exception e)
             {
+                daemonRunning = false;
                 Log.Exception(e, LogLevel.Fatal);
                 Environment.Exit(1);
             }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace OpenTabletDriver.Desktop
@@ -7,8 +8,11 @@ namespace OpenTabletDriver.Desktop
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        // TODO: On API bump, make this return `bool` instead of `void`
         protected void RaiseAndSetIfChanged<T>(ref T obj, T newValue, [CallerMemberName] string propertyName = "")
         {
+            if (EqualityComparer<T>.Default.Equals(obj, newValue)) return;
+
             obj = newValue;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

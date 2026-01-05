@@ -22,7 +22,7 @@ namespace OpenTabletDriver.Configurations.Parsers.Huion
             }
 
             if (data[1].IsBitSet(7))
-                return new TiltTabletReport(data);
+                return new TiltTabletReport(data, false, true);
 
             return new DeviceReport(data);
         }

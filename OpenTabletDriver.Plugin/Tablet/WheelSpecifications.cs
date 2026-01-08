@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
+#nullable enable
+
 namespace OpenTabletDriver.Plugin.Tablet
 {
     /// <summary>
@@ -10,10 +12,11 @@ namespace OpenTabletDriver.Plugin.Tablet
     {
         /// <summary>
         /// For Absolute Wheels, The physical angle on the wheel's unit circle, corresponding to a reading of zero
+        /// <para/>
+        /// Relative wheels should leave this unset
         /// </summary>
-        [Required(ErrorMessage = $"{nameof(AngleOfZeroReading)} must be defined")]
         [Range(0, 360)]
-        public float AngleOfZeroReading { get; set; }
+        public float? AngleOfZeroReading { get; set; }
 
         /// <summary>
         /// Specifications for the wheel buttons

@@ -1,13 +1,12 @@
-using System.Collections.Generic;
 using Eto.Forms;
-using OpenTabletDriver.Desktop.Reflection;
+using OpenTabletDriver.Desktop.Profiles;
 using OpenTabletDriver.UX.Controls.Generic;
 
 namespace OpenTabletDriver.UX.Controls.Bindings
 {
     public sealed class WheelBindingEditor : BindingEditor
     {
-        public WheelBindingEditor()
+        public WheelBindingEditor(int wheelIndex)
         {
             wheelButtonGroup = new Group
             {
@@ -46,11 +45,12 @@ namespace OpenTabletDriver.UX.Controls.Bindings
                                     new Group
                                     {
                                         Text = "Clockwise Rotation Threshold",
-                                        ToolTip = "The minimum threshold in order for the assigned binding to activate.",
+                                        ToolTip = "The minimum threshold in degrees in order for the assigned binding to activate.",
                                         Orientation = Orientation.Horizontal,
                                         Content = clockwiseThreshold = new FloatSlider()
                                         {
-                                            Minimum = 1
+                                            Minimum = 1,
+                                            Maximum = 360,
                                         }
                                     }
                                 }
@@ -75,11 +75,12 @@ namespace OpenTabletDriver.UX.Controls.Bindings
                                     new Group
                                     {
                                         Text = "Counter-Clockwise Rotation Threshold",
-                                        ToolTip = "The minimum threshold in order for the assigned binding to activate.",
+                                        ToolTip = "The minimum threshold in degrees in order for the assigned binding to activate.",
                                         Orientation = Orientation.Horizontal,
                                         Content = counterClockwiseThreshold = new FloatSlider()
                                         {
-                                            Minimum = 1
+                                            Minimum = 1,
+                                            Maximum = 360,
                                         }
                                     }
                                 }
@@ -90,29 +91,30 @@ namespace OpenTabletDriver.UX.Controls.Bindings
                 }
             };
 
-            clockwiseButton.StoreBinding.Bind(SettingsBinding.Child(c => c.ClockwiseRotation));
-            counterClockwiseButton.StoreBinding.Bind(SettingsBinding.Child(c => c.CounterClockwiseRotation));
-            clockwiseThreshold.ValueBinding.Bind(SettingsBinding.Child(c => c.ClockwiseActivationThreshold));
-            counterClockwiseThreshold.ValueBinding.Bind(SettingsBinding.Child(c => c.CounterClockwiseActivationThreshold));
-            wheelButtons.ItemSourceBinding.Bind(SettingsBinding.Child(c => (IList<PluginSettingStore>)c.WheelButtons));
+            SettingsBinding.DataValueChanged += (sender, args) =>
+            {
+                if (sender is not DelegateBinding<BindingSettings> delegateBinding) return;
+
+                this.DataContext = delegateBinding.DataValue.WheelBindings.Count > 0
+                    ? delegateBinding.DataValue.WheelBindings[wheelIndex]
+                    : null;
+            };
+
+            clockwiseButton.StoreBinding.BindDataContext((WheelBindingSettings wbs) =>
+                wbs.ClockwiseRotation);
+            counterClockwiseButton.StoreBinding.BindDataContext((WheelBindingSettings wbs) =>
+                wbs.CounterClockwiseRotation);
+            clockwiseThreshold.ValueBinding.BindDataContext((WheelBindingSettings wbs) =>
+                wbs.ClockwiseActivationThreshold);
+            counterClockwiseThreshold.ValueBinding.BindDataContext((WheelBindingSettings wbs) =>
+                wbs.CounterClockwiseActivationThreshold);
+
+            wheelButtons.ItemSourceBinding.BindDataContext((WheelBindingSettings wbs) => wbs.WheelButtons);
         }
 
         private Group wheelButtonGroup;
         private BindingDisplay clockwiseButton, counterClockwiseButton;
         private FloatSlider clockwiseThreshold, counterClockwiseThreshold;
         private BindingDisplayList wheelButtons;
-
-        protected override void OnTabletChanged()
-        {
-            base.OnTabletChanged();
-
-            if (Tablet?.Properties?.Specifications?.Wheel != null)
-            {
-                Application.Instance.AsyncInvoke(() =>
-                {
-                    wheelButtonGroup.Visible = Tablet.Properties.Specifications.Wheel.Buttons.ButtonCount > 0;
-                });
-            }
-        }
     }
 }

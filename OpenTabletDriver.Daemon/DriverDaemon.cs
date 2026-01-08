@@ -529,10 +529,43 @@ namespace OpenTabletDriver.Daemon
                 Log.Write(group, $"Mouse Button Bindings: [" + string.Join("], [", bindingHandler.MouseButtons.Select(b => b.Value?.Binding)) + "]");
             }
 
-            if (settings.WheelButtons != null && settings.WheelButtons.Any(b => b?.Path != null))
+            for (int wheelIndex = 0; wheelIndex < settings.WheelBindings.Count; wheelIndex++)
             {
-                SetBindingHandlerCollectionSettings(bindingServiceProvider, settings.WheelButtons, bindingHandler.WheelButtons, tabletReference);
-                Log.Write(group, $"Wheel Button Bindings: [" + string.Join("], [", bindingHandler.WheelButtons.Select(b => b.Value?.Binding)) + "]");
+                var wheelBindingSetting = settings.WheelBindings[wheelIndex];
+                var wheelBindingHandler = bindingHandler.Wheels[wheelIndex];
+
+                if (wheelBindingSetting.WheelButtons.Any(b => b?.Path != null))
+                {
+                    SetBindingHandlerCollectionSettings(bindingServiceProvider, wheelBindingSetting.WheelButtons,
+                        wheelBindingHandler.WheelButtons, tabletReference);
+
+                    Log.Write(group,
+                        $"Wheel {wheelIndex + 1} Button Bindings: [" + string.Join("], [",
+                            wheelBindingHandler.WheelButtons.Select(b => b.Value?.Binding)) + "]");
+                }
+
+                var clockwiseRotation = wheelBindingHandler.ClockwiseRotation = new DeltaThresholdBindingState
+                {
+                    Binding = wheelBindingSetting.ClockwiseRotation?.Construct<IBinding>(bindingServiceProvider,
+                        tabletReference),
+                    ActivationThreshold = wheelBindingSetting.ClockwiseActivationThreshold,
+                    IsNegativeThreshold = false
+                };
+
+                var counterClockwiseRotation = wheelBindingHandler.CounterClockwiseRotation =
+                    new DeltaThresholdBindingState
+                    {
+                        Binding = wheelBindingSetting.CounterClockwiseRotation?.Construct<IBinding>(
+                            bindingServiceProvider, tabletReference),
+                        ActivationThreshold = wheelBindingSetting.CounterClockwiseActivationThreshold,
+                        IsNegativeThreshold = true
+                    };
+
+                if (clockwiseRotation.Binding != null)
+                    Log.Write(group, $"Wheel {wheelIndex + 1} Clockwise Rotation: [{clockwiseRotation.Binding}]@{clockwiseRotation.ActivationThreshold}°");
+
+                if (counterClockwiseRotation.Binding != null)
+                    Log.Write(group, $"Wheel {wheelIndex + 1} Counter-Clockwise Rotation: [{counterClockwiseRotation.Binding}]@{counterClockwiseRotation.ActivationThreshold}°");
             }
 
             var scrollUp = bindingHandler.MouseScrollUp = new BindingState
@@ -548,27 +581,6 @@ namespace OpenTabletDriver.Daemon
             if (scrollUp.Binding != null || scrollDown.Binding != null)
             {
                 Log.Write(group, $"Mouse Scroll: Up: [{scrollUp?.Binding}] Down: [{scrollDown?.Binding}]");
-            }
-
-            var clockwiseRotation = bindingHandler.ClockwiseRotation = new DeltaThresholdBindingState
-            {
-                Binding = settings.ClockwiseRotation?.Construct<IBinding>(bindingServiceProvider, tabletReference),
-                ActivationThreshold = settings.ClockwiseActivationThreshold
-                    * (tabletReference.Properties.Specifications.Wheel?.StepCount ?? 1) / 100,
-                IsNegativeThreshold = false
-            };
-
-            var counterClockwiseRotation = bindingHandler.CounterClockwiseRotation = new DeltaThresholdBindingState
-            {
-                Binding = settings.CounterClockwiseRotation?.Construct<IBinding>(bindingServiceProvider, tabletReference),
-                ActivationThreshold = -settings.CounterClockwiseActivationThreshold
-                    * (tabletReference.Properties.Specifications.Wheel?.StepCount ?? 1) / 100,
-                IsNegativeThreshold = true
-            };
-
-            if (clockwiseRotation.Binding != null || counterClockwiseRotation.Binding != null)
-            {
-                Log.Write(group, $"Wheel: Clockwise Rotation: [{clockwiseRotation?.Binding}] Counter-Clockwise Rotation: [{counterClockwiseRotation?.Binding}]");
             }
 
             return bindingHandler;

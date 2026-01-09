@@ -21,7 +21,7 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.IntuosV2
                 auxByte.IsBitSet(6),
                 auxByte.IsBitSet(7),
             ];
-            WheelButtons = [[ report[3].IsBitSet(0) ]];
+            WheelButtons = [[report[3].IsBitSet(0)]];
             AnalogPositions = [report[4].IsBitSet(7) ? (uint?)(report[4] & 0x7f) : null];
         }
 

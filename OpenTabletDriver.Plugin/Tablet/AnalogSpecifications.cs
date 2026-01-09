@@ -23,5 +23,11 @@ namespace OpenTabletDriver.Plugin.Tablet
         [Required(ErrorMessage = $"{nameof(IsRelative)} must be defined")]
         [JsonProperty(Order = int.MinValue)]
         public bool IsRelative { get; set; }
+
+        public override string ToString()
+        {
+            var analogType = IsRelative ? "Relative" : "Absolute";
+            return $"{StepCount} {analogType} Steps";
+        }
     }
 }

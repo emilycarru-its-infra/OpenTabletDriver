@@ -52,6 +52,22 @@ namespace OpenTabletDriver.Tests.ConfigurationTest
 
         public static TheoryData<string> ParsersInConfigs => parsersInConfigs.Distinct().ToTheoryData();
 
+        private static IEnumerable<TabletConfiguration> configsWithWheels =>
+            from config in DeviceConfigurationProvider.TabletConfigurations
+            where config.Specifications.Wheels is { Count: > 0 }
+            select config;
+
+        private static IEnumerable<TabletWithWheel> relativeWheelsFromConfigs =>
+            from config in configsWithWheels
+            from wheel in config.Specifications.Wheels
+            where wheel.IsRelative
+            select new TabletWithWheel(config.Name, wheel);
+
+        public static TheoryData<TabletWithWheel> RelativeWheelsFromConfigs =>
+            relativeWheelsFromConfigs.ToTheoryData();
+
+        public record TabletWithWheel(string Name, WheelSpecifications WheelSpecifications);
+
         #region Schema
 
         private static JSchema? tabletConfigurationSchema;

@@ -98,6 +98,8 @@ namespace OpenTabletDriver.UX.Controls.Bindings
                 this.DataContext = delegateBinding.DataValue.WheelBindings.Count > 0
                     ? delegateBinding.DataValue.WheelBindings[wheelIndex]
                     : null;
+
+                // TODO: set slider step size
             };
 
             clockwiseButton.StoreBinding.BindDataContext((WheelBindingSettings wbs) =>

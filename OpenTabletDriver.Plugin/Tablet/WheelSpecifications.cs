@@ -14,6 +14,7 @@ namespace OpenTabletDriver.Plugin.Tablet
         /// <para/>
         /// Relative wheels should leave this unset
         /// </summary>
+        // TODO: test range (maybe generically/recursively test values in known classes?)
         [Range(0, 360)]
         public float? AngleOfZeroReading { get; set; }
 

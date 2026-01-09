@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using OpenTabletDriver.Configurations.Parsers.XP_Pen;
 using OpenTabletDriver.Plugin.Components;
 using OpenTabletDriver.Plugin.Tablet;
-using OpenTabletDriver.Tests.Data;
 using Xunit;
 
 namespace OpenTabletDriver.Tests
@@ -34,7 +33,7 @@ namespace OpenTabletDriver.Tests
         [Fact]
         public void InvalidParser_Throws()
         {
-            Assert.ThrowsAny<Exception>(() => ConfigurationTestData.ReportParserProvider.GetReportParser("Invalid parser"));
+            Assert.ThrowsAny<Exception>(() => ConfigurationTest.TestData.ReportParserProvider.GetReportParser("Invalid parser"));
         }
     }
 }

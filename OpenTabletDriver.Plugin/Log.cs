@@ -2,6 +2,8 @@ using System;
 using OpenTabletDriver.Plugin.Logging;
 using System.Collections.Generic;
 
+#nullable enable
+
 namespace OpenTabletDriver.Plugin
 {
     public static class Log
@@ -109,7 +111,7 @@ namespace OpenTabletDriver.Plugin
         /// Writes to the log event with an exception, encoding its stack trace.
         /// </summary>
         /// <param name="ex">The <see cref="System.Exception"/> object to create the <see cref="LogMessage"/> from.</param>
-        public static void Exception(Exception ex, LogLevel level = LogLevel.Error)
+        public static void Exception(Exception? ex, LogLevel level = LogLevel.Error)
         {
             if (ex == null)
                 return;

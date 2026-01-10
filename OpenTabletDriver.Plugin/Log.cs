@@ -1,6 +1,6 @@
 using System;
-using OpenTabletDriver.Plugin.Logging;
 using System.Collections.Generic;
+using OpenTabletDriver.Plugin.Logging;
 
 #nullable enable
 

@@ -35,7 +35,7 @@ namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
                 case (0x00, 0x80):
                 case (0x40, 0x00):
                 case (0xC0, 0x40):
-                case (0x80, 0x40):
+                case (0x80, 0xC0):
                     Delta = 1;
                     break;
 

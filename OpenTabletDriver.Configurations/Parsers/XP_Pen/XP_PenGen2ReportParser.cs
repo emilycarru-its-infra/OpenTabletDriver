@@ -9,10 +9,11 @@ namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
             if (report[1] == 0xC0)
                 return new OutOfRangeReport(report);
             if (report[1] == 0xF0)
-                return new XP_PenAuxReport(report);
+                return new XP_PenWheelReport(report, ref previousWheelByte);
             if ((report[1] & 0xF0) == 0xA0)
                 return new XP_PenTabletGen2Report(report);
             return new DeviceReport(report);
         }
+        private byte previousWheelByte = 0x00;
     }
 }

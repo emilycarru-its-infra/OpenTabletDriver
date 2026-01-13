@@ -1,11 +1,10 @@
 using OpenTabletDriver.Plugin.Tablet;
-using OpenTabletDriver.Plugin.Tablet.Wheel;
 
 namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
 {
-    public struct XP_PenAuxReport : IAuxReport, IRelativeWheelReport
+    public struct XP_PenAuxReport : IAuxReport
     {
-        public XP_PenAuxReport(byte[] report, int auxIndex = 2, int wheelIndex = 7)
+        public XP_PenAuxReport(byte[] report, int auxIndex = 2)
         {
             Raw = report;
 
@@ -32,26 +31,9 @@ namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
                 report[auxIndex + 2].IsBitSet(2),
                 report[auxIndex + 2].IsBitSet(3),
             };
-
-            // 0x01 for 1st wheel clockwise, 0x02 for counterclockwise, verified on XP Pen Artist 13.3 Pro V2
-            // 0x10 for 2nd wheel clockwise, 0x20 for counterclockwise, verified on XP Pen Artist 22R Pro
-            // TODO: Update for multi wheel support when implemented
-            if (report[wheelIndex].IsBitSet(0) || report[wheelIndex].IsBitSet(4))
-            {
-                Delta = 1;
-            }
-            else if (report[wheelIndex].IsBitSet(1) || report[wheelIndex].IsBitSet(5))
-            {
-                Delta = -1;
-            }
-            else
-            {
-                Delta = null;
-            }
         }
 
         public bool[] AuxButtons { set; get; }
-        public int? Delta { set; get; }
         public byte[] Raw { set; get; }
     }
 }

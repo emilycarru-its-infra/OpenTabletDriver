@@ -83,7 +83,7 @@ namespace OpenTabletDriver.UX
                     var dialogResult = MessageBox.Show(this, message, "Daemon Connection Error",
                         MessageBoxButtons.OKCancel, MessageBoxType.Error);
 
-                    if (dialogResult == DialogResult.Cancel)
+                    if (dialogResult == DialogResult.Cancel && !Driver.IsConnected)
                         Environment.Exit(1);
 
                     if (App.EnableDaemonWatchdog)

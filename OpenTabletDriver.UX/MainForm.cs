@@ -57,32 +57,49 @@ namespace OpenTabletDriver.UX
             Driver.Connected += HandleDaemonConnected;
             Driver.Disconnected += HandleDaemonDisconnected;
 
-            Application.Instance.AsyncInvoke(async () =>
+            Application.Instance.InvokeAsync(ConnectToDaemon);
+        }
+
+        private async Task ConnectToDaemon()
+        {
+            try
             {
-                try
+                while (true)
                 {
                     var timeout = Task.Delay(TimeSpan.FromSeconds(15));
                     var result = await Task.WhenAny(Driver.Connect(), timeout);
-                    if (result == timeout)
-                    {
-                        var message = SystemInterop.CurrentPlatform switch
-                        {
-                            PluginPlatform.Windows => "Connecting to daemon has timed out.\nVerify that OpenTabletDriver.Daemon is running or is in the same folder as OpenTabletDriver.UX",
-                            _ => "Connecting to daemon has timed out. Verify that OpenTabletDriver.Daemon is running."
-                        };
-                        MessageBox.Show(this, message, "Daemon Connection Error", MessageBoxType.Error);
-                        Environment.Exit(1);
-                    }
 
-                    if (!this.SkipUpdate)
-                        CheckForUpdates();
+                    if (result != timeout || Driver.IsConnected)
+                        break; // daemon connected
+
+                    var message = SystemInterop.CurrentPlatform switch
+                    {
+                        PluginPlatform.Windows =>
+                            "Connecting to daemon has timed out.\nVerify that OpenTabletDriver.Daemon is running or is in the same folder as OpenTabletDriver.UX\nPress OK to retry",
+                        _ =>
+                            "Connecting to daemon has timed out. Verify that OpenTabletDriver.Daemon is running.\nPress OK to retry"
+                    };
+
+                    var dialogResult = MessageBox.Show(this, message, "Daemon Connection Error",
+                        MessageBoxButtons.OKCancel, MessageBoxType.Error);
+
+                    if (Driver.IsConnected) break;
+
+                    if (dialogResult == DialogResult.Cancel)
+                        Environment.Exit(1);
+
+                    if (App.EnableDaemonWatchdog)
+                        StartDaemonWatchdog();
                 }
-                catch (Exception ex)
-                {
-                    ex.ShowMessageBox();
-                    Environment.Exit(2);
-                }
-            });
+
+                if (!this.SkipUpdate)
+                    CheckForUpdates();
+            }
+            catch (Exception ex)
+            {
+                ex.ShowMessageBox();
+                Environment.Exit(2);
+            }
         }
 
         private const int DEFAULT_CLIENT_WIDTH = 960;
@@ -164,25 +181,29 @@ namespace OpenTabletDriver.UX
             if (App.EnableDaemonWatchdog)
             {
                 // Check if daemon is already active, if not then start it as a subprocess if it exists in the local path.
-                if (!Instance.Exists("OpenTabletDriver.Daemon") && DaemonWatchdog.CanExecute)
+                StartDaemonWatchdog();
+
+                AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
                 {
-                    var watchdog = new DaemonWatchdog();
-                    watchdog.Start();
-                    App.DaemonWatchdog = watchdog;
+                    App.DaemonWatchdog?.Dispose();
+                    App.DaemonWatchdog = null;
+                };
 
-                    AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-                    {
-                        App.DaemonWatchdog?.Dispose();
-                        App.DaemonWatchdog = null;
-                    };
-
-                    this.Closing += (sender, e) =>
-                    {
-                        App.DaemonWatchdog?.Dispose();
-                        App.DaemonWatchdog = null;
-                    };
-                }
+                this.Closing += (sender, e) =>
+                {
+                    App.DaemonWatchdog?.Dispose();
+                    App.DaemonWatchdog = null;
+                };
             }
+        }
+
+        private static void StartDaemonWatchdog()
+        {
+            if (Instance.Exists("OpenTabletDriver.Daemon") || !DaemonWatchdog.CanExecute) return;
+
+            var watchdog = new DaemonWatchdog();
+            watchdog.Start();
+            App.DaemonWatchdog = watchdog;
         }
 
         private MenuBar ConstructLimitedMenu()
@@ -377,7 +398,7 @@ namespace OpenTabletDriver.UX
         private void HandleDaemonConnected(object sender, EventArgs e) => Application.Instance.AsyncInvoke(async () =>
         {
             // Hook events after the instance is (re)instantiated
-            Log.Output += async (sender, message) => { if (Driver.IsConnected) await Driver.Instance?.WriteMessage(message); };
+            Log.Output += LogToDriver;
             Driver.TabletsChanged += (sender, tablet) => SetTitle(tablet);
 
             // Load full menu
@@ -428,8 +449,14 @@ namespace OpenTabletDriver.UX
         private Button saveButton;
         private Button applyButton;
 
+        private async void LogToDriver(object sender, LogMessage message)
+        {
+            if (Driver.IsConnected) await Driver.Instance?.WriteMessage(message);
+        }
+
         private void HandleDaemonDisconnected(object sender, EventArgs e)
         {
+            Log.Output -= LogToDriver;
             if (SilenceDaemonShutdown)
                 return;
 
@@ -439,12 +466,7 @@ namespace OpenTabletDriver.UX
                 base.Content = placeholder;
                 base.Menu = null;
 
-                MessageBox.Show(
-                    "Lost connection to daemon, exiting...",
-                    MessageBoxType.Error
-                );
-
-                Environment.Exit(1);
+                Application.Instance.InvokeAsync(ConnectToDaemon).ConfigureAwait(false);
             });
         }
 

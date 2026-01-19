@@ -1,0 +1,15 @@
+name: OpenTabletDriver.pkg
+identifier: ca.ecuad.macadmin.OpenTabletDriver
+version: 0.6.4.0
+distribution_style: true
+install_location: /
+ownership: recommended
+postinstall_action: none
+preserve_xattr: false
+suppress_bundle_relocation: true
+signing_info:
+  identity: 'Developer ID Installer: Example Organisation (TEAMID0000)'
+  keychain: ${HOME}/Library/Keychains/signing.keychain
+  timestamp: true
+notarization_info:
+  keychain_profile: notarization_credentials

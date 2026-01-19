@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# OpenTabletDriver preinstall script
+# Runs before the package is installed
+
+# Kill running instances of OpenTabletDriver
+if pgrep -x "OpenTabletDriver" > /dev/null; then
+    echo "Stopping running OpenTabletDriver processes..."
+    killall "OpenTabletDriver" 2>/dev/null || true
+    sleep 2
+fi
+
+# Remove old daemon if running
+DAEMON_LABEL="ca.ecuad.macadmin.OpenTabletDriver.daemon"
+if launchctl list | grep -q "${DAEMON_LABEL}"; then
+    echo "Stopping OpenTabletDriver daemon..."
+    launchctl bootout system/"${DAEMON_LABEL}" 2>/dev/null || true
+fi
+
+# Remove old versions if they exist (different bundle ID)
+OLD_APP_PATH="/Applications/OpenTabletDriver.app"
+if [[ -d "${OLD_APP_PATH}" ]]; then
+    OLD_BUNDLE_ID=$(defaults read "${OLD_APP_PATH}/Contents/Info.plist" CFBundleIdentifier 2>/dev/null || echo "")
+    if [[ "${OLD_BUNDLE_ID}" != "ca.ecuad.macadmin.OpenTabletDriver" ]]; then
+        echo "Removing old version of OpenTabletDriver..."
+        rm -rf "${OLD_APP_PATH}"
+    fi
+fi
+
+exit 0

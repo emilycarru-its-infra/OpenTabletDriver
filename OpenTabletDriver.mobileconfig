@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<!-- Accessibility Permission for OpenTabletDriver -->
+		<dict>
+			<key>PayloadDescription</key>
+			<string>Grants Accessibility permission to OpenTabletDriver to move the cursor</string>
+			<key>PayloadDisplayName</key>
+			<string>OpenTabletDriver Accessibility</string>
+			<key>PayloadIdentifier</key>
+			<string>ca.ecuad.macadmin.OpenTabletDriver.accessibility</string>
+			<key>PayloadType</key>
+			<string>com.apple.TCC.configuration-profile-policy</string>
+			<key>PayloadUUID</key>
+			<string>8E7A9B1D-2C4F-4E5D-9A8B-6F7C3D2E1A0B</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>Services</key>
+			<dict>
+				<key>Accessibility</key>
+				<array>
+					<dict>
+						<key>Allowed</key>
+						<true/>
+						<key>CodeRequirement</key>
+						<string>identifier "ca.ecuad.macadmin.OpenTabletDriver" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "TEAMID0000"</string>
+						<key>Comment</key>
+						<string>Allow OpenTabletDriver to move the cursor</string>
+						<key>Identifier</key>
+						<string>ca.ecuad.macadmin.OpenTabletDriver</string>
+						<key>IdentifierType</key>
+						<string>bundleID</string>
+						<key>StaticCode</key>
+						<false/>
+					</dict>
+				</array>
+			</dict>
+		</dict>
+		<!-- Input Monitoring Permission for OpenTabletDriver -->
+		<dict>
+			<key>PayloadDescription</key>
+			<string>Grants Input Monitoring permission to OpenTabletDriver to read cursor position and send relative movements</string>
+			<key>PayloadDisplayName</key>
+			<string>OpenTabletDriver Input Monitoring</string>
+			<key>PayloadIdentifier</key>
+			<string>ca.ecuad.macadmin.OpenTabletDriver.inputmonitoring</string>
+			<key>PayloadType</key>
+			<string>com.apple.TCC.configuration-profile-policy</string>
+			<key>PayloadUUID</key>
+			<string>9F8B0C2E-3D5F-5F6E-0B9C-7G8D4E3F2B1C</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>Services</key>
+			<dict>
+				<key>ListenEvent</key>
+				<array>
+					<dict>
+						<key>Allowed</key>
+						<true/>
+						<key>CodeRequirement</key>
+						<string>identifier "ca.ecuad.macadmin.OpenTabletDriver" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "TEAMID0000"</string>
+						<key>Comment</key>
+						<string>Allow OpenTabletDriver to monitor input events for cursor positioning in relative mode</string>
+						<key>Identifier</key>
+						<string>ca.ecuad.macadmin.OpenTabletDriver</string>
+						<key>IdentifierType</key>
+						<string>bundleID</string>
+						<key>StaticCode</key>
+						<false/>
+					</dict>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>Privacy permissions for OpenTabletDriver - grants Accessibility and Input Monitoring permissions required for tablet driver functionality</string>
+	<key>PayloadDisplayName</key>
+	<string>OpenTabletDriver Privacy Permissions</string>
+	<key>PayloadIdentifier</key>
+	<string>ca.ecuad.macadmin.OpenTabletDriver.privacy</string>
+	<key>PayloadOrganization</key>
+	<string>Example Organisation</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadScope</key>
+	<string>System</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>7D6C5B4A-1C3E-4D5F-8A9B-5E6F2C3D1A0B</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

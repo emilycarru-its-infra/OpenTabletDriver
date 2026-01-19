@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # ECUAD OpenTabletDriver Build Script
 # Single-command build: Compile from source + package with munkipkg
@@ -15,7 +15,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-SCRIPT_DIR="${0:A:h}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
 # ECUAD Configuration
@@ -125,6 +125,9 @@ echo ""
 echo -e "${BLUE}[6/6]${NC} ${YELLOW}Copying to munkipkg payload...${NC}"
 mkdir -p "payload/Applications"
 ditto "bin/OpenTabletDriver.app" "payload/Applications/OpenTabletDriver.app"
+
+# Remove any .gitkeep files from payload
+find payload -name ".gitkeep" -type f -delete
 
 # Verify bundle ID
 ACTUAL_ID=$(defaults read "${SCRIPT_DIR}/payload/Applications/OpenTabletDriver.app/Contents/Info.plist" CFBundleIdentifier)

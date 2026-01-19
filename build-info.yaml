@@ -1,6 +1,6 @@
 name: OpenTabletDriver.pkg
 identifier: ca.ecuad.macadmin.OpenTabletDriver
-version: 0.6.4.0
+version: 0.6.6.2
 distribution_style: true
 install_location: /
 ownership: recommended

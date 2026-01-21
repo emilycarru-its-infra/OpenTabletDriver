@@ -28,7 +28,8 @@ namespace OpenTabletDriver.UX.Windows.Plugins
         private static readonly TimeSpan DOWNLOAD_TIMEOUT = TimeSpan.FromSeconds(5);
         private static readonly Version AppVersion = Assembly.GetEntryAssembly().GetName().Version;
 
-        public void Refresh() => Application.Instance.AsyncInvoke(async () =>
+        // ReSharper disable once AsyncVoidMethod
+        public void Refresh() => Application.Instance.AsyncInvoke(async void () =>
         {
             this.Enabled = false;
 

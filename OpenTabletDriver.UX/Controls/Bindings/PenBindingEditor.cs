@@ -108,6 +108,13 @@ namespace OpenTabletDriver.UX.Controls.Bindings
                                             Text = "Disable Tilt",
                                         }
                                     },
+                                    new Group {
+                                        Orientation = Orientation.Horizontal,
+                                        ToolTip = "Pen Bindings require pressure to activate",
+                                        Content = enableDragBindings = new CheckBox {
+                                            Text = "Drag Bindings",
+                                        }
+                                    },
                                 }
                             }
                         }
@@ -122,11 +129,12 @@ namespace OpenTabletDriver.UX.Controls.Bindings
             penButtons.ItemSourceBinding.Bind(SettingsBinding.Child(c => (IList<PluginSettingStore>)c.PenButtons));
             disablePressure.CheckedBinding.Cast<bool>().Bind(SettingsBinding.Child(c => c.DisablePressure));
             disableTilt.CheckedBinding.Cast<bool>().Bind(SettingsBinding.Child(c => c.DisableTilt));
+            enableDragBindings.CheckedBinding.Cast<bool>().Bind(SettingsBinding.Child(c => c.EnableDragBindings));
         }
 
         private BindingDisplay tipButton, eraserButton;
         private FloatSlider tipThreshold, eraserThreshold;
-        private CheckBox disablePressure, disableTilt;
+        private CheckBox disablePressure, disableTilt, enableDragBindings;
         private BindingDisplayList penButtons;
     }
 }

@@ -518,8 +518,11 @@ namespace OpenTabletDriver.Daemon
 
             if (settings.PenButtons != null && settings.PenButtons.Any(b => b?.Path != null))
             {
-                SetBindingHandlerCollectionSettings(bindingServiceProvider, settings.PenButtons, bindingHandler.PenButtons, tabletReference);
+                SetBindingHandlerCollectionSettings(bindingServiceProvider, settings.PenButtons, bindingHandler.PenButtons, tabletReference, settings.EnableDragBindings);
                 Log.Write(group, $"Pen Bindings: " + string.Join(", ", bindingHandler.PenButtons.Select(b => b.Value?.Binding)));
+
+                if (settings.EnableDragBindings)
+                    Log.Write(group, "Pen Bindings are configured as drag-only (requires pen pressure to activate)");
             }
 
             if (settings.AuxButtons != null && settings.AuxButtons.Any(b => b?.Path != null))
@@ -591,14 +594,15 @@ namespace OpenTabletDriver.Daemon
             return bindingHandler;
         }
 
-        private static void SetBindingHandlerCollectionSettings(IServiceManager serviceManager, PluginSettingStoreCollection collection, Dictionary<int, BindingState?> targetDict, TabletReference tabletReference)
+        private static void SetBindingHandlerCollectionSettings(IServiceManager serviceManager, PluginSettingStoreCollection collection, Dictionary<int, BindingState?> targetDict, TabletReference tabletReference, bool bindingRequiresPressure = false)
         {
             for (int index = 0; index < collection.Count; index++)
             {
                 var binding = collection[index]?.Construct<IBinding>(serviceManager, tabletReference);
                 var state = binding == null ? null : new BindingState
                 {
-                    Binding = binding
+                    Binding = binding,
+                    RequiresPenPressure = bindingRequiresPressure,
                 };
 
                 if (!targetDict.TryAdd(index, state))

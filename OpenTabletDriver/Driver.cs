@@ -23,13 +23,15 @@ namespace OpenTabletDriver
         {
             CompositeDeviceHub = deviceHub;
             _reportParserProvider = reportParserProvider;
+            _deviceConfigurationProvider = configurationProvider;
 
             _tabletConfigurations = configurationProvider.TabletConfigurations.ToArray();
         }
 
         private readonly IReportParserProvider _reportParserProvider;
+        private readonly IDeviceConfigurationProvider _deviceConfigurationProvider;
         private readonly object _detectSync = new object();
-        private readonly TabletConfiguration[] _tabletConfigurations;
+        private TabletConfiguration[] _tabletConfigurations;
         private ImmutableArray<InputDeviceTree> _inputDeviceTrees = ImmutableArray<InputDeviceTree>.Empty;
 
         public event EventHandler<IEnumerable<TabletReference>>? TabletsChanged;
@@ -51,6 +53,8 @@ namespace OpenTabletDriver
 
         public virtual bool Detect()
         {
+            _tabletConfigurations = _deviceConfigurationProvider.TabletConfigurations.ToArray();
+
             lock (_detectSync)
             {
                 bool success = false;

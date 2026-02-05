@@ -20,6 +20,10 @@ namespace OpenTabletDriver.Desktop.Diagnostics
                             "PWD",
                             "PATH",
                             "XDG_CURRENT_DESKTOP",
+                            "XDG_CONFIG_HOME",
+                            "XDG_DATA_HOME",
+                            "XDG_CACHE_HOME",
+                            "TEMP",
                             "XDG_RUNTIME_DIR"
                     );
                     break;

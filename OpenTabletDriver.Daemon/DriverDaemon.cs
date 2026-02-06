@@ -523,12 +523,6 @@ namespace OpenTabletDriver.Daemon
                 Log.Write(group, $"Express Key Bindings: " + string.Join(", ", bindingHandler.AuxButtons.Select(b => b.Value?.Binding)));
             }
 
-            if (settings.MouseButtons != null && settings.MouseButtons.Any(b => b?.Path != null))
-            {
-                SetBindingHandlerCollectionSettings(bindingServiceProvider, settings.MouseButtons, bindingHandler.MouseButtons, tabletReference);
-                Log.Write(group, $"Mouse Button Bindings: [" + string.Join("], [", bindingHandler.MouseButtons.Select(b => b.Value?.Binding)) + "]");
-            }
-
             for (int wheelIndex = 0; wheelIndex < settings.WheelBindings.Count; wheelIndex++)
             {
                 var wheelBindingSetting = settings.WheelBindings[wheelIndex];
@@ -566,6 +560,12 @@ namespace OpenTabletDriver.Daemon
 
                 if (counterClockwiseRotation.Binding != null)
                     Log.Write(group, $"Wheel {wheelIndex + 1} Counter-Clockwise Rotation: [{counterClockwiseRotation.Binding}]@{counterClockwiseRotation.ActivationThreshold}°");
+            }
+
+            if (settings.MouseButtons != null && settings.MouseButtons.Any(b => b?.Path != null))
+            {
+                SetBindingHandlerCollectionSettings(bindingServiceProvider, settings.MouseButtons, bindingHandler.MouseButtons, tabletReference);
+                Log.Write(group, $"Mouse Button Bindings: [" + string.Join("], [", bindingHandler.MouseButtons.Select(b => b.Value?.Binding)) + "]");
             }
 
             var scrollUp = bindingHandler.MouseScrollUp = new BindingState

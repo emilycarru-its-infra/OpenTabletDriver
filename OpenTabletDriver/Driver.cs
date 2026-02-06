@@ -42,6 +42,12 @@ namespace OpenTabletDriver
             return _reportParserProvider.GetReportParser(identifier.ReportParser);
         }
 
+        public IEnumerable<int> KnownVendorIDs => (
+            from configuration in _deviceConfigurationProvider.TabletConfigurations
+            from identifier in configuration.DigitizerIdentifiers.Concat(configuration.AuxiliaryDeviceIdentifiers ??
+                                                                         Enumerable.Empty<DeviceIdentifier>())
+            select identifier.VendorID).Distinct();
+
         public virtual bool Detect()
         {
             lock (_detectSync)

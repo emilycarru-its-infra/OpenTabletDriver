@@ -29,13 +29,13 @@ namespace OpenTabletDriver.Desktop
         public static string RuntimeDir => Lookup(XdgPaths.XdgRuntimeDir);
 
         private static XdgPathRecord GetPathRecord(XdgPaths path) => path switch
-            {
-                XdgPaths.XdgConfigHome => new XdgPathRecord("XDG_CONFIG_HOME", "~/.config"),
-                XdgPaths.XdgDataHome => new XdgPathRecord("XDG_DATA_HOME", "~/.local/share"),
-                XdgPaths.XdgCacheHome => new XdgPathRecord("XDG_CACHE_HOME", "~/.cache"),
-                XdgPaths.XdgRuntimeDir => new XdgPathRecord("XDG_RUNTIME_DIR", "$TEMP"),
-                _ => throw new ArgumentOutOfRangeException(nameof(path), path, $"Path '{path}' is not supported yet"),
-            };
+        {
+            XdgPaths.XdgConfigHome => new XdgPathRecord("XDG_CONFIG_HOME", "~/.config"),
+            XdgPaths.XdgDataHome => new XdgPathRecord("XDG_DATA_HOME", "~/.local/share"),
+            XdgPaths.XdgCacheHome => new XdgPathRecord("XDG_CACHE_HOME", "~/.cache"),
+            XdgPaths.XdgRuntimeDir => new XdgPathRecord("XDG_RUNTIME_DIR", "$TEMP"),
+            _ => throw new ArgumentOutOfRangeException(nameof(path), path, $"Path '{path}' is not supported yet"),
+        };
 
         private static string Lookup(XdgPaths path)
         {

@@ -1,9 +1,11 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eto.Drawing;
 using Eto.Forms;
+using OpenTabletDriver.Plugin.Devices;
 using OpenTabletDriver.UX.Controls.Generic;
 
 namespace OpenTabletDriver.UX.Windows
@@ -15,7 +17,7 @@ namespace OpenTabletDriver.UX.Windows
         {
             this.Title = "Device String Reader";
             this.Icon = App.Logo.WithSize(App.Logo.Size);
-            this.ClientSize = new Size(300, 250);
+            this.ClientSize = new Size(-1, 300);
 
             var sendRequestButton = new Button
             {
@@ -67,6 +69,7 @@ namespace OpenTabletDriver.UX.Windows
                 HorizontalContentAlignment = HorizontalAlignment.Stretch,
                 Items =
                 {
+                    new Group("Connected HIDs", deviceDropDown, Orientation.Horizontal, false),
                     vendorIdCtrl,
                     productIdCtrl,
                     stringIndexCtrl,
@@ -91,6 +94,32 @@ namespace OpenTabletDriver.UX.Windows
                 if (args.Key == Keys.Escape)
                     this.Close();
             };
+
+            deviceDropDown.SelectedItemBinding
+                .Convert(x => x?.VendorID.ToString())
+                .Bind(vendorIdText.TextBinding);
+
+            deviceDropDown.SelectedItemBinding
+                .Convert(x => x?.ProductID.ToString())
+                .Bind(productIdText.TextBinding);
+
+            this.deviceDropDown.DataStore =
+                App.Driver.Instance.GetDevices().Result
+                    .Where(x => x.CanOpen)
+                    .DistinctBy(x => new { x.VendorID, x.ProductID });
+
+            this.deviceDropDown.ItemTextBinding = Binding.Delegate<SerializedDeviceEndpoint, string>(x =>
+            {
+                // don't include manufacturer if it's already in the product name (e.g. Razer)
+                string name = x.ProductName ?? x.FriendlyName;
+                string title = name.Contains(x.Manufacturer) ? name : $"{x.Manufacturer} {name}";
+
+                if (title.Length >= 32) // truncate if too long, used in GUI
+                    title = title[..29] + "...";
+
+                // hex value preferable (but not consistent.. yet?)
+                return $"[0x{x.VendorID:x4} 0x{x.ProductID:x4}]{Environment.NewLine}{title}";
+            });
         }
 
         private const int NUMERICBOX_WIDTH = 150;
@@ -181,6 +210,7 @@ namespace OpenTabletDriver.UX.Windows
             return result == DialogResult.Ok;
         }
 
+        private readonly DropDown<SerializedDeviceEndpoint> deviceDropDown = new();
         private readonly NumericMaskedTextBox<ushort> vendorIdText, productIdText, stringIndexText;
         private readonly TextBox deviceStringText;
         private readonly Group vendorIdCtrl, productIdCtrl, stringIndexCtrl;

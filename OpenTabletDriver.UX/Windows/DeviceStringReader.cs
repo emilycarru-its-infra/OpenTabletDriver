@@ -79,7 +79,7 @@ namespace OpenTabletDriver.UX.Windows
                     vendorIdCtrl,
                     productIdCtrl,
                     stringIndexCtrl,
-                    new StackLayoutItem(requireReconnect, false),
+                    requireReconnect,
                     new StackLayoutItem(
                         new StackLayout
                         {

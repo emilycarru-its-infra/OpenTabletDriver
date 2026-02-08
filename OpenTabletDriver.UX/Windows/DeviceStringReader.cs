@@ -141,8 +141,9 @@ namespace OpenTabletDriver.UX.Windows
         {
             var validVid = int.TryParse(vendorIdText.Text, out var vid);
             var validPid = int.TryParse(productIdText.Text, out var pid);
+            var matchingDeviceFound = (await App.Driver.Instance.GetDevices()).Any(x => x.ProductID == pid && x.VendorID == vid);
             // ensure requested device exists/is found
-            if (!validVid || !validPid || !(await App.Driver.Instance.GetDevices()).Any(x => x.ProductID == pid && x.VendorID == vid))
+            if (!validVid || !validPid || !matchingDeviceFound)
             {
                 MessageBox.Show($"Error: Device not found", MessageBoxType.Error);
                 return;

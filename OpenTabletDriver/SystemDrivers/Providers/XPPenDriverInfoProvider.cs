@@ -11,25 +11,25 @@ namespace OpenTabletDriver.SystemDrivers.InfoProviders
 
         protected override string LinuxModuleName => "hid_uclogic";
 
-        protected override string[] WinProcessNames => new string[]
-        {
+        protected override string[] WinProcessNames =>
+        [
             "PentabletService",
             "PentabletUIService",
-            "PenTablet"
-        };
+            "PenTablet",
+        ];
 
-        protected override string[] Heuristics { get; } = new string[]
-        {
+        protected override string[] Heuristics { get; } =
+        [
             "XP[ _-]*Pen",
-            "Pentablet"
-        };
+            "Pentablet",
+        ];
 
-        private string[] Exclusions = new string[]
-        {
+        private string[] Exclusions =
+        [
             "Huion",
             "Gaomon",
-            "Veikk"
-        };
+            "Veikk",
+        ];
 
         protected override DriverInfo GetWinDriverInfo()
         {

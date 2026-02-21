@@ -13,10 +13,10 @@ namespace OpenTabletDriver.Desktop.Updater
     public abstract class Updater : IUpdater
     {
         private static readonly ImmutableArray<string> AppDataFiles =
-            ImmutableArray.Create(
-                "settings.json",
+        [
+            "settings.json",
                 "Presets"
-            );
+        ];
 
         protected static readonly Version AssemblyVersion = typeof(IUpdater).Assembly.GetName().Version!;
 

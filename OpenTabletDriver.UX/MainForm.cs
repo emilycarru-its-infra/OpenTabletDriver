@@ -723,7 +723,7 @@ namespace OpenTabletDriver.UX
                 {
                     case DialogResult.Ok:
                     case DialogResult.Yes:
-                        string[] options = { ".json", ".txt", ".log" };
+                        string[] options = [".json", ".txt", ".log"];
                         var file = new FileInfo(fileDialog.FileName + (options.Any(fileDialog.FileName.EndsWith) ? "" : ".json"));
                         if (file.Exists)
                             file.Delete();

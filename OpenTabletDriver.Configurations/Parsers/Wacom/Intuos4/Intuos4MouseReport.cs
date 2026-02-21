@@ -21,14 +21,14 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.Intuos4
                 X = (report[3] | report[2] << 8) << 1 | report[9] >> 1 & 1,
                 Y = (report[5] | report[4] << 8) << 1 | report[9] & 1
             };
-            MouseButtons = new bool[]
-            {
+            MouseButtons =
+            [
                 report[6].IsBitSet(0), // primary
                 report[6].IsBitSet(2), // secondary
                 report[6].IsBitSet(1), // middle
                 report[6].IsBitSet(3), // forward
                 report[6].IsBitSet(4), // backward
-            };
+            ];
             Scroll = new Vector2
             {
                 Y = report[7].IsBitSet(7) ? 1 : report[7].IsBitSet(6) ? -1 : 0

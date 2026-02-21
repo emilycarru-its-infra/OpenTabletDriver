@@ -15,5 +15,4 @@ public struct HuionWheelReport : IAbsoluteWheelReport
 
     public byte[] Raw { get; set; }
     public uint? Position { get; set; }
-    public bool[] WheelButtons { get; set; }
 }

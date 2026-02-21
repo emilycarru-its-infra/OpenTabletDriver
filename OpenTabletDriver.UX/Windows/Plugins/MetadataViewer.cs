@@ -52,7 +52,7 @@ namespace OpenTabletDriver.UX.Windows.Plugins
                 () =>
                 {
                     // Get the plugin's updated metadata from the repo
-                    updatedMetadata = GetUpdatedMetadatas(PluginMetadataList.Repository, Metadata, CurrentDriverVersion).FirstOrDefault() ?? Metadata;
+                    updatedMetadata = GetRepoMetadataForPlugin(PluginMetadataList.Repository, Metadata, CurrentDriverVersion).FirstOrDefault() ?? Metadata;
                     return updatedMetadata != Metadata;
                 },
                 addChangeEvent: (e) => MetadataChanged += e,
@@ -231,7 +231,7 @@ namespace OpenTabletDriver.UX.Windows.Plugins
             this.ParentWindow.Enabled = true;
         }
 
-        private static IEnumerable<PluginMetadata> GetUpdatedMetadatas(PluginMetadataCollection repo, PluginMetadata Metadata, Version CurrentDriverVersion)
+        private static IEnumerable<PluginMetadata> GetRepoMetadataForPlugin(PluginMetadataCollection repo, PluginMetadata Metadata, Version CurrentDriverVersion)
         {
             if (repo == null)
                 return Enumerable.Empty<PluginMetadata>();

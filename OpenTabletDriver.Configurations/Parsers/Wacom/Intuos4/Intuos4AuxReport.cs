@@ -12,8 +12,8 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.Intuos4
             var touchWheelButtonByte = report[2];
             var buttonsByte = report[3];
 
-            AuxButtons = new bool[]
-            {
+            AuxButtons =
+            [
                 buttonsByte.IsBitSet(0),
                 buttonsByte.IsBitSet(1),
                 buttonsByte.IsBitSet(2),
@@ -22,7 +22,7 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.Intuos4
                 buttonsByte.IsBitSet(5),
                 buttonsByte.IsBitSet(6),
                 buttonsByte.IsBitSet(7),
-            };
+            ];
 
             var wheelByte = report[1];
 
@@ -30,10 +30,10 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.Intuos4
             if (wheelByte.IsBitSet(7))
                 Position = (uint)wheelByte - 0x80;
 
-            WheelButtons = new bool[]
-            {
+            WheelButtons =
+            [
                 touchWheelButtonByte.IsBitSet(0),
-            };
+            ];
         }
 
         public byte[] Raw { set; get; }

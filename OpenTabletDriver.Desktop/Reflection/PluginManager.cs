@@ -42,7 +42,7 @@ namespace OpenTabletDriver.Desktop.Reflection
 
         public virtual T ConstructObject<T>(string name, object[] args = null) where T : class
         {
-            args ??= new object[0];
+            args ??= [];
             if (!string.IsNullOrWhiteSpace(name))
             {
                 try

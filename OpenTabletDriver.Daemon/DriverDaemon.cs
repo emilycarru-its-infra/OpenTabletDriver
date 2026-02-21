@@ -100,7 +100,7 @@ namespace OpenTabletDriver.Daemon
                 if (System.Diagnostics.Debugger.IsAttached)
                     return;
 
-                Log.Write(nameof(DriverDaemon), "Sleep detected...", LogLevel.Info);
+                Log.Write(nameof(DriverDaemon), "Sleep detected...");
                 await DetectTablets();
                 await SetSettings(Settings);
             };

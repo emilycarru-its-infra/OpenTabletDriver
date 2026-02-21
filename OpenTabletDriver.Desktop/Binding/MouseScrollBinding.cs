@@ -17,7 +17,7 @@ namespace OpenTabletDriver.Desktop.Binding
 
         private ITimer _timer;
         private ScrollDirection _direction;
-        private int _interval;
+        private int _interval = 1;
 
         [Resolved]
         public IMouseScrollHandler Pointer { set; get; }

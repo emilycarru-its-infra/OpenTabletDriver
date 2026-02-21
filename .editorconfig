@@ -26,6 +26,11 @@ csharp_space_after_semicolon_in_for_statement = true
 csharp_space_before_semicolon_in_for_statement = false
 csharp_space_around_declaration_statements = false
 dotnet_sort_system_directives_first = true
+# Disposable types
+dotnet_diagnostic.CA1063.severity = warning
+dotnet_diagnostic.CA1816.severity = warning
+dotnet_diagnostic.CA2213.severity = warning
+dotnet_diagnostic.CA2216.severity = warning
 
 [*.{sh,md,csproj,json,yml}]
 indent_size = 2

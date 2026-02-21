@@ -49,6 +49,7 @@ namespace OpenTabletDriver.Desktop.Interop
         public virtual void Dispose()
         {
             Device?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public void Flush()

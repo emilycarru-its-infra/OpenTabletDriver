@@ -8,7 +8,7 @@ using OpenTabletDriver.Plugin.Platform.Keyboard;
 
 namespace OpenTabletDriver.Desktop.Interop.Input.Keyboard
 {
-    public class EvdevVirtualKeyboard : IVirtualKeyboard, IDisposable
+    public sealed class EvdevVirtualKeyboard : IVirtualKeyboard, IDisposable
     {
         public EvdevVirtualKeyboard()
         {

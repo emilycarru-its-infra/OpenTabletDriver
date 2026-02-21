@@ -124,8 +124,8 @@ namespace OpenTabletDriver.Plugin.Output
         {
             Scheduler?.Dispose();
             Scheduler = null;
-        }
 
-        ~AsyncPositionedPipelineElement() => Dispose();
+            GC.SuppressFinalize(this);
+        }
     }
 }

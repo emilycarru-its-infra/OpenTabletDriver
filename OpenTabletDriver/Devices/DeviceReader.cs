@@ -144,6 +144,8 @@ namespace OpenTabletDriver.Devices
         {
             Connected = false;
             ReportStream?.Dispose();
+
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace OpenTabletDriver.Native.Windows
+namespace OpenTabletDriver.Native.Windows
 {
     public enum XBUTTON : uint
     {

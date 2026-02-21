@@ -1,4 +1,4 @@
-﻿namespace OpenTabletDriver.Native.Windows.Input
+namespace OpenTabletDriver.Native.Windows.Input
 {
     public enum MOUSEEVENTF : uint
     {

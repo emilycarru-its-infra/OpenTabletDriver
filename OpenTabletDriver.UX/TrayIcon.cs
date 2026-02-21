@@ -6,7 +6,7 @@ using OpenTabletDriver.Plugin;
 
 namespace OpenTabletDriver.UX
 {
-    public class TrayIcon : IDisposable
+    public sealed class TrayIcon : IDisposable
     {
         public TrayIcon(MainForm window)
         {

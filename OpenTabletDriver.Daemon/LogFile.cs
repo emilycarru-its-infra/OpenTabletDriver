@@ -128,16 +128,13 @@ namespace OpenTabletDriver.Daemon
             if (_disposed)
                 return;
 
-            _disposed = true;
             _cts.Cancel();
             _writer.Flush();
+            _cts.Dispose();
             _writer.Dispose();
             _stream.Dispose();
-        }
 
-        ~LogFile()
-        {
-            Dispose();
+            _disposed = true;
         }
     }
 }

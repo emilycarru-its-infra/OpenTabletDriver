@@ -56,7 +56,7 @@ namespace OpenTabletDriver.Desktop
                     TemporaryDirectory = GetPath("$TMPDIR/OpenTabletDriver"),
                     CacheDirectory = GetPath("~/Library/Caches/OpenTabletDriver")
                 },
-                _ => null
+                _ => throw new InvalidOperationException($"Unsupported platform {SystemInterop.CurrentPlatform}"),
             };
         }
 

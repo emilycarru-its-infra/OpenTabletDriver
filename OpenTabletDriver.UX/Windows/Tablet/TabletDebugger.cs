@@ -219,12 +219,14 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
         protected override async void OnClosing(CancelEventArgs e)
         {
-            base.OnClosing(e);
-
+            App.Driver.DeviceReport -= HandleReport;
+            App.Driver.TabletsChanged -= HandleTabletsChanged;
             await App.Driver.Instance.SetTabletDebug(false);
 
             dataRecordingOutput?.Close();
             dataRecordingOutput = null;
+
+            base.OnClosing(e);
         }
 
         private static string MaxPositionString(Vector2 pos)

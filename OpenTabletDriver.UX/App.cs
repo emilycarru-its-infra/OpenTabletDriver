@@ -50,7 +50,6 @@ namespace OpenTabletDriver.UX
                 {
                     using var client = new NamedPipeClientStream(".", APPNAME + ".Singleton", PipeDirection.InOut);
                     client.Connect();
-                    return;
                 }
             }
         }

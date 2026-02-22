@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace OpenTabletDriver.Plugin.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class PropertyValidatedAttribute : Attribute
+    public partial class PropertyValidatedAttribute : Attribute
     {
         public PropertyValidatedAttribute(string memberName)
         {
@@ -39,7 +39,7 @@ namespace OpenTabletDriver.Plugin.Attributes
             {
                 Log.Write("Plugin", $"Failed to get valid binding values for '{MemberName}'", LogLevel.Error);
 
-                var match = Regex.Match(e.Message, "Non-static (.*) requires a target\\.");
+                var match = NonStaticTargetRegex().Match(e.Message);
 
                 if (e is TargetException && match.Success)
                 {
@@ -53,5 +53,8 @@ namespace OpenTabletDriver.Plugin.Attributes
 
             return default;
         }
+
+        [GeneratedRegex("Non-static (.*) requires a target\\.")]
+        private static partial Regex NonStaticTargetRegex();
     }
 }

@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace OpenTabletDriver.SystemDrivers.InfoProviders
 {
-    internal class XPPenDriverInfoProvider : ProcessModuleQueryableDriverInfoProvider
+    internal partial class XPPenDriverInfoProvider : ProcessModuleQueryableDriverInfoProvider
     {
         protected override string FriendlyName => "XP-Pen";
 
@@ -35,7 +35,7 @@ namespace OpenTabletDriver.SystemDrivers.InfoProviders
         {
             var processes = DriverInfo.SystemProcesses
                 .Where(p => WinProcessNames.Concat(Heuristics)
-                .Any(n => Regex.IsMatch(p.ProcessName, n, RegexOptions.IgnoreCase)) && !Regex.IsMatch(p.ProcessName, "OpenTabletDriver", RegexOptions.IgnoreCase));
+                .Any(n => Regex.IsMatch(p.ProcessName, n, RegexOptions.IgnoreCase)) && !OpenTabletDriverRegex().IsMatch(p.ProcessName));
 
             var falsePositive = processes.Any(p => Exclusions.Any(ex => Regex.IsMatch(p.ProcessName, ex))) ? DriverStatus.Uncertain : 0;
 
@@ -53,5 +53,8 @@ namespace OpenTabletDriver.SystemDrivers.InfoProviders
                 return null;
             }
         }
+
+        [GeneratedRegex("OpenTabletDriver", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex OpenTabletDriverRegex();
     }
 }

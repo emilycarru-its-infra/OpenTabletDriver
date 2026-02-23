@@ -57,6 +57,7 @@
 | Huion Q11K                         |     Supported     |
 | Huion Q11K V2                      |     Supported     |
 | Huion RDS-160                      |     Supported     |
+| Huion RDS-220                      |     Supported     |
 | Huion RTS-300                      |     Supported     | Uses the same configuration as the Huion H642.
 | Huion RTE-100                      |     Supported     |
 | Huion WH1409                       |     Supported     |
@@ -70,7 +71,6 @@
 | RobotPen T9A                       |     Supported     |
 | UC-Logic 1060N                     |     Supported     |
 | UC-Logic PF1209                    |     Supported     |
-| UC-Logic TWMNA62                   |     Supported     |
 | UGEE EX08                          |     Supported     | Uses the same configuration as the XP-Pen Deco 01 V2.
 | UGEE M708 V2                       |     Supported     |
 | UGEE M708 V3                       |     Supported     |
@@ -220,6 +220,7 @@
 | Parblo Ninos S                     |    Has Quirks     | Aux buttons are not in order.
 | Trust Flex Design Tablet           |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed
 | Turcom TS-6580                     |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
+| UC-Logic TWMNA62                   |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
 | UGEE M708                          |    Has Quirks     | Windows: Might need Zadig's WinUSB to be installed on interface 0
 | Wacom PTH-460                      |    Has Quirks     | Wheel reports in reverse direction.
 | Wacom PTH-660                      |    Has Quirks     | Wheel reports in reverse direction.
@@ -259,6 +260,7 @@
 | Huion Kamvas Pro 12                |  Missing Features | Touch bar is not yet supported.
 | Huion Kamvas Pro 13                |  Missing Features | Touch bar is not yet supported.
 | Huion Kamvas Pro 16                |  Missing Features | Touch bar is not yet supported.
+| Huion Kamvas Pro 16 V2             |  Missing Features | Touch bar is not yet supported.
 | Huion Kamvas Pro 20                |  Missing Features | Touch bar is not yet supported.
 | Huion Kamvas Pro 22 (2019)         |  Missing Features | Touch bar is not yet supported.
 | Huion Kamvas Pro 24                |  Missing Features | Touch bar is not yet supported.

@@ -17,7 +17,7 @@ namespace OpenTabletDriver.UX.Windows
         {
             this.Title = "Device String Reader";
             this.Icon = App.Logo.WithSize(App.Logo.Size);
-            this.ClientSize = new Size(-1, 300);
+            this.ClientSize = new Size(-1, 320);
 
             var sendRequestButton = new Button
             {
@@ -57,6 +57,12 @@ namespace OpenTabletDriver.UX.Windows
                 PlaceholderText = "Device String",
                 ReadOnly = true
             };
+            this.requireReconnect = new CheckBox
+            {
+                Text = "Require reconnect on fail",
+                Checked = false,
+                ToolTip = "Pauses string dump with a pop-up box if any string dump errors occur",
+            };
 
             this.vendorIdCtrl = new Group("VendorID", vendorIdText, Orientation.Horizontal, false);
             this.productIdCtrl = new Group("ProductID", productIdText, Orientation.Horizontal, false);
@@ -73,6 +79,7 @@ namespace OpenTabletDriver.UX.Windows
                     vendorIdCtrl,
                     productIdCtrl,
                     stringIndexCtrl,
+                    requireReconnect,
                     new StackLayoutItem(
                         new StackLayout
                         {
@@ -128,9 +135,20 @@ namespace OpenTabletDriver.UX.Windows
         private const string RequestTabletReplug = "Please replug the tablet, and then press OK to continue";
         private const string DisconnectionIndex = "Device disconnected";
         private const string OperationTimedOut = "Operation timed-out";
+        private const string OperationFailed = "Operation failed";
 
         private async void SendRequestAllStrings(object sender, EventArgs args)
         {
+            var validVid = int.TryParse(vendorIdText.Text, out var vid);
+            var validPid = int.TryParse(productIdText.Text, out var pid);
+            var matchingDeviceFound = (await App.Driver.Instance.GetDevices()).Any(x => x.ProductID == pid && x.VendorID == vid);
+            // ensure requested device exists/is found
+            if (!validVid || !validPid || !matchingDeviceFound)
+            {
+                MessageBox.Show($"Error: Device not found", MessageBoxType.Error);
+                return;
+            }
+
             var stringDump = new StringBuilder();
 
             for (int i = 1; i < 256; i++)
@@ -138,7 +156,17 @@ namespace OpenTabletDriver.UX.Windows
                 bool shouldRead = true;
                 await SendRequestWithTimeout($"{i}",
                     (str) => stringDump.AppendLine($"{StringIndex} {i}: {str}"),
-                    (e) => shouldRead = AskReconnection(stringDump, i),
+                    (e) =>
+                    {
+                        if ((bool)requireReconnect.Checked)
+                        {
+                            shouldRead = AskReconnection(stringDump, i);
+                        }
+                        else
+                        {
+                            stringDump.AppendLine($"{StringIndex} {i}: {{ OTD: {OperationFailed} }}");
+                        }
+                    },
                     () => stringDump.AppendLine($"{StringIndex} {i}: {{ OTD: {OperationTimedOut} }}")
                 );
 
@@ -161,8 +189,9 @@ namespace OpenTabletDriver.UX.Windows
                     var file = new FileInfo(fileDialog.FileName);
                     if (file.Exists)
                         file.Delete();
-                    using (var fs = file.OpenWrite())
-                    using (var sw = new StreamWriter(fs))
+
+                    await using (var fs = file.OpenWrite())
+                    await using (var sw = new StreamWriter(fs))
                         await sw.WriteAsync(stringDump);
                     break;
             }
@@ -193,7 +222,7 @@ namespace OpenTabletDriver.UX.Windows
             }
         }
 
-        private async Task<string> SendRequest(string strIndex, string strVid, string strPid)
+        private static async Task<string> SendRequest(string strIndex, string strVid, string strPid)
         {
             if (int.TryParse(strIndex, out var index) && index < 256 && index > 0)
             {
@@ -203,7 +232,7 @@ namespace OpenTabletDriver.UX.Windows
             throw new ArgumentException("Invalid index");
         }
 
-        private bool AskReconnection(StringBuilder stringDump, int i)
+        private static bool AskReconnection(StringBuilder stringDump, int i)
         {
             stringDump.AppendLine($"{StringIndex} {i}: {{ OTD: {DisconnectionIndex} }}");
             var result = MessageBox.Show(RequestTabletReplug, MessageBoxButtons.OKCancel);
@@ -214,5 +243,6 @@ namespace OpenTabletDriver.UX.Windows
         private readonly NumericMaskedTextBox<ushort> vendorIdText, productIdText, stringIndexText;
         private readonly TextBox deviceStringText;
         private readonly Group vendorIdCtrl, productIdCtrl, stringIndexCtrl;
+        private readonly CheckBox requireReconnect;
     }
 }

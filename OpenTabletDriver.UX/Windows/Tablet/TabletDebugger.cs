@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -186,7 +186,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
             deviceName.TextBinding.Bind(ReportDataBinding.Child(c => c.Tablet.Properties.Name));
             rawTablet.TextBinding.Bind(reportBinding.Child(c => ReportFormatter.GetStringRaw(c)));
             tablet.TextBinding.Bind(reportBinding.Child(c => ReportFormatter.GetStringFormat(c)));
-            maxReportedPosition.TextBinding.Bind(MaxPositionBinding.Convert(c => MaxPositionString(c)));
+            maxReportedPosition.TextBinding.Bind(MaxPositionBinding.Convert(MaxPositionString));
             reportRate.TextBinding.Bind(ReportPeriodBinding.Convert(c => Math.Round(1000.0 / c) + "hz"));
             reportsRecorded.TextBinding.Bind(NumberOfReportsRecordedBinding.Convert(c => c.ToString()));
             tabletVisualizer.ReportDataBinding.Bind(ReportDataBinding);
@@ -219,12 +219,14 @@ namespace OpenTabletDriver.UX.Windows.Tablet
 
         protected override async void OnClosing(CancelEventArgs e)
         {
-            base.OnClosing(e);
-
+            App.Driver.DeviceReport -= HandleReport;
+            App.Driver.TabletsChanged -= HandleTabletsChanged;
             await App.Driver.Instance.SetTabletDebug(false);
 
             dataRecordingOutput?.Close();
             dataRecordingOutput = null;
+
+            base.OnClosing(e);
         }
 
         private static string MaxPositionString(Vector2 pos)
@@ -522,7 +524,7 @@ namespace OpenTabletDriver.UX.Windows.Tablet
                 }
             }
 
-            protected SizeF calculateTabletScale(DigitizerSpecifications digitizer, float scale)
+            private static SizeF calculateTabletScale(DigitizerSpecifications digitizer, float scale)
             {
                 var tabletMm = new SizeF(digitizer.Width, digitizer.Height);
                 var tabletPx = new SizeF(digitizer.MaxX, digitizer.MaxY);

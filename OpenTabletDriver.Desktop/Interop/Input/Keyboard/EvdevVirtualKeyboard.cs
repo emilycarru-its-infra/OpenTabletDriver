@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenTabletDriver.Native.Linux;
@@ -8,7 +8,7 @@ using OpenTabletDriver.Plugin.Platform.Keyboard;
 
 namespace OpenTabletDriver.Desktop.Interop.Input.Keyboard
 {
-    public class EvdevVirtualKeyboard : IVirtualKeyboard, IDisposable
+    public sealed class EvdevVirtualKeyboard : IVirtualKeyboard, IDisposable
     {
         public EvdevVirtualKeyboard()
         {

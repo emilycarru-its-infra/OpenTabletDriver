@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -100,13 +100,13 @@ namespace OpenTabletDriver.Daemon
                 if (System.Diagnostics.Debugger.IsAttached)
                     return;
 
-                Log.Write(nameof(DriverDaemon), "Sleep detected...", LogLevel.Info);
+                Log.Write(nameof(DriverDaemon), "Sleep detected...");
                 await DetectTablets();
                 await SetSettings(Settings);
             };
         }
 
-        private IEnumerable<string> safeGetProcessDetails(Process[] processes)
+        private static IEnumerable<string> safeGetProcessDetails(Process[] processes)
         {
             foreach (var driverProcess in processes)
             {
@@ -386,7 +386,7 @@ namespace OpenTabletDriver.Daemon
             }
         }
 
-        private void MoveSettingsFile()
+        private static void MoveSettingsFile()
         {
             var src = AppInfo.Current.SettingsFile;
 
@@ -398,7 +398,7 @@ namespace OpenTabletDriver.Daemon
             File.Move(src, dst);
         }
 
-        private void SetOutputModeElements(InputDeviceTree dev, IOutputMode outputMode, Profile profile, BindingHandler bindingHandler)
+        private static void SetOutputModeElements(InputDeviceTree dev, IOutputMode outputMode, Profile profile, BindingHandler bindingHandler)
         {
             string group = dev.Properties.Name;
 
@@ -419,7 +419,7 @@ namespace OpenTabletDriver.Daemon
             }
         }
 
-        private void SetAbsoluteModeSettings(InputDeviceTree dev, AbsoluteOutputMode absoluteMode, AbsoluteModeSettings settings)
+        private static void SetAbsoluteModeSettings(InputDeviceTree dev, AbsoluteOutputMode absoluteMode, AbsoluteModeSettings settings)
         {
             string group = dev.Properties.Name;
             absoluteMode.Output = settings.Display.Area;
@@ -436,7 +436,7 @@ namespace OpenTabletDriver.Daemon
             Log.Write(group, $"Ignoring reports outside area: {(absoluteMode.AreaLimiting ? "Enabled" : "Disabled")}");
         }
 
-        private void SetRelativeModeSettings(InputDeviceTree dev, RelativeOutputMode relativeMode, RelativeModeSettings settings)
+        private static void SetRelativeModeSettings(InputDeviceTree dev, RelativeOutputMode relativeMode, RelativeModeSettings settings)
         {
             string group = dev.Properties.Name;
             relativeMode.Sensitivity = settings.Sensitivity;
@@ -589,26 +589,6 @@ namespace OpenTabletDriver.Daemon
             }
         }
 
-        private static void SetBindingHandlerRangeCollectionSettings(IServiceManager serviceManager, PluginSettingStoreCollection collection, float[] ends, Dictionary<int, RangeBindingState?> targetDict, TabletReference tabletReference)
-        {
-            var start = 0;
-
-            for (int index = 0; index < collection.Count; index++)
-            {
-                var binding = collection[index]?.Construct<IBinding>(serviceManager, tabletReference);
-                var end = ends[index];
-                var state = binding == null ? null : new RangeBindingState
-                {
-                    Binding = binding,
-                    StartThreshold = start,
-                    EndThreshold = end >= start ? end : start
-                };
-
-                if (!targetDict.TryAdd(index, state))
-                    targetDict[index] = state;
-            }
-        }
-
         private void SetToolSettings()
         {
             foreach (var runningTool in Tools)
@@ -696,10 +676,6 @@ namespace OpenTabletDriver.Daemon
             {
                 var update = await _updateInfo.GetUpdate();
                 Updater?.Install(update);
-            }
-            catch
-            {
-                throw;
             }
             finally
             {

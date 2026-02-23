@@ -56,7 +56,7 @@ namespace OpenTabletDriver.Desktop
                     TemporaryDirectory = GetPath("$TMPDIR/OpenTabletDriver"),
                     CacheDirectory = GetPath("~/Library/Caches/OpenTabletDriver")
                 },
-                _ => null
+                _ => throw new InvalidOperationException($"Unsupported platform {SystemInterop.CurrentPlatform}"),
             };
         }
 
@@ -64,7 +64,7 @@ namespace OpenTabletDriver.Desktop
 
         public static PresetManager PresetManager { set; get; } = new PresetManager();
 
-        public string AppDataDirectory { set; get; }
+        public required string AppDataDirectory { set; get; }
 
         public string ConfigurationDirectory
         {
@@ -121,24 +121,6 @@ namespace OpenTabletDriver.Desktop
         }
 
         public static string ProgramDirectory => AppContext.BaseDirectory;
-
-        private static string GetDirectory(params string[] directories)
-        {
-            foreach (var dir in directories.Select(InjectEnvironmentVariables))
-                if (Path.IsPathRooted(dir))
-                    return dir;
-
-            return null;
-        }
-
-        private static string GetDirectoryIfExists(params string[] directories)
-        {
-            foreach (var dir in directories.Select(InjectEnvironmentVariables))
-                if (Directory.Exists(dir))
-                    return dir;
-
-            return InjectEnvironmentVariables(directories.Last());
-        }
 
         private string GetDefaultConfigurationDirectory() => GetExistingPathOrLast(
             Path.Join(AppDataDirectory, "Configurations"),

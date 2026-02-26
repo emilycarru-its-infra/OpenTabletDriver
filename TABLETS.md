@@ -38,6 +38,7 @@
 | Huion Kamvas 13                    |     Supported     |
 | Huion Kamvas 16                    |     Supported     |
 | Huion Kamvas 16 (2021)             |     Supported     |
+| Huion Kamvas 16 (Gen 3)            |     Supported     |
 | Huion Kamvas 20                    |     Supported     |
 | Huion Kamvas 22                    |     Supported     |
 | Huion Kamvas 22 Plus               |     Supported     |
@@ -140,7 +141,9 @@
 | Wacom PTK-470                      |     Supported     |
 | Wacom PTK-540WL                    |     Supported     |
 | Wacom PTK-640                      |     Supported     |
+| Wacom PTK-670                      |     Supported     |
 | Wacom PTK-840                      |     Supported     |
+| Wacom PTK-870                      |     Supported     |
 | Wacom PTK-1240                     |     Supported     |
 | Wacom XD-0405-U                    |     Supported     |
 | Wacom XD-0608-U                    |     Supported     |
@@ -209,6 +212,7 @@
 | Huion H420                         |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
 | Huion H580X                        |    Has Quirks     | User may have to replug their tablet until it is detected.
 | Huion H690                         |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
+| Huion Kamvas 13 (Gen 3)            |    Has Quirks     | Function-switch buttons act as regular auxiliary keys.
 | Huion New 1060 Plus (2048)         |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 1
 | Huion osu! Tablet                  |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0. Uses the same configuration as the Huion 420.
 | Huion WH1409 V2 (Variant 2)        |    Has Quirks     | Windows: Requires Zadig's WinUSB to be installed on interface 0
@@ -255,8 +259,6 @@
 | Huion HC16                         |  Missing Features | Wheel is not yet supported.
 | Huion HC16 (Variant 2)             |  Missing Features | Wheel is not yet supported.
 | Huion HS611                        |  Missing Features | Touch bar is not yet supported.
-| Huion Kamvas 13 (Gen 3)            |  Missing Features | Both wheels function as a single wheel, function-switch buttons act as regular auxiliary keys.
-| Huion Kamvas 16 (Gen 3)            |  Missing Features | Both wheels function as a single wheel.
 | Huion Kamvas Pro 12                |  Missing Features | Touch bar is not yet supported.
 | Huion Kamvas Pro 13                |  Missing Features | Touch bar is not yet supported.
 | Huion Kamvas Pro 16                |  Missing Features | Touch bar is not yet supported.
@@ -304,8 +306,6 @@
 | Wacom PTH-850                      |  Missing Features | Wheel is not yet supported.
 | Wacom PTK-450                      |  Missing Features | Wheel is not yet supported.
 | Wacom PTK-650                      |  Missing Features | Wheel is not yet supported.
-| Wacom PTK-670                      |  Missing Features | Left and right wheels map to the same control.
-| Wacom PTK-870                      |  Missing Features | Left and right wheels map to the same control.
 | Wacom PTZ-1230                     |  Missing Features | Touch bars are not yet supported.
 | Wacom PTZ-1231W                    |  Missing Features | Touch bars are not yet supported.
 | Wacom PTZ-431W                     |  Missing Features | Touch bars are not yet supported.

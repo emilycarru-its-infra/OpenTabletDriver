@@ -160,7 +160,7 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Keyboard
             { "Slash", EventCode.KEY_SLASH },
             { "RightBracket", EventCode.KEY_RIGHTBRACE },
             { "LeftBracket", EventCode.KEY_LEFTBRACE },
-            { "ContextMenu", EventCode.KEY_CONTEXT_MENU },
+            { "ContextMenu", EventCode.KEY_COMPOSE }, // ContextMenu read by Eto is KEY_COMPOSE in libinput
             { "Keypad0", EventCode.KEY_KP0 },
             { "Keypad1", EventCode.KEY_KP1 },
             { "Keypad2", EventCode.KEY_KP2 },

@@ -287,6 +287,7 @@
 | VEIKK A50 (Variant 2)              |  Missing Features | Touchpad is not yet supported.
 | VEIKK Voila (VO1060)               |  Missing Features | Wheel is not yet supported.
 | VEIKK VK1060PRO                    |  Missing Features | Wheels not yet supported.
+| VEIKK VK2200PRO                    |  Missing Features | Wheels not yet supported, tablet buttons may be mapped incorrectly.
 | Wacom CTE-450                      |  Missing Features | Wheel is not yet supported.
 | Wacom CTE-650                      |  Missing Features | Wheel is not yet supported.
 | Wacom CTH-300                      |  Missing Features | Touch is not yet supported.

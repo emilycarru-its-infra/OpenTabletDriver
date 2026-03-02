@@ -148,7 +148,7 @@ namespace OpenTabletDriver.Plugin
         private static IEnumerable<string> GetStringFormat(IRelativeWheelReport wheelReport)
         {
             int wheelNumber = 1;
-            foreach (uint pos in wheelReport.AnalogDeltas)
+            foreach (int pos in wheelReport.AnalogDeltas)
                 yield return $"Wheel {wheelNumber++} Delta:{pos}";
         }
 

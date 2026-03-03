@@ -4,12 +4,16 @@ using OpenTabletDriver.Plugin.Tablet;
 namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
 {
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public class XP_PenReportParser : IReportParser<IDeviceReport>
+    public class XP_PenDeco03ReportParser : IReportParser<IDeviceReport>
     {
         public IDeviceReport Parse(byte[] report)
         {
             if (report[1] == 0xC0)
                 return new OutOfRangeReport(report);
+
+            if (report[1] == 0xF0) {
+                return new XP_PenDeco03WheelReport(report, ref previousWheelByte);
+            }
 
             if (report[1].IsBitSet(4))
                 return new XP_PenAuxReport(report);
@@ -21,5 +25,6 @@ namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
             else
                 return new TabletReport(report);
         }
+        private byte previousWheelByte;
     }
 }

@@ -1,10 +1,11 @@
 using OpenTabletDriver.Plugin.Tablet;
+using OpenTabletDriver.Plugin.Wheel;
 
 namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
 {
-    public struct XP_PenAuxReport : IAuxReport
+    public struct XP_PenAuxReport : IAuxReport, IRelativeWheelReport
     {
-        public XP_PenAuxReport(byte[] report, int auxIndex = 2)
+        public XP_PenAuxReport(byte[] report, int auxIndex = 2, int wheelIndex = 7)
         {
             Raw = report;
 
@@ -30,6 +31,14 @@ namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
                 report[auxIndex + 2].IsBitSet(1),
                 report[auxIndex + 2].IsBitSet(2),
                 report[auxIndex + 2].IsBitSet(3),
+            ];
+
+            // 0x01 for 1st wheel clockwise, 0x02 for counterclockwise, verified on XP Pen Artist 13.3 Pro V2
+            // 0x10 for 2nd wheel clockwise, 0x20 for counterclockwise, verified on XP Pen Artist 22R Pro
+            AnalogDeltas =
+            [
+                report[wheelIndex].IsBitSet(0) ? 1 : report[wheelIndex].IsBitSet(1) ? -1 : 0,
+                report[wheelIndex].IsBitSet(4) ? 1 : report[wheelIndex].IsBitSet(5) ? -1 : 0,
             ];
         }
 

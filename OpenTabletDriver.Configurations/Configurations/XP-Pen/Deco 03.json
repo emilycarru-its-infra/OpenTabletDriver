@@ -16,8 +16,7 @@
     },
     "Wheels": [
       {
-        "StepCount": 25,
-        "IsRelative": true,
+        "RelativeWheelSteps": 25,
         "ButtonCount": 0
       }
     ]

@@ -73,6 +73,12 @@ namespace OpenTabletDriver.UX
                     {
                         PluginPlatform.Windows =>
                             "Connecting to daemon has timed out.\nVerify that OpenTabletDriver.Daemon is running or is in the same folder as OpenTabletDriver.UX\nPress OK to retry",
+                        PluginPlatform.Linux =>
+                            """
+                            Connecting to daemon has timed out.
+                            Verify that OpenTabletDriver.Daemon is running, e.g. by starting the systemd user service (usually 'systemctl --user start opentabletdriver'), or by starting 'otd-daemon'.
+                            Press OK to retry
+                            """,
                         _ =>
                             "Connecting to daemon has timed out. Verify that OpenTabletDriver.Daemon is running.\nPress OK to retry"
                     };

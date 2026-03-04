@@ -1,6 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using OpenTabletDriver.Plugin.Tablet;
 
+// The Deco 03 requires additional logic for parsing
+// the wheel reports. To prevent issues with other tablets,
+// a seperate parser has been made for the Deco 03
+
 namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
 {
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]

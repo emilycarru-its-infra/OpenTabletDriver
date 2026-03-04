@@ -281,6 +281,7 @@
 | Parblo A640                        |  Missing Features | Aux buttons are not yet supported.
 | Parblo Intangbo M                  |  Missing Features | Wheel is not yet supported.
 | Parblo Intangbo S                  |  Missing Features | Wheel is not yet supported.
+| Parblo Intangbo SW                 |  Missing Features | Wheel and wireless are not yet supported.
 | UGEE M908                          |  Missing Features | Wheel is not yet supported.
 | UGEE UE16                          |  Missing Features | Wheel is not yet supported.
 | VEIKK A15 Pro                      |  Missing Features | Wheel is not yet supported.

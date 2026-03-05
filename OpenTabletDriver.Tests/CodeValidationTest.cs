@@ -27,7 +27,7 @@ namespace OpenTabletDriver.Tests
                 var result = new TheoryData<Type>();
 
                 foreach (var assembly in s_AssembliesWithReportParsers)
-                    result.AddRange([..assembly.ExportedTypes.Where(TypeIsIDeviceReport)]);
+                    result.AddRange([.. assembly.ExportedTypes.Where(TypeIsIDeviceReport)]);
 
                 return result;
             }

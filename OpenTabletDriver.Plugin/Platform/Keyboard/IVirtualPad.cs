@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Plugin.Platform.Keyboard
 {
     public interface IVirtualPad
     {
-        void KeyEvent(string key, bool isPress);
+        void KeyEvent(TabletPadEvent padEvent, bool isPress);
     }
 }

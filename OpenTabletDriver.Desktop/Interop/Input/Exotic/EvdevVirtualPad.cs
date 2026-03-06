@@ -6,26 +6,27 @@ using OpenTabletDriver.Native.Linux.Evdev;
 using OpenTabletDriver.Native.Linux.Evdev.Structs;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Platform.Keyboard;
+using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Desktop.Interop.Input.Exotic;
 
 public class EvdevVirtualPad : IVirtualPad, IDisposable
 {
     // represents the report is coming from a pad (PAD_DEVICE_ID in wacom_wac.h)
-    private static int _wacomMagicNumber = 0x0F;
+    private static readonly int _wacomMagicNumber = 0x0F;
 
-    public static readonly Dictionary<string, EventCode> ValidButtons = new()
+    public static readonly Dictionary<TabletPadEvent, EventCode> ValidButtons = new()
     {
-        { "Pad Button 1", EventCode.BTN_1 },
-        { "Pad Button 2", EventCode.BTN_2 },
-        { "Pad Button 3", EventCode.BTN_3 },
-        { "Pad Button 4", EventCode.BTN_4 },
-        { "Pad Button 5", EventCode.BTN_5 },
-        { "Pad Button 6", EventCode.BTN_6 },
-        { "Pad Button 7", EventCode.BTN_7 },
-        { "Pad Button 8", EventCode.BTN_8 },
-        { "Pad Button 9", EventCode.BTN_9 },
-        { "Pad Button 0", EventCode.BTN_0 },
+        { TabletPadEvent.BUTTON_1, EventCode.BTN_1 },
+        { TabletPadEvent.BUTTON_2, EventCode.BTN_2 },
+        { TabletPadEvent.BUTTON_3, EventCode.BTN_3 },
+        { TabletPadEvent.BUTTON_4, EventCode.BTN_4 },
+        { TabletPadEvent.BUTTON_5, EventCode.BTN_5 },
+        { TabletPadEvent.BUTTON_6, EventCode.BTN_6 },
+        { TabletPadEvent.BUTTON_7, EventCode.BTN_7 },
+        { TabletPadEvent.BUTTON_8, EventCode.BTN_8 },
+        { TabletPadEvent.BUTTON_9, EventCode.BTN_9 },
+        { TabletPadEvent.BUTTON_10, EventCode.BTN_0 },
     };
 
     private static EventCode[] supportedEventCodes = ValidButtons.Values.ToArray();
@@ -74,7 +75,7 @@ public class EvdevVirtualPad : IVirtualPad, IDisposable
 
     private EvdevDevice Device { set; get; }
 
-    public void KeyEvent(string key, bool isPress)
+    public void KeyEvent(TabletPadEvent key, bool isPress)
     {
         var eventCode = ValidButtons[key];
 

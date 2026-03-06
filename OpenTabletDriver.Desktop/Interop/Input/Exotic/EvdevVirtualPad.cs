@@ -11,8 +11,8 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Exotic;
 
 public class EvdevVirtualPad : IVirtualPad, IDisposable
 {
-    // the ABS_MISC event code sent with button presses on the stock Wacom Linux driver(?)
-    private static int _wacomMagicNumber = 15;
+    // represents the report is coming from a pad (PAD_DEVICE_ID in wacom_wac.h)
+    private static int _wacomMagicNumber = 0x0F;
 
     public static readonly Dictionary<string, EventCode> ValidButtons = new()
     {

@@ -17,16 +17,16 @@ public sealed class EvdevVirtualPad : IVirtualPad, IDisposable
 
     private static readonly Dictionary<TabletPadEvent, EventCode> s_ValidButtons = new()
     {
-        { TabletPadEvent.BUTTON_1, EventCode.BTN_1 },
-        { TabletPadEvent.BUTTON_2, EventCode.BTN_2 },
-        { TabletPadEvent.BUTTON_3, EventCode.BTN_3 },
-        { TabletPadEvent.BUTTON_4, EventCode.BTN_4 },
-        { TabletPadEvent.BUTTON_5, EventCode.BTN_5 },
-        { TabletPadEvent.BUTTON_6, EventCode.BTN_6 },
-        { TabletPadEvent.BUTTON_7, EventCode.BTN_7 },
-        { TabletPadEvent.BUTTON_8, EventCode.BTN_8 },
-        { TabletPadEvent.BUTTON_9, EventCode.BTN_9 },
-        { TabletPadEvent.BUTTON_10, EventCode.BTN_0 },
+        { TabletPadEvent.BUTTON_1, EventCode.BTN_0 },
+        { TabletPadEvent.BUTTON_2, EventCode.BTN_1 },
+        { TabletPadEvent.BUTTON_3, EventCode.BTN_2 },
+        { TabletPadEvent.BUTTON_4, EventCode.BTN_3 },
+        { TabletPadEvent.BUTTON_5, EventCode.BTN_4 },
+        { TabletPadEvent.BUTTON_6, EventCode.BTN_5 },
+        { TabletPadEvent.BUTTON_7, EventCode.BTN_6 },
+        { TabletPadEvent.BUTTON_8, EventCode.BTN_7 },
+        { TabletPadEvent.BUTTON_9, EventCode.BTN_8 },
+        { TabletPadEvent.BUTTON_10, EventCode.BTN_9 },
     };
 
     private static readonly EventCode[] s_SupportedEventCodes = s_ValidButtons.Values.ToArray();

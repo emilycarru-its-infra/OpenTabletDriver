@@ -12,9 +12,6 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Exotic;
 
 public sealed class EvdevVirtualPad : IVirtualPad, IDisposable
 {
-    // represents the report is coming from a pad (PAD_DEVICE_ID in wacom_wac.h)
-    private const int _WACOM_MAGIC_NUMBER = 0x0F;
-
     private static readonly Dictionary<TabletPadEvent, EventCode> s_ValidButtons = new()
     {
         { TabletPadEvent.BUTTON_1, EventCode.BTN_0 },
@@ -80,7 +77,8 @@ public sealed class EvdevVirtualPad : IVirtualPad, IDisposable
         var eventCode = s_ValidButtons[key];
 
         Device.Write(EventType.EV_KEY, eventCode, isPress ? 1 : 0);
-        Device.Write(EventType.EV_ABS, EventCode.ABS_MISC, isPress ? _WACOM_MAGIC_NUMBER : 0);
+        // Linux' Wacom driver reports 0x0F for pad devices, let's just report 1 to simplify
+        Device.Write(EventType.EV_ABS, EventCode.ABS_MISC, isPress ? 1 : 0);
         Device.Sync();
     }
 

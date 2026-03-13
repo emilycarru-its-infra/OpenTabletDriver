@@ -20,7 +20,7 @@ namespace OpenTabletDriver.Configurations.Parsers.Genius
             PenButtons =
             [
                report[5].IsBitSet(3),
-               report[5].IsBitSet(4),
+                report[5].IsBitSet(4),
             ];
         }
 

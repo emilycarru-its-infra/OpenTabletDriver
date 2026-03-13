@@ -18,7 +18,8 @@ namespace OpenTabletDriver.Configurations.Parsers.XP_Pen
             // anyone looking at this.
             //
             // Perhaps only God knows why on earth the firmware devs for the Deco 03 did it this way.
-            switch ((previousWheelByte, report[wheelIndex])) {
+            switch ((previousWheelByte, report[wheelIndex]))
+            {
                 case (0x80, 0x00):
                 case (0x00, 0x40):
                 case (0x40, 0xC0):

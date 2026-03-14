@@ -148,7 +148,7 @@ and fill out the template with relevant information. We welcome both bug
 reports, as well as new tablets to add support for. In many cases adding support
 for a new tablet is quite easy.
 
-For issues and PRs related to OpenTabletDriver's [web page](https://opentabletdriver.net), see the repository [here](opentabletdriver.github.io).
+For issues and PRs related to OpenTabletDriver's [web page](https://opentabletdriver.net), see the repository [here](https://github.com/OpenTabletDriver/opentabletdriver.github.io).
 
 ### Supporting a new tablet
 

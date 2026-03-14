@@ -107,7 +107,7 @@ Run `PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" $(brew --prefix)/bin
     - Linux: Natively supported with "Linux Artist Mode" output mode
     - MacOS: Natively supported in all output modes
   - Pen tilt
-  - Partial tablet pad wheel/slider support
+  - Tablet pad wheels/dials
   - Auxiliary/Express Keys
 - Pen bindings
   - Tip by pressure bindings
@@ -127,7 +127,7 @@ Run `PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH" $(brew --prefix)/bin
   - Filters, including asynchronous filters (interpolators)
   - Output modes
 - Device debugging tools
-  - Simple tablet data analyzer ("Tablet Debugger")
+  - Tablet data analyzer ("Tablet Debugger")
   - USB Device String readings
 - Automatic version update notification
   - Can be disabled with `--skipupdate` command line flag

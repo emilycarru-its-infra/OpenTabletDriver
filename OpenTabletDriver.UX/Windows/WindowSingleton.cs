@@ -41,7 +41,11 @@ namespace OpenTabletDriver.UX.Windows
             }
         }
 
-        public void Close() => GetWindow()?.Close();
+        public void Close()
+        {
+            if (window != null)
+                GetWindow()?.Close();
+        }
 
         private void HandleWindowClosed(object sender, EventArgs e)
         {

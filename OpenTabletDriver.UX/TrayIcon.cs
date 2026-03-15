@@ -39,7 +39,7 @@ namespace OpenTabletDriver.UX
 
         // macOS doesn't render a menu bar for windows of background apps
         // This is used to clone the items of the menu bar to the context menu
-        private MenuItem CloneMenuItem(MenuItem original)
+        private static MenuItem CloneMenuItem(MenuItem original)
         {
             if (original is SeparatorMenuItem)
             {

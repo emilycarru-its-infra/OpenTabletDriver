@@ -8,7 +8,7 @@ namespace OpenTabletDriver.Desktop.Output
 {
     [PluginName("Relative Mode")]
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public class RelativeMode : RelativeOutputMode
+    public class RelativeMode : RelativeOutputMode, IPointerProvider<IRelativePointer>
     {
         [Resolved]
         public override IRelativePointer Pointer { set; get; }

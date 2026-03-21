@@ -8,7 +8,7 @@ namespace OpenTabletDriver.Desktop.Output
 {
     [PluginName("Absolute Mode")]
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public class AbsoluteMode : AbsoluteOutputMode
+    public class AbsoluteMode : AbsoluteOutputMode, IPointerProvider<IAbsolutePointer>
     {
         [Resolved]
         public override IAbsolutePointer Pointer { set; get; }

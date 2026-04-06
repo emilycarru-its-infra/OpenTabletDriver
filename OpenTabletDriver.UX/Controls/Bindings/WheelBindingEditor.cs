@@ -4,7 +4,6 @@ using Eto.Forms;
 using OpenTabletDriver.Desktop.Profiles;
 using OpenTabletDriver.Plugin.Tablet;
 using OpenTabletDriver.UX.Controls.Generic;
-using OpenTabletDriver.UX.Controls.Output.Area;
 
 namespace OpenTabletDriver.UX.Controls.Bindings
 {

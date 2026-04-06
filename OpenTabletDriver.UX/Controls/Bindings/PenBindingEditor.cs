@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Eto.Forms;
 using OpenTabletDriver.Desktop.Reflection;
 using OpenTabletDriver.UX.Controls.Generic;
-using OpenTabletDriver.UX.Controls.Output.Area;
 
 namespace OpenTabletDriver.UX.Controls.Bindings
 {

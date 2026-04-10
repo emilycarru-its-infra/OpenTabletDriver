@@ -10,10 +10,11 @@ using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Desktop.Binding.LinuxArtistMode
 {
-    [PluginName("Linux Artist Mode"), SupportedPlatform(PluginPlatform.Linux)]
+    [PluginName(_PLUGIN_NAME), SupportedPlatform(PluginPlatform.Linux)]
     public class LinuxArtistModeButtonBinding : IStateBinding
     {
         private readonly EvdevVirtualTablet virtualTablet = (EvdevVirtualTablet)DesktopInterop.VirtualTablet;
+        private const string _PLUGIN_NAME  = "Linux Artist Mode Button Binding";
 
         public static Dictionary<string, EventCode> SupportedButtons { get; } = new() {
             { "Pen Button 1", EventCode.BTN_STYLUS },

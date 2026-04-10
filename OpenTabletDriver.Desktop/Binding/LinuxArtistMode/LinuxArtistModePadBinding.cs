@@ -9,9 +9,11 @@ using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Desktop.Binding.LinuxArtistMode
 {
-    [PluginName("Linux Artist Mode Pad Bindings"), SupportedPlatform(PluginPlatform.Linux)]
+    [PluginName(_PLUGIN_NAME), SupportedPlatform(PluginPlatform.Linux)]
     public class LinuxArtistModePadBinding : IStateBinding
     {
+        private const string _PLUGIN_NAME = "Linux Artist Mode Pad Binding";
+
         [Resolved]
         public IVirtualPad VirtualPad;
 

@@ -68,7 +68,7 @@ namespace OpenTabletDriver.Desktop.Binding
          ToolTip("The amount to scroll. A negative value will scroll up or left " +
                  "and a positive value will scroll down or right.\n\n" +
                  "Note: A tick equals to 120 on Windows & Linux.")]
-        public int Amount { get; set; }
+        public int Amount { get; set; } = 120;
 
         [Property("Interval"),
          DefaultPropertyValue(300),

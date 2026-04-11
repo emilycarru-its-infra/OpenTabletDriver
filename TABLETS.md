@@ -335,7 +335,7 @@
 | XP-Pen Deco 02                     |  Missing Features | Wheel is not yet supported.
 | XP-Pen Deco mini7W V2              |  Missing Features | Wireless is not yet supported.
 | XP-Pen Deco Pro Medium             |  Missing Features | Tilt and wheel are not yet supported.
-| XP-Pen Deco Pro Small              |  Missing Features | Tilt and wheel are not yet supported.
+| XP-Pen Deco Pro Small              |  Missing Features | Trackpad is not yet supported.
 | XP-Pen Deco Pro SW                 |  Missing Features | Wheel is not yet supported.
 | XP-Pen Innovator 16                |  Missing Features | Wheel is not yet supported.
 | XP-Pen Deco Pro MW                 |  Missing Features | Touch wheel and physical wheel are not yet supported.

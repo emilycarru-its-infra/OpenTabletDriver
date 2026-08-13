@@ -3,8 +3,8 @@
 # ECUAD OpenTabletDriver Build Script
 # Single-command build: Compile from source + package with munkipkg
 #
-# Usage: ./build.sh [version]
-# Example: ./build.sh 0.6.4.0
+# Usage: ./build.sh <version> [runtime]
+# Example: ./build.sh 0.6.7 osx-arm64
 
 set -e
 
@@ -22,19 +22,29 @@ cd "${SCRIPT_DIR}"
 CUSTOM_BUNDLE_ID="ca.ecuad.macadmin.OpenTabletDriver"
 SIGNING_IDENTITY_APP="Developer ID Application: Example Organisation (TEAMID0000)"
 SIGNING_KEYCHAIN="${HOME}/Library/Keychains/signing.keychain"
+ENTITLEMENTS_FILE="${SCRIPT_DIR}/OpenTabletDriver.entitlements"
 TEAM_ID="TEAMID0000"
 
 VERSION="${1:-}"
 if [[ -z "${VERSION}" ]]; then
     echo -e "${RED}Error: No version specified${NC}"
-    echo "Usage: $0 <version>"
-    echo "Example: $0 0.6.4.0"
+    echo "Usage: $0 <version> [runtime]"
+    echo "Example: $0 0.6.7 osx-arm64"
     exit 1
+fi
+
+if [[ -n "${2:-}" ]]; then
+    RUNTIME="${2}"
+elif [[ "$(uname -m)" == "arm64" ]]; then
+    RUNTIME="osx-arm64"
+else
+    RUNTIME="osx-x64"
 fi
 
 echo -e "${GREEN}╔═══════════════════════════════════════════════════╗${NC}"
 echo -e "${GREEN}║   ECUAD OpenTabletDriver Build v${VERSION}          ║${NC}"
 echo -e "${GREEN}╚═══════════════════════════════════════════════════╝${NC}"
+echo -e "${GREEN}Runtime:${NC} ${RUNTIME}"
 echo ""
 
 # Step 1: Update submodule
@@ -62,7 +72,7 @@ fi
 
 # Build using the upstream package script for macOS
 PATH="$(brew --prefix coreutils 2>/dev/null)/libexec/gnubin:$PATH" \
-    bash ./eng/bash/package.sh --runtime osx-x64 --output bin --configuration Release
+    bash ./eng/bash/package.sh --runtime "${RUNTIME}" --output bin --configuration Release
 
 if [[ ! -d "bin/OpenTabletDriver.app" ]]; then
     echo -e "${RED}Error: Built app not found${NC}"
@@ -100,11 +110,20 @@ echo -e "${BLUE}[5/6]${NC} ${YELLOW}Code signing for notarization...${NC}"
 # Find and sign all executable files and dylibs
 find "bin/OpenTabletDriver.app/Contents/MacOS" -type f \( -perm +111 -o -name "*.dylib" \) -print0 | while IFS= read -r -d '' file; do
     if file "${file}" | grep -q "Mach-O"; then
-        codesign --force --sign "${SIGNING_IDENTITY_APP}" \
-            --timestamp \
-            --options runtime \
-            --keychain "${SIGNING_KEYCHAIN}" \
-            "${file}" 2>/dev/null || true
+        if [[ -x "${file}" && "${file}" != *.dylib ]]; then
+            codesign --force --sign "${SIGNING_IDENTITY_APP}" \
+                --timestamp \
+                --options runtime \
+                --entitlements "${ENTITLEMENTS_FILE}" \
+                --keychain "${SIGNING_KEYCHAIN}" \
+                "${file}" 2>/dev/null || true
+        else
+            codesign --force --sign "${SIGNING_IDENTITY_APP}" \
+                --timestamp \
+                --options runtime \
+                --keychain "${SIGNING_KEYCHAIN}" \
+                "${file}" 2>/dev/null || true
+        fi
     fi
 done
 
@@ -112,6 +131,7 @@ done
 codesign --force --sign "${SIGNING_IDENTITY_APP}" \
     --timestamp \
     --options runtime \
+    --entitlements "${ENTITLEMENTS_FILE}" \
     --keychain "${SIGNING_KEYCHAIN}" \
     --deep \
     "bin/OpenTabletDriver.app"

@@ -358,7 +358,7 @@ create_binary_tarball() {
 
   local last_pwd="${PWD}"
 
-  output="$(readlink -f "${output}")"
+  output="$(realpath "$(dirname "${output}")")/$(basename "${output}")"
   cd "${source}/.."
   tar -czf "${output}" "$(basename ${source})"
 

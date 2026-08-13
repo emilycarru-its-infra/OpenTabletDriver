@@ -1,5 +1,6 @@
 using System;
-using System.IO;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTabletDriver.Native.Windows.USB;
 using OpenTabletDriver.Plugin.Devices;
@@ -11,13 +12,15 @@ namespace OpenTabletDriver.Devices.WinUSB
     {
         private readonly WeakReference<WinUSBInterface> parentInterface;
         private readonly int interfaceNum;
-        private readonly SafeWinUsbInterfaceHandle winUsbHandle;
         private readonly byte readPipe;
         private readonly byte writePipe;
-        private readonly byte[] readBuffer;
+        private readonly byte[]? readBuffer;
         private readonly byte* readPtr;
-        private readonly byte[] writeBuffer;
+        private readonly byte[]? writeBuffer;
         private readonly byte* writePtr;
+
+        [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed")]
+        private readonly SafeWinUsbInterfaceHandle winUsbHandle;
 
         public WinUSBInterfaceStream(WeakReference<WinUSBInterface> parentInterface)
         {
@@ -47,6 +50,7 @@ namespace OpenTabletDriver.Devices.WinUSB
 
         public byte[] Read()
         {
+            Debug.Assert(readBuffer != null, "Tried to read without an initialized read buffer");
             WinUsb_ReadPipe(winUsbHandle, readPipe, readPtr, (uint)readBuffer.Length, out var bytesRead, null);
             return bytesRead < readBuffer.Length
                 ? readBuffer.AsSpan(0, (int)bytesRead).ToArray()
@@ -55,6 +59,7 @@ namespace OpenTabletDriver.Devices.WinUSB
 
         public void Write(byte[] buffer)
         {
+            Debug.Assert(writeBuffer != null, "Tried to write without an initialized write buffer");
             if (buffer.Length < writeBuffer.Length)
             {
                 writeBuffer.AsSpan().Clear();
@@ -70,7 +75,7 @@ namespace OpenTabletDriver.Devices.WinUSB
             }
         }
 
-        public unsafe void GetFeature(byte[] buffer)
+        public void GetFeature(byte[] buffer)
         {
             var length = buffer.Length; // requires HID report descriptor parsing to implement properly, assume caller is correct for now
             var packet = new SetupPacket()
@@ -108,8 +113,23 @@ namespace OpenTabletDriver.Devices.WinUSB
 
         public void Dispose()
         {
-            if (parentInterface.TryGetTarget(out var usbInterface))
-                usbInterface.ReturnHandle(winUsbHandle);
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _isDisposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+
+            if (disposing)
+            {
+                if (parentInterface.TryGetTarget(out var usbInterface))
+                    usbInterface.ReturnHandle(winUsbHandle);
+            }
+
+            _isDisposed = true;
         }
     }
 }

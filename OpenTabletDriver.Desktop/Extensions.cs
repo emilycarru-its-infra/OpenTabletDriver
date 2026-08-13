@@ -71,7 +71,7 @@ namespace OpenTabletDriver.Desktop
                                      type.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == t));
         }
 
-        private static ReadOnlyCollection<Type> libTypes;
+        private static ReadOnlyCollection<Type>? libTypes;
 
         /// <summary>
         /// Get all abstract types and interface types implemented by IDriver
@@ -82,8 +82,8 @@ namespace OpenTabletDriver.Desktop
             return libTypes ??=
                 new ReadOnlyCollection<Type>([
                     .. from type in typeof(IDriver).Assembly.GetExportedTypes()
-                    where type.IsAbstract || type.IsInterface
-                    select type
+                       where type.IsAbstract || type.IsInterface
+                       select type
                 ]);
         }
     }

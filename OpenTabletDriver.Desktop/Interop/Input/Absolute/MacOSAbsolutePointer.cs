@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Numerics;
 using OpenTabletDriver.Native.OSX;
@@ -17,7 +17,9 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Absolute
 
         public MacOSAbsolutePointer()
         {
-            var primary = DesktopInterop.VirtualScreen.Displays.First();
+            var virtualScreen = DesktopInterop.VirtualScreen
+                                ?? throw new InvalidOperationException("Could not get virtual screen");
+            var primary = virtualScreen.Displays.First();
             _offset = primary.Position;
         }
 

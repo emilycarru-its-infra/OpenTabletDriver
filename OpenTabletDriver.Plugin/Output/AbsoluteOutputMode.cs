@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Platform.Pointer;
 using OpenTabletDriver.Plugin.Tablet;
@@ -12,12 +12,12 @@ namespace OpenTabletDriver.Plugin.Output
     public abstract class AbsoluteOutputMode : OutputMode
     {
         private Vector2 min, max;
-        private Area outputArea, inputArea;
+        private Area? outputArea, inputArea;
 
         /// <summary>
         /// The area in which the tablet's input is transformed to.
         /// </summary>
-        public Area Input
+        public Area? Input
         {
             set
             {
@@ -30,7 +30,7 @@ namespace OpenTabletDriver.Plugin.Output
         /// <summary>
         /// The area in which the final processed output is transformed to.
         /// </summary>
-        public Area Output
+        public Area? Output
         {
             set
             {
@@ -43,19 +43,19 @@ namespace OpenTabletDriver.Plugin.Output
         /// <summary>
         /// The class in which the final absolute positioned output is handled.
         /// </summary>
-        public abstract IAbsolutePointer Pointer { set; get; }
+        public abstract IAbsolutePointer? Pointer { set; get; }
 
         /// <summary>
         /// Whether to clip all tablet inputs to the assigned areas.
         /// </summary>
         /// <remarks>
-        /// If false, input outside of the area can escape the assigned areas, but still will be transformed.
-        /// If true, input outside of the area will be clipped to the edges of the assigned areas.
+        /// If false, input outside the area can escape the assigned areas, but still will be transformed.
+        /// If true, input outside the area will be clipped to the edges of the assigned areas.
         /// </remarks>
         public bool AreaClipping { set; get; }
 
         /// <summary>
-        /// Whether to stop accepting input outside of the assigned areas.
+        /// Whether to stop accepting input outside the assigned areas.
         /// </summary>
         /// <remarks>
         /// If true, <see cref="AreaClipping"/> is automatically implied true.
@@ -117,7 +117,7 @@ namespace OpenTabletDriver.Plugin.Output
         /// Transposes, transforms, and performs all absolute positioning calculations to a <see cref="IAbsolutePositionReport"/>.
         /// </summary>
         /// <param name="report">The <see cref="IAbsolutePositionReport"/> in which to transform.</param>
-        protected override IAbsolutePositionReport Transform(IAbsolutePositionReport report)
+        protected override IAbsolutePositionReport? Transform(IAbsolutePositionReport report)
         {
             // Apply transformation
             var pos = Vector2.Transform(report.Position, this.TransformationMatrix);
@@ -150,7 +150,7 @@ namespace OpenTabletDriver.Plugin.Output
                 pressureHandler.SetPressure(tabletReport.Pressure / (float)Tablet.Properties.Specifications.Pen.MaxPressure);
 
             // make sure to set the position last
-            if (report is IAbsolutePositionReport absReport)
+            if (Pointer != null && report is IAbsolutePositionReport absReport)
                 Pointer.SetPosition(absReport.Position);
             if (Pointer is ISynchronousPointer synchronousPointer)
             {

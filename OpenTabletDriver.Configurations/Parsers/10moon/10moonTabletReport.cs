@@ -1,8 +1,5 @@
 using System;
-using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Configurations.Parsers.TenMoon
@@ -23,11 +20,11 @@ namespace OpenTabletDriver.Configurations.Parsers.TenMoon
             var prePressure = report[5] << 8 | report[6];
             Pressure = (uint)(0x0672 - (prePressure - (buttonPressed ? 50 : 0)));
 
-            PenButtons = new bool[]
-            {
+            PenButtons =
+            [
                 report[9].IsBitSet(2),
-                (report[9] & 6) == 6
-            };
+                (report[9] & 6) == 6,
+            ];
         }
 
         public byte[] Raw { set; get; }

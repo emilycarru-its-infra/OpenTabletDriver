@@ -4,13 +4,11 @@ using System.Threading.Tasks;
 using Octokit;
 using OpenTabletDriver.Plugin;
 
-#nullable enable
-
 namespace OpenTabletDriver.Desktop.Updater
 {
-    public abstract class GitHubUpdater : Updater
+    public abstract partial class GitHubUpdater : Updater
     {
-        static private readonly string _binaryDirectory = Regex.Match(AppContext.BaseDirectory, "^(.*)/[^/]+\\.app/Contents/MacOS/?$", RegexOptions.IgnoreCase) switch
+        static private readonly string _binaryDirectory = BinaryDirectoryRegex().Match(AppContext.BaseDirectory) switch
         {
             { Success: true } match => match.Groups[1].ToString(),
             _ => AppContext.BaseDirectory
@@ -43,5 +41,8 @@ namespace OpenTabletDriver.Desktop.Updater
                 return null;
             }
         }
+
+        [GeneratedRegex("^(.*)/[^/]+\\.app/Contents/MacOS/?$", RegexOptions.IgnoreCase, "en-US")]
+        private static partial Regex BinaryDirectoryRegex();
     }
 }

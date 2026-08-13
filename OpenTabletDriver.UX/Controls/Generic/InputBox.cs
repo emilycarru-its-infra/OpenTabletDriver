@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Eto.Forms;
 
 namespace OpenTabletDriver.UX.Controls.Generic
@@ -9,7 +9,7 @@ namespace OpenTabletDriver.UX.Controls.Generic
             string name,
             Func<string> getValue,
             Action<string> setValue,
-            string placeholder = null,
+            string? placeholder = null,
             int textboxWidth = 300
         )
         {

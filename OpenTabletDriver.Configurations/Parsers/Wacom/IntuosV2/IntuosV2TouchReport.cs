@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenTabletDriver.Plugin.Tablet.Touch;
 
@@ -6,7 +6,7 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.IntuosV2
 {
     public struct IntuosV2TouchReport : ITouchReport
     {
-        public IntuosV2TouchReport(byte[] report, ref TouchPoint[] prevTouches)
+        public IntuosV2TouchReport(byte[] report, ref TouchPoint[]? prevTouches)
         {
             Raw = report;
             Touches = prevTouches ?? new TouchPoint[MAX_POINTS];
@@ -41,7 +41,6 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.IntuosV2
 
         public const int MAX_POINTS = 16;
         public byte[] Raw { set; get; }
-        public TouchPoint[] Touches { set; get; }
-        public bool ShouldSerializeTouches() => true;
+        public TouchPoint?[] Touches { set; get; }
     }
 }

@@ -8,7 +8,7 @@ namespace OpenTabletDriver.Desktop.Interop
     [PluginIgnore]
     public abstract class EvdevVirtualMouse : IMouseButtonHandler, IMouseScrollHandler, ISynchronousPointer, IDisposable
     {
-        protected EvdevDevice Device { set; get; }
+        public required EvdevDevice Device { init; get; }
 
         public void MouseDown(MouseButton button)
         {
@@ -46,9 +46,22 @@ namespace OpenTabletDriver.Desktop.Interop
             _ => null
         };
 
-        public virtual void Dispose()
+        public void Dispose()
         {
-            Device?.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _isDisposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+
+            if (disposing)
+                Device.Dispose();
+
+            _isDisposed = true;
         }
 
         public void Flush()

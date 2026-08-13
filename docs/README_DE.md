@@ -36,7 +36,7 @@ Die Voraussetzungen für OpenTabletDriver sind auf allen Platformen gleich. Abh�
 
 ### Alle Platformen
 
-- .NET 6 SDK (kann [hier](https://dotnet.microsoft.com/download/dotnet/6.0) heruntergeladen werden - Die SDK für die jeweilige Platform wird benötigt, Linuxnutzer sollten die SDK nach möglichkeit mithilfe eines Package-Managers installieren)
+- .NET 10 SDK (kann [hier](https://dotnet.microsoft.com/download/dotnet/10.0) heruntergeladen werden - Die SDK für die jeweilige Platform wird benötigt, Linuxnutzer sollten die SDK nach möglichkeit mithilfe eines Package-Managers installieren)
 
 #### Windows
 
@@ -68,7 +68,7 @@ Diese Datei sollte dann in `/etc/udev/rules.d/` verschoben werden:
 sudo mv ./bin/99-opentabletdriver.rules /etc/udev/rules.d/
 ```
 
-#### MacOS [Experimentell]
+#### MacOS
 
 Keine weiteren Abhängigkeiten.
 

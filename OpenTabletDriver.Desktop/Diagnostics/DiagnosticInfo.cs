@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Serialization;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OpenTabletDriver.Plugin;
@@ -22,13 +24,15 @@ namespace OpenTabletDriver.Desktop.Diagnostics
         public string AppVersion { private set; get; } = GetAppVersion();
 
         [JsonProperty("Build Date")]
-        public string BuildDate { private set; get; } = typeof(BuildDateAttribute).Assembly.GetCustomAttribute<BuildDateAttribute>().BuildDate;
+        public string BuildDate { private set; get; } =
+            typeof(BuildDateAttribute).Assembly.GetCustomAttribute<BuildDateAttribute>()?.BuildDate
+            ?? "<unknown build date>";
 
         [JsonProperty("Operating System")]
-        public OSInfo OperatingSystem => OSInfo.GetOSInfo();
+        public static OSInfo OperatingSystem => OSInfo.GetOSInfo();
 
         [JsonProperty("Environment Variables")]
-        public IDictionary<string, string> EnvironmentVariables { private set; get; } = new EnvironmentDictionary();
+        public IDictionary<string, string?> EnvironmentVariables { private set; get; } = new EnvironmentDictionary();
 
         [JsonProperty("HID Devices")]
         public IEnumerable<SerializedDeviceEndpoint> Devices { private set; get; }
@@ -38,11 +42,13 @@ namespace OpenTabletDriver.Desktop.Diagnostics
 
         private static string GetAppVersion()
         {
-            string version = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+            string? version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            version ??= "<unknown>";
             return $"OpenTabletDriver v{version}";
         }
 
-        [OnError]
+        [OnError, UsedImplicitly]
+        [SuppressMessage("Performance", "CA1822:Mark members as static")] // unclear if [OnError] works when static, so let's err on the side of caution
         internal void OnError(StreamingContext _, ErrorContext errorContext)
         {
             errorContext.Handled = true;

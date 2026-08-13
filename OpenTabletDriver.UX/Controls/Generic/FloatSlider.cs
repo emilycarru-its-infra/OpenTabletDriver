@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using Eto.Forms;
 using OpenTabletDriver.UX.Controls.Generic;
 using OpenTabletDriver.UX.Controls.Generic.Text;
@@ -13,12 +12,6 @@ namespace OpenTabletDriver.UX.Controls
     {
         public FloatSlider()
         {
-            var slider = new Slider
-            {
-                MinValue = Minimum,
-                MaxValue = Maximum
-            };
-
             var nb = new FloatNumberBox();
 
             slider.Bind(
@@ -35,29 +28,52 @@ namespace OpenTabletDriver.UX.Controls
                 Items =
                 {
                     new StackLayoutItem(slider, true),
-                    new StackLayoutItem(nb, false)
+                    new StackLayoutItem(nb)
                 }
             };
+
+            this.slider.MaxValue = 100; // as default only
         }
 
-        public event EventHandler<EventArgs> ValueChanged;
+        public event EventHandler<EventArgs>? ValueChanged;
 
-        private float value;
+        private readonly Slider slider = new();
+
+        private float _value;
+
         public float Value
         {
             set
             {
-                this.value = value;
+                this._value = value;
                 ValueChanged?.Invoke(this, new EventArgs());
             }
-            get => this.value;
+            get => this._value;
         }
 
-        [DefaultValue(0)]
-        public int Minimum { set; get; } = 0;
+        public int Minimum
+        {
+            get => this.slider.MinValue;
+            set => this.slider.MinValue = value;
+        }
 
-        [DefaultValue(100)]
-        public int Maximum { set; get; } = 100;
+        public int Maximum
+        {
+            get => this.slider.MaxValue;
+            set => this.slider.MaxValue = value;
+        }
+
+        public int StepSize
+        {
+            get => this.slider.TickFrequency;
+            set => this.slider.TickFrequency = value;
+        }
+
+        public bool SnapToTick
+        {
+            get => slider.SnapToTick;
+            set => slider.SnapToTick = value;
+        }
 
         public BindableBinding<FloatSlider, float> ValueBinding
         {

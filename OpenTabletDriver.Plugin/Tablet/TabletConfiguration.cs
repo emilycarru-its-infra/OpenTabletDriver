@@ -1,32 +1,33 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
-#nullable enable
-
 namespace OpenTabletDriver.Plugin.Tablet
 {
+    /// <summary>
+    /// Specifications and identifiers for a full tablet configuration
+    /// </summary>
     public class TabletConfiguration
     {
         /// <summary>
         /// The tablet's name.
         /// </summary>
         [Required(ErrorMessage = $"Tablet {nameof(Name)} is required")]
-        public string Name { set; get; } = string.Empty;
+        public required string Name { set; get; } = string.Empty;
 
         /// <summary>
         /// The tablet's specifications.
         /// </summary>
         [Required(ErrorMessage = $"Tablet {nameof(Specifications)} is required")]
-        public TabletSpecifications Specifications { set; get; } = new TabletSpecifications();
+        public required TabletSpecifications Specifications { set; get; }
 
         /// <summary>
         /// The digitizer device identifier.
         /// </summary>
         [Required(ErrorMessage = $"Tablet {nameof(DigitizerIdentifiers)} are required")]
         [MinLength(1, ErrorMessage = "Requires at least 1 identifier")]
-        public List<DeviceIdentifier> DigitizerIdentifiers { set; get; } = new List<DeviceIdentifier>();
+        public required List<DeviceIdentifier> DigitizerIdentifiers { set; get; }
 
         /// <summary>
         /// The auxiliary device identifier.
@@ -52,8 +53,8 @@ namespace OpenTabletDriver.Plugin.Tablet
         }
 
         // hack which allows us to deserialize the object for backwards compatibility, but not emit it in serialization
-        [JsonProperty("AuxilaryDeviceIdentifiers")]
 #pragma warning disable CS0618 // Type or member is obsolete
+        [JsonProperty(nameof(AuxilaryDeviceIdentifiers))]
         private List<DeviceIdentifier>? AuxilaryDeviceIdentifiers2
         {
             set => AuxilaryDeviceIdentifiers = value;

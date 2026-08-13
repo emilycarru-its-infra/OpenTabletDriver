@@ -1,8 +1,8 @@
 using System;
 using Newtonsoft.Json;
-using OpenTabletDriver.Desktop.Interop;
 using OpenTabletDriver.Desktop.Output;
 using OpenTabletDriver.Desktop.Reflection;
+using OpenTabletDriver.Interop;
 using OpenTabletDriver.Plugin;
 using OpenTabletDriver.Plugin.Tablet;
 
@@ -10,43 +10,41 @@ namespace OpenTabletDriver.Desktop.Profiles
 {
     public class Profile : ViewModel
     {
-        private string tablet;
-        private PluginSettingStore outputMode;
-        private AbsoluteModeSettings absoluteMode = new AbsoluteModeSettings();
-        private RelativeModeSettings relativeMode = new RelativeModeSettings();
+        private AbsoluteModeSettings? absoluteMode;
+        private RelativeModeSettings? relativeMode;
         private BindingSettings bindings = new BindingSettings();
         private PluginSettingStoreCollection filters = new PluginSettingStoreCollection();
 
-        [JsonProperty("Tablet")]
-        public string Tablet
+        [JsonProperty(nameof(Tablet))]
+        public required string Tablet
         {
-            set => this.RaiseAndSetIfChanged(ref tablet, value);
-            get => tablet;
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
-        [JsonProperty("OutputMode")]
-        public PluginSettingStore OutputMode
+        [JsonProperty(nameof(OutputMode))]
+        public required PluginSettingStore OutputMode
         {
-            set => RaiseAndSetIfChanged(ref outputMode, value);
-            get => outputMode;
+            get;
+            set => RaiseAndSetIfChanged(ref field, value);
         }
 
-        [JsonProperty("Filters")]
+        [JsonProperty(nameof(Filters))]
         public PluginSettingStoreCollection Filters
         {
             set => RaiseAndSetIfChanged(ref filters, value);
             get => filters;
         }
 
-        [JsonProperty("AbsoluteModeSettings")]
-        public AbsoluteModeSettings AbsoluteModeSettings
+        [JsonProperty(nameof(AbsoluteModeSettings))]
+        public AbsoluteModeSettings? AbsoluteModeSettings
         {
             set => this.RaiseAndSetIfChanged(ref absoluteMode, value);
             get => absoluteMode;
         }
 
-        [JsonProperty("RelativeModeSettings")]
-        public RelativeModeSettings RelativeModeSettings
+        [JsonProperty(nameof(RelativeModeSettings))]
+        public RelativeModeSettings? RelativeModeSettings
         {
             set => this.RaiseAndSetIfChanged(ref relativeMode, value);
             get => relativeMode;
@@ -60,7 +58,7 @@ namespace OpenTabletDriver.Desktop.Profiles
         }
 
         private static Type DefaultOutputModeType =>
-            DesktopInterop.CurrentPlatform switch
+            SystemInterop.CurrentPlatform switch
             {
                 PluginPlatform.Linux => typeof(LinuxArtistMode),
                 _ => typeof(AbsoluteMode)

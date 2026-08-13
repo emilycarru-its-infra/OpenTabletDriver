@@ -1,4 +1,3 @@
-using System;
 using Eto.Drawing;
 using Eto.Forms;
 using OpenTabletDriver.Desktop.Profiles;
@@ -32,10 +31,10 @@ namespace OpenTabletDriver.UX.Windows.Greeter.Pages
                                 Rotation = 15,
                             },
                             Unit = "mm",
-                            AreaBounds = new RectangleF[]
-                            {
-                                new RectangleF(0, 0, 150, 150)
-                            }
+                            AreaBounds =
+                            [
+                                new RectangleF(0, 0, 150, 150),
+                            ]
                         }
                     }
                 },

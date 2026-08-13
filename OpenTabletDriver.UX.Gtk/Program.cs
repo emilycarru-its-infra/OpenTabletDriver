@@ -1,6 +1,4 @@
-﻿using System;
-using Eto.Forms;
-using GLib;
+using System;
 
 namespace OpenTabletDriver.UX.Gtk
 {

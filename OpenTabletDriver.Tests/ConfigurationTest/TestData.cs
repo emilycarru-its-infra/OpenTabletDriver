@@ -52,6 +52,24 @@ namespace OpenTabletDriver.Tests.ConfigurationTest
 
         public static TheoryData<string> ParsersInConfigs => parsersInConfigs.Distinct().ToTheoryData();
 
+        private static IEnumerable<TabletConfiguration> configsWithWheels =>
+            from config in DeviceConfigurationProvider.TabletConfigurations
+            where config.Specifications.Wheels is { Count: > 0 }
+            select config;
+
+        private static IEnumerable<TabletWithWheel> wheelsFromConfigs =>
+            from config in configsWithWheels
+            from wheel in config.Specifications.Wheels! // null warning silenced because it's checked in referenced property
+            select new TabletWithWheel(config.Name, wheel);
+
+        public static TheoryData<TabletWithWheel> WheelsFromConfigs =>
+            wheelsFromConfigs.ToTheoryData();
+
+        public static TheoryData<TabletWithWheel> RelativeWheelsFromConfigs =>
+            wheelsFromConfigs.Where(x => x.WheelSpecifications.RelativeWheelSteps.HasValue).ToTheoryData();
+
+        public record TabletWithWheel(string Name, WheelSpecifications WheelSpecifications);
+
         #region Schema
 
         private static JSchema? tabletConfigurationSchema;
@@ -112,7 +130,9 @@ namespace OpenTabletDriver.Tests.ConfigurationTest
         private static string GetConfigDir([CallerFilePath] string sourceFilePath = "") =>
             Path.GetFullPath(Path.Join(sourceFilePath, "../../../OpenTabletDriver.Configurations/Configurations"));
 
-        private static TabletConfiguration Deserialize(FileInfo configFileInfo) => Serialization.Deserialize<TabletConfiguration>(configFileInfo);
+        private static TabletConfiguration Deserialize(FileInfo configFileInfo) =>
+            Serialization.Deserialize<TabletConfiguration>(configFileInfo) ??
+            throw new InvalidOperationException($"Invalid file {configFileInfo}");
 
         [GeneratedRegex(@"^OpenTabletDriver\.Tablet\..*$", RegexOptions.Compiled)]
         public static partial Regex AvaloniaReportParserPathRegex();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ namespace OpenTabletDriver.UX.Controls
     {
         public LogView()
         {
+            Debug.Assert(App.Driver.IsConnected, "Tried to initialize log view without an active daemon");
+
             this.Orientation = Orientation.Vertical;
 
             var filterSelector = new FilterDropDown();
@@ -64,11 +67,13 @@ namespace OpenTabletDriver.UX.Controls
             this.Items.Add(new StackLayoutItem(messageList, HorizontalAlignment.Stretch, true));
             this.Items.Add(new StackLayoutItem(toolbar, HorizontalAlignment.Stretch));
 
-            _ = InitializeAsync();
+            // ReSharper disable once AsyncVoidMethod
+            Application.Instance.AsyncInvoke(async void () => await InitializeAsync());
         }
 
         private async Task InitializeAsync()
         {
+            Debug.Assert(App.Driver.IsConnected, "Tried to initialize log view without an active daemon");
             var currentMessages = await App.Driver.Instance.GetCurrentLog();
             messageList.DataStore = messageStore = new LogDataStore(currentMessages);
 
@@ -107,7 +112,7 @@ namespace OpenTabletDriver.UX.Controls
                     HeaderText = "Level",
                     DataCell = new TextBoxCell
                     {
-                        Binding = Binding.Property<LogMessage, string>(m => Enum.GetName(m.Level))
+                        Binding = Binding.Property<LogMessage, string>(m => Enum.GetName(m.Level)!)
                     }
                 },
                 new GridColumn
@@ -129,7 +134,7 @@ namespace OpenTabletDriver.UX.Controls
             }
         };
 
-        private LogDataStore messageStore;
+        private LogDataStore messageStore = null!; // initialized asynchronously
 
         private void AddMessage(LogMessage message)
         {

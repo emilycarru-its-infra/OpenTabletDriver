@@ -1,5 +1,3 @@
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -13,10 +11,10 @@ namespace OpenTabletDriver.Desktop.Updater
     public abstract class Updater : IUpdater
     {
         private static readonly ImmutableArray<string> AppDataFiles =
-            ImmutableArray.Create(
-                "settings.json",
-                "Presets"
-            );
+        [
+            "settings.json",
+            "Presets"
+        ];
 
         protected static readonly Version AssemblyVersion = typeof(IUpdater).Assembly.GetName().Version!;
 
@@ -155,7 +153,7 @@ namespace OpenTabletDriver.Desktop.Updater
             Action<string, string> fileAction,
             Action<string, string> directoryAction)
         {
-            foreach (var path in pathsToUpdate.Select(f => Path.GetFileName(f)))
+            foreach (var path in pathsToUpdate.Select(Path.GetFileName))
             {
                 var source = Path.Join(BinaryDirectory, path);
                 var destination = Path.Join(binaryRollback, path);

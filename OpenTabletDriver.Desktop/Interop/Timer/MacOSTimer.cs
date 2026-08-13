@@ -9,8 +9,6 @@ using static OpenTabletDriver.Native.OSX.Timers.Timers;
 using static OpenTabletDriver.Native.Posix.Utility;
 using Thread = System.Threading.Thread;
 
-#nullable enable
-
 namespace OpenTabletDriver.Desktop.Interop.Timer
 {
     internal class MacOSTimer : ITimer, IDisposable
@@ -72,6 +70,7 @@ namespace OpenTabletDriver.Desktop.Interop.Timer
                     }
 
                     thread = new Thread(ThreadMain);
+                    thread.IsBackground = true;
                     thread!.Start();
                     Enabled = true;
                 }

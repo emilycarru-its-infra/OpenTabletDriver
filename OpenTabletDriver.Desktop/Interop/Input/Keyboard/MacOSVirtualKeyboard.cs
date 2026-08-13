@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using OpenTabletDriver.Native.OSX;
-using OpenTabletDriver.Native.OSX.Generic;
 using OpenTabletDriver.Native.OSX.Input;
 using OpenTabletDriver.Plugin.Platform.Keyboard;
 
@@ -12,7 +11,7 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Keyboard
     public class MacOSVirtualKeyboard : IVirtualKeyboard
     {
         // Keep track of current modifier flags, as CGEventSourceFlagsState does not return updated flags immediately after an event is posted.
-        private ulong _currentFlags = 0;
+        private ulong _currentFlags;
         private void KeyEvent(string key, bool isPress)
         {
             if (EtoKeysymToVK.TryGetValue(key, out var code))
@@ -145,13 +144,13 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Keyboard
             //{ "Menu", CGKeyCode.kVK_ANSI_MENU },
             { "Backslash", CGKeyCode.kVK_ANSI_Backslash },
             { "Plus", CGKeyCode.kVK_ANSI_KeypadPlus },
-            { "Equal", CGKeyCode.kVK_ANSI_KeypadEquals },
+            { "Equal", CGKeyCode.kVK_ANSI_Equal },
             { "Semicolon", CGKeyCode.kVK_ANSI_Semicolon },
             { "Quote", CGKeyCode.kVK_ANSI_Quote },
             { "Comma", CGKeyCode.kVK_ANSI_Comma },
             { "Period", CGKeyCode.kVK_ANSI_Period },
             { "ForwardSlash", CGKeyCode.kVK_ANSI_Slash },
-            { "Slash", CGKeyCode.kVK_ANSI_Backslash },
+            { "Slash", CGKeyCode.kVK_ANSI_Slash },
             { "RightBracket", CGKeyCode.kVK_ANSI_RightBracket },
             { "LeftBracket", CGKeyCode.kVK_ANSI_LeftBracket },
             //{ "ContextMenu", CGKeyCode.kVK_ANSI_MENU },
@@ -184,7 +183,7 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Keyboard
             // only USB consumer control buttons: https://zmk.dev/docs/keymaps/list-of-keycodes#media-controls
         };
 
-        private CGEventFlags fromCGKeyCode(CGKeyCode code)
+        private static CGEventFlags fromCGKeyCode(CGKeyCode code)
         {
             return code switch
             {

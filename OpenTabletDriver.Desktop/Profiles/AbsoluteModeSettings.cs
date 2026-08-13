@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 using OpenTabletDriver.Plugin.Platform.Display;
 using OpenTabletDriver.Plugin.Tablet;
@@ -6,38 +7,37 @@ namespace OpenTabletDriver.Desktop.Profiles
 {
     public class AbsoluteModeSettings : ViewModel
     {
-        private AreaSettings display, tablet;
         private bool _lockar, _clipping, _areaLimiting;
 
-        [JsonProperty("Display")]
-        public AreaSettings Display
+        [JsonProperty(nameof(Display))]
+        public required AreaSettings Display
         {
-            set => this.RaiseAndSetIfChanged(ref this.display, value);
-            get => this.display;
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
-        [JsonProperty("Tablet")]
-        public AreaSettings Tablet
+        [JsonProperty(nameof(Tablet))]
+        public required AreaSettings Tablet
         {
-            set => this.RaiseAndSetIfChanged(ref this.tablet, value);
-            get => this.tablet;
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
-        [JsonProperty("EnableClipping")]
+        [JsonProperty(nameof(EnableClipping))]
         public bool EnableClipping
         {
             set => RaiseAndSetIfChanged(ref _clipping, value);
             get => _clipping;
         }
 
-        [JsonProperty("EnableAreaLimiting")]
+        [JsonProperty(nameof(EnableAreaLimiting))]
         public bool EnableAreaLimiting
         {
             set => RaiseAndSetIfChanged(ref _areaLimiting, value);
             get => _areaLimiting;
         }
 
-        [JsonProperty("LockAspectRatio")]
+        [JsonProperty(nameof(LockAspectRatio))]
         public bool LockAspectRatio
         {
             set => RaiseAndSetIfChanged(ref _lockar, value);
@@ -46,7 +46,7 @@ namespace OpenTabletDriver.Desktop.Profiles
 
         public static AbsoluteModeSettings GetDefaults(DigitizerSpecifications digitizer)
         {
-            var display = AppInfo.PluginManager.GetService<IVirtualScreen>();
+            var display = AppInfo.PluginManager.GetService<IVirtualScreen>() ?? throw new InvalidOperationException($"Could not get {nameof(IVirtualScreen)} from DI");
 
             return new AbsoluteModeSettings
             {

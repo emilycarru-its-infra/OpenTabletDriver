@@ -16,18 +16,18 @@ namespace OpenTabletDriver.Devices.WinUSB
     [DeviceHub, SupportedPlatform(PluginPlatform.Windows)]
     public class WinUSBRootHub : CriticalFinalizerObject, IDeviceHub
     {
-        private static readonly Guid[] _winUsbGuids = new Guid[]
-        {
+        private static readonly Guid[] _winUsbGuids =
+        [
             // Standard WinUSB (Zadig)
             new Guid("{dee824ef-729b-4a0e-9c14-b7117d33a817}"),
 
             // Huion WinUSB
             new Guid("{62f12d4c-3431-4efd-8dd7-8e9aab18d30c}"),
-        };
+        ];
 
         private readonly CM_NOTIFY_CALLBACK _callback;
         private readonly GCHandle _callbackPin;
-        private List<WinUSBInterface> _oldDevices;
+        private List<WinUSBInterface> _oldDevices = [];
         private List<WinUSBInterface> _currentDevices;
         private readonly Dictionary<Guid, SafeCmNotificationHandle> _notificationHandles = new();
 
@@ -46,13 +46,13 @@ namespace OpenTabletDriver.Devices.WinUSB
                 Log.Write(nameof(WinUSBRootHub), $"WinUSB device connections or disconnections won't be detected automatically.", LogLevel.Warning);
             }
 
-            _currentDevices = new List<WinUSBInterface>();
+            _currentDevices = [];
 
             foreach (var guid in _winUsbGuids)
                 EnumerateAllDevicesWithGuid(_currentDevices, guid);
         }
 
-        public event EventHandler<DevicesChangedEventArgs> DevicesChanged;
+        public event EventHandler<DevicesChangedEventArgs>? DevicesChanged;
 
         public IEnumerable<IDeviceEndpoint> GetDevices()
         {
@@ -62,7 +62,7 @@ namespace OpenTabletDriver.Devices.WinUSB
         private void Enumerate()
         {
             _oldDevices = _currentDevices;
-            _currentDevices = new List<WinUSBInterface>();
+            _currentDevices = [];
 
             foreach (var guid in _winUsbGuids)
                 EnumerateAllDevicesWithGuid(_currentDevices, guid);
@@ -109,9 +109,10 @@ namespace OpenTabletDriver.Devices.WinUSB
                 var winUsbInterface = new WinUSBInterface(devicePath);
                 list.Add(winUsbInterface);
             }
-            catch
+            catch (Exception ex)
             {
                 Log.Write("WinUSB", $"Cannot create device for '{devicePath}'");
+                Log.Exception(ex);
             }
         }
 

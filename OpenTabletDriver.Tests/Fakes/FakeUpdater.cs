@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
 using OpenTabletDriver.Desktop.Updater;
@@ -24,7 +23,7 @@ namespace OpenTabletDriver.Tests.Updater
         }
 
         public UpdaterEnvironment Environment { get; }
-        public List<FakeFileSystemEntry> UpdateFiles { get; set; } = new();
+        public List<FakeFileSystemEntry> UpdateFiles { get; set; } = [];
 
         public async Task CreateUpdateAsync(Version version)
         {
@@ -32,7 +31,7 @@ namespace OpenTabletDriver.Tests.Updater
 
             _update = new Update(
                 version,
-                ImmutableArray.Create(Directory.GetFileSystemEntries(_downloadPath)),
+                [.. Directory.GetFileSystemEntries(_downloadPath)],
                 BinaryDirectory
             );
         }

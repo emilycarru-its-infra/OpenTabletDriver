@@ -1,17 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using OpenTabletDriver.Plugin.Tablet;
-
-#nullable enable
 
 namespace OpenTabletDriver.Desktop.Profiles
 {
     public class ProfileCollection : ObservableCollection<Profile>
     {
         public ProfileCollection()
-            : base()
         {
         }
 
@@ -21,7 +17,7 @@ namespace OpenTabletDriver.Desktop.Profiles
         }
 
         public ProfileCollection(IEnumerable<TabletReference> tablets)
-            : this(tablets.Select(s => Profile.GetDefaults(s)))
+            : this(tablets.Select(Profile.GetDefaults))
         {
         }
 

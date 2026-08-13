@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -7,8 +6,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Octokit;
-
-#nullable enable
 
 namespace OpenTabletDriver.Desktop.Updater
 {
@@ -61,7 +58,7 @@ namespace OpenTabletDriver.Desktop.Updater
             var asset = release.Assets.First(r => r.Name.Contains("win-x64"));
 
             using (var client = new HttpClient())
-            using (var stream = await client.GetStreamAsync(asset.BrowserDownloadUrl))
+            await using (var stream = await client.GetStreamAsync(asset.BrowserDownloadUrl))
             using (var zipStream = new ZipArchive(stream))
             {
                 zipStream.ExtractToDirectory(downloadPath);
@@ -69,7 +66,7 @@ namespace OpenTabletDriver.Desktop.Updater
 
             return new Update(
                 version,
-                ImmutableArray.Create(Directory.GetFileSystemEntries(downloadPath)),
+                [.. Directory.GetFileSystemEntries(downloadPath)],
                 BinaryDirectory
             );
         }

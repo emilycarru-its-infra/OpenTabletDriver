@@ -1,5 +1,3 @@
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using OpenTabletDriver.Plugin.Tablet;
 
 namespace OpenTabletDriver.Configurations.Parsers.Wacom.BambooPad
@@ -10,11 +8,11 @@ namespace OpenTabletDriver.Configurations.Parsers.Wacom.BambooPad
         {
             Raw = report;
 
-            AuxButtons = new bool[]
-            {
+            AuxButtons =
+            [
                 report[23] == 1,
-                report[23] == 2
-            };
+                report[23] == 2,
+            ];
         }
 
         public byte[] Raw { set; get; }

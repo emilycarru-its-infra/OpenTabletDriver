@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using OpenTabletDriver.Desktop.Interop;
 using OpenTabletDriver.Desktop.Reflection.Metadata;
+using OpenTabletDriver.Interop;
 using OpenTabletDriver.Plugin;
 
 namespace OpenTabletDriver.Desktop.Reflection
@@ -42,7 +43,7 @@ namespace OpenTabletDriver.Desktop.Reflection
 
         public IReadOnlyCollection<DesktopPluginContext> GetLoadedPlugins() => Plugins;
 
-        public event EventHandler AssembliesChanged;
+        public event EventHandler? AssembliesChanged;
 
         public void Clean()
         {
@@ -115,7 +116,7 @@ namespace OpenTabletDriver.Desktop.Reflection
             {
                 if (!IsPlatformSupported(type))
                 {
-                    Log.Write("Plugin", $"Plugin '{type.FullName}' is not supported on {DesktopInterop.CurrentPlatform}", LogLevel.Info);
+                    Log.Write("Plugin", $"Plugin '{type.FullName}' is not supported on {SystemInterop.CurrentPlatform}");
                     return;
                 }
                 if (IsPluginIgnored(type))
@@ -166,8 +167,15 @@ namespace OpenTabletDriver.Desktop.Reflection
                 default:
                     throw new InvalidOperationException($"Unsupported archive type: {file.Extension}");
             }
-            var context = Plugins.FirstOrDefault(ctx => ctx.Directory.FullName == pluginDir.FullName);
-            var result = pluginDir.Exists ? UpdatePlugin(context, tempDir) : InstallPlugin(pluginDir, tempDir);
+
+            bool result;
+            if (pluginDir.Exists)
+            {
+                var context = Plugins.First(ctx => ctx.Directory.FullName == pluginDir.FullName);
+                result = UpdatePlugin(context, tempDir);
+            }
+            else
+                result = InstallPlugin(pluginDir, tempDir);
 
             if (!TemporaryDirectory.GetFileSystemInfos().Any())
                 Directory.Delete(TemporaryDirectory.FullName, true);
@@ -193,10 +201,16 @@ namespace OpenTabletDriver.Desktop.Reflection
 
             sourceDir.Refresh();
 
-            var context = Plugins.FirstOrDefault(ctx => ctx.Directory.FullName == targetDir.FullName);
-            var result = targetDir.Exists ? UpdatePlugin(context, sourceDir) : InstallPlugin(targetDir, sourceDir);
+            bool result;
+            if (targetDir.Exists)
+            {
+                var context = Plugins.First(ctx => ctx.Directory.FullName == targetDir.FullName);
+                result = UpdatePlugin(context, sourceDir);
+            }
+            else
+                result = InstallPlugin(targetDir, sourceDir);
 
-            using (var fs = File.Create(metadataPath))
+            await using (var fs = File.Create(metadataPath))
                 Serialization.Serialize(fs, metadata);
 
             if (!TemporaryDirectory.GetFileSystemInfos().Any())
@@ -214,9 +228,6 @@ namespace OpenTabletDriver.Desktop.Reflection
 
         public bool UninstallPlugin(DesktopPluginContext plugin)
         {
-            if (plugin == null)
-                return false;
-
             var random = new Random();
             if (!Directory.Exists(TrashDirectory.FullName))
                 TrashDirectory.Create();
@@ -242,7 +253,7 @@ namespace OpenTabletDriver.Desktop.Reflection
             Log.Write("Plugin", $"Unloading plugin '{context.FriendlyName}'", LogLevel.Debug);
             Plugins.Remove(context);
             AssembliesChanged?.Invoke(this, EventArgs.Empty);
-            return context.Assemblies.All(p => RemoveAllTypesForAssembly(p));
+            return context.Assemblies.All(RemoveAllTypesForAssembly);
         }
 
         public bool RemoveAllTypesForAssembly(Assembly asm)
@@ -272,6 +283,7 @@ namespace OpenTabletDriver.Desktop.Reflection
             AddService(() => DesktopInterop.AbsolutePointer);
             AddService(() => DesktopInterop.RelativePointer);
             AddService(() => DesktopInterop.VirtualTablet);
+            AddService(() => DesktopInterop.VirtualPad);
             AddService(() => DesktopInterop.VirtualScreen);
             AddService(() => DesktopInterop.VirtualKeyboard);
         }

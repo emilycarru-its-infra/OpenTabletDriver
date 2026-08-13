@@ -1,6 +1,5 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
-#nullable enable
 
 namespace OpenTabletDriver.Plugin.Tablet
 {
@@ -10,13 +9,13 @@ namespace OpenTabletDriver.Plugin.Tablet
         /// Specifications for the tablet digitizer.
         /// </summary>
         [Required(ErrorMessage = $"{nameof(Digitizer)} specifications must be defined")]
-        public DigitizerSpecifications Digitizer { set; get; } = new DigitizerSpecifications();
+        public required DigitizerSpecifications Digitizer { set; get; } = new();
 
         /// <summary>
         /// Specifications for the tablet's pen.
         /// </summary>
         [Required(ErrorMessage = $"{nameof(Pen)} specifications must be defined")]
-        public PenSpecifications Pen { set; get; } = new PenSpecifications();
+        public required PenSpecifications Pen { set; get; } = new();
 
         /// <summary>
         /// Specifications for the auxiliary buttons.
@@ -31,12 +30,12 @@ namespace OpenTabletDriver.Plugin.Tablet
         /// <summary>
         /// Specifications for the wheels.
         /// </summary>
-        public WheelSpecifications? Wheel { get; set; }
+        public List<WheelSpecifications>? Wheels { get; set; }
 
         /// <summary>
         /// Specifications for the strips.
         /// </summary>
-        public AnalogSpecifications? Strips { set; get; }
+        public List<AnalogSpecifications>? Strips { set; get; }
 
         /// <summary>
         /// Specifications for the touch digitizer.

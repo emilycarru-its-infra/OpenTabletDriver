@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace OpenTabletDriver.Plugin.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class PropertyValidatedAttribute : Attribute
+    public partial class PropertyValidatedAttribute : Attribute
     {
         public PropertyValidatedAttribute(string memberName)
         {
@@ -17,21 +17,21 @@ namespace OpenTabletDriver.Plugin.Attributes
         /// The name of the member in which the property this is assigned to is allowed to have.
         /// </summary>
         /// <remarks>
-        /// This member must return <see cref="IEnumerable{T}"/> statically.
+        /// This member must return <see cref="System.Collections.Generic.IEnumerable{T}"/> statically.
         /// </remarks>
         public string MemberName { get; }
 
-        public T GetValue<T>(PropertyInfo property)
+        public T? GetValue<T>(PropertyInfo property)
         {
             var sourceType = property.ReflectedType;
-            var member = sourceType.GetMember(MemberName).First();
+            var member = sourceType!.GetMember(MemberName).First();
             try
             {
                 return member.MemberType switch
                 {
-                    MemberTypes.Property => (T)sourceType.GetProperty(MemberName).GetValue(null),
-                    MemberTypes.Field => (T)sourceType.GetField(MemberName).GetValue(null),
-                    MemberTypes.Method => (T)sourceType.GetMethod(MemberName).Invoke(null, null),
+                    MemberTypes.Property => (T?)sourceType.GetProperty(MemberName)!.GetValue(null),
+                    MemberTypes.Field => (T?)sourceType.GetField(MemberName)!.GetValue(null),
+                    MemberTypes.Method => (T?)sourceType.GetMethod(MemberName)!.Invoke(null, null),
                     _ => default
                 };
             }
@@ -39,7 +39,7 @@ namespace OpenTabletDriver.Plugin.Attributes
             {
                 Log.Write("Plugin", $"Failed to get valid binding values for '{MemberName}'", LogLevel.Error);
 
-                var match = Regex.Match(e.Message, "Non-static (.*) requires a target\\.");
+                var match = NonStaticTargetRegex().Match(e.Message);
 
                 if (e is TargetException && match.Success)
                 {
@@ -53,5 +53,8 @@ namespace OpenTabletDriver.Plugin.Attributes
 
             return default;
         }
+
+        [GeneratedRegex("Non-static (.*) requires a target\\.")]
+        private static partial Regex NonStaticTargetRegex();
     }
 }

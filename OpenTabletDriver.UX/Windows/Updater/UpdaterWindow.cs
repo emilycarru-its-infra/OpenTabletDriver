@@ -1,8 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Eto.Drawing;
 using Eto.Forms;
-using OpenTabletDriver.Desktop;
 using OpenTabletDriver.Desktop.Interop;
 using OpenTabletDriver.UX.Controls;
 using OpenTabletDriver.UX.Controls.Generic;
@@ -29,7 +29,8 @@ namespace OpenTabletDriver.UX.Windows.Updater
                 }
             };
 
-            _ = InitializeAsync();
+            // ReSharper disable once AsyncVoidMethod
+            Application.Instance.AsyncInvoke(async void () => await InitializeAsync());
         }
 
         public const string LATEST_RELEASE_URL = "https://github.com/OpenTabletDriver/OpenTabletDriver/releases/latest";
@@ -38,6 +39,7 @@ namespace OpenTabletDriver.UX.Windows.Updater
 
         private async Task InitializeAsync()
         {
+            Debug.Assert(App.Driver.IsConnected, "Tried checking for updates with no connected daemon");
             var updateAvailable = await App.Driver.Instance.CheckForUpdates();
             if (updateAvailable is not null)
             {
@@ -82,10 +84,10 @@ namespace OpenTabletDriver.UX.Windows.Updater
             }
         }
 
-        private void OpenRelease(object sender, EventArgs e)
+        private void OpenRelease(object? sender, EventArgs e)
             => DesktopInterop.Open(LATEST_RELEASE_URL);
 
-        private void OpenDirectory(object sender, EventArgs e)
+        private void OpenDirectory(object? sender, EventArgs e)
             => DesktopInterop.Open(AppContext.BaseDirectory);
     }
 }

@@ -6,8 +6,6 @@ using System.Linq;
 using OpenTabletDriver.Interop;
 using OpenTabletDriver.Plugin;
 
-#nullable enable
-
 namespace OpenTabletDriver.Desktop
 {
     public class OSInfo
@@ -56,7 +54,7 @@ namespace OpenTabletDriver.Desktop
             };
 
             // search for valid path
-            var osReleasePath = osReleasePaths.First(x => File.Exists(x));
+            var osReleasePath = osReleasePaths.FirstOrDefault(File.Exists);
             if (osReleasePath == null)
             {
                 // fallback

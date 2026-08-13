@@ -40,9 +40,9 @@ namespace OpenTabletDriver.Desktop.Reflection
         [Obsolete($"Use {nameof(OpenTabletDriver.Desktop.Extensions.GetLibTypes)} from OpenTabletDriver.Desktop.Extensions")]
         protected readonly Type[] libTypes;
 
-        public virtual T ConstructObject<T>(string name, object[] args = null) where T : class
+        public virtual T? ConstructObject<T>(string name, object[]? args = null) where T : class
         {
-            args ??= new object[0];
+            args ??= [];
             if (!string.IsNullOrWhiteSpace(name))
             {
                 try
@@ -57,7 +57,7 @@ namespace OpenTabletDriver.Desktop.Reflection
 
                         if (matchingConstructors.FirstOrDefault() is ConstructorInfo constructor)
                         {
-                            T obj = (T)constructor.Invoke(args) ?? null;
+                            T obj = (T)constructor.Invoke(args);
 
                             if (obj != null)
                                 Inject(this, obj, type);
@@ -97,7 +97,7 @@ namespace OpenTabletDriver.Desktop.Reflection
             return children.ToArray();
         }
 
-        public virtual string GetFriendlyName(string path)
+        public virtual string? GetFriendlyName(string path)
         {
             if (AppInfo.PluginManager.PluginTypes.FirstOrDefault(t => t.FullName == path) is TypeInfo plugin)
             {
@@ -109,13 +109,13 @@ namespace OpenTabletDriver.Desktop.Reflection
             return null;
         }
 
-        public static void Inject(IServiceProvider serviceProvider, object obj)
+        public static void Inject(IServiceProvider serviceProvider, object? obj)
         {
             if (obj != null)
                 Inject(serviceProvider, obj, obj.GetType());
         }
 
-        public static void Inject(IServiceProvider serviceProvider, object obj, Type type)
+        public static void Inject(IServiceProvider serviceProvider, object? obj, Type type)
         {
             if (obj == null)
                 return;
@@ -159,7 +159,7 @@ namespace OpenTabletDriver.Desktop.Reflection
 
         protected virtual bool IsPlatformSupported(Type type)
         {
-            var attr = (SupportedPlatformAttribute)type.GetCustomAttribute(typeof(SupportedPlatformAttribute), false);
+            var attr = (SupportedPlatformAttribute?)type.GetCustomAttribute(typeof(SupportedPlatformAttribute), false);
             return attr?.IsCurrentPlatform ?? true;
         }
 

@@ -59,10 +59,14 @@ while [ ${#remaining_args[@]} -gt 0 ]; do
 done
 
 if [ -z "${NET_RUNTIME:-}" ]; then
+  case "${MACHTYPE}" in
+    aarch64*) arch="arm64" ;;
+    *) arch="x64" ;;
+  esac
   if is_musl_based_distro; then # is this command even portable?
-    NET_RUNTIME="linux-musl-x64"
+    NET_RUNTIME="linux-musl-${arch}"
   else
-    NET_RUNTIME="linux-x64"
+    NET_RUNTIME="linux-${arch}"
   fi
   echo "WARN: You must specify a runtime! Falling back to '${NET_RUNTIME}'"
 fi
@@ -78,8 +82,8 @@ if [[ "${NET_RUNTIME}" =~ ^win-.*$ ]]; then
 fi
 
 if [[ "${NET_RUNTIME}" =~ ^osx-.*$ ]]; then
-  # the following vars are imported from old packaging script
-  SINGLE_FILE="false"
+  # signed builds must be single file, otherwise reduce package size by not using single file
+  SINGLE_FILE="${SIGNED}"
   SELF_CONTAINED="true"
 
   PACKAGE_GEN=${PACKAGE_GEN:-"macos"}

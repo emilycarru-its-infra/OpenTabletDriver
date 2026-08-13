@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using OpenTabletDriver.Native.Linux;
 using OpenTabletDriver.Native.Linux.Evdev;
@@ -14,7 +14,7 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Absolute
 
         private bool isEraser;
 
-        private EvdevDevice Device { set; get; }
+        private readonly EvdevDevice Device;
 
         private EventCode[] supportedEventCodes =
         [
@@ -35,9 +35,12 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Absolute
 
             Device.EnableType(EventType.EV_ABS);
 
+            var virtualScreen = DesktopInterop.VirtualScreen
+                                ?? throw new InvalidOperationException("Could not get virtual screen");
+
             var xAbs = new input_absinfo
             {
-                maximum = (int)(DesktopInterop.VirtualScreen.Width * RESOLUTION),
+                maximum = (int)(virtualScreen.Width * RESOLUTION),
                 resolution = 100000
             };
             input_absinfo* xPtr = &xAbs;
@@ -45,7 +48,7 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Absolute
 
             var yAbs = new input_absinfo
             {
-                maximum = (int)(DesktopInterop.VirtualScreen.Height * RESOLUTION),
+                maximum = (int)(virtualScreen.Height * RESOLUTION),
                 resolution = 100000
             };
             input_absinfo* yPtr = &yAbs;
@@ -161,8 +164,20 @@ namespace OpenTabletDriver.Desktop.Interop.Input.Absolute
 
         public void Dispose()
         {
-            Device?.Dispose();
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private bool _isDisposed;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+
+            if (disposing)
+                Device.Dispose();
+
+            _isDisposed = true;
         }
 
         public void Flush()

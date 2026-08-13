@@ -21,8 +21,8 @@ namespace OpenTabletDriver.UX.Controls
 
         private StackLayout layout;
 
-        private PluginSettingStore store;
-        public PluginSettingStore Store
+        private PluginSettingStore? store;
+        public PluginSettingStore? Store
         {
             set
             {
@@ -32,7 +32,7 @@ namespace OpenTabletDriver.UX.Controls
             get => this.store;
         }
 
-        public event EventHandler<EventArgs> StoreChanged;
+        public event EventHandler<EventArgs>? StoreChanged;
 
         protected virtual void OnStoreChanged()
         {
@@ -48,11 +48,11 @@ namespace OpenTabletDriver.UX.Controls
             }
         }
 
-        public BindableBinding<PluginSettingStoreEditor<TSource>, PluginSettingStore> StoreBinding
+        public BindableBinding<PluginSettingStoreEditor<TSource>, PluginSettingStore?> StoreBinding
         {
             get
             {
-                return new BindableBinding<PluginSettingStoreEditor<TSource>, PluginSettingStore>(
+                return new BindableBinding<PluginSettingStoreEditor<TSource>, PluginSettingStore?>(
                     this,
                     c => c.Store,
                     (c, v) => c.Store = v,
@@ -67,7 +67,7 @@ namespace OpenTabletDriver.UX.Controls
             return Array.Empty<Control>();
         }
 
-        private IEnumerable<Control> GetControlsForStore(PluginSettingStore store)
+        private static IEnumerable<Control> GetControlsForStore(PluginSettingStore store)
         {
             if (store != null)
             {
@@ -85,7 +85,7 @@ namespace OpenTabletDriver.UX.Controls
             return Array.Empty<Control>();
         }
 
-        private IEnumerable<Control> GetControlsForType(PluginSettingStore store, Type type)
+        private static IEnumerable<Control> GetControlsForType(PluginSettingStore store, Type type)
         {
             var properties = from property in type.GetProperties()
                              let attrs = property.GetCustomAttributes(true)

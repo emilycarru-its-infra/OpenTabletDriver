@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
-#nullable enable
 
 namespace OpenTabletDriver.Plugin.Tablet
 {
@@ -55,7 +53,7 @@ namespace OpenTabletDriver.Plugin.Tablet
         /// <summary>
         /// Device strings to match against, used for identification.
         /// </summary>
-        /// <typeparam name="uint">The index to query</typeparam>
+        /// <typeparam name="byte">The index to query</typeparam>
         /// <typeparam name="string">The value to match to the queried index</typeparam>
         public Dictionary<byte, string>? DeviceStrings { set; get; }
 
@@ -64,6 +62,9 @@ namespace OpenTabletDriver.Plugin.Tablet
         /// </summary>
         public List<byte>? InitializationStrings { set; get; }
 
+        /// <summary>
+        /// Arbitrary devices attributes
+        /// </summary>
         public Dictionary<string, string>? Attributes { set; get; }
     }
 }

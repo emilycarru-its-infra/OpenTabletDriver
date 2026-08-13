@@ -6,19 +6,17 @@ using OpenTabletDriver.Configurations;
 using OpenTabletDriver.Devices;
 using OpenTabletDriver.Plugin.Components;
 
-#nullable enable
-
 namespace OpenTabletDriver
 {
     public class DriverServiceCollection : ServiceCollection
     {
-        private static IEnumerable<ServiceDescriptor> RequiredServices => new ServiceDescriptor[]
-        {
+        private static IEnumerable<ServiceDescriptor> RequiredServices =>
+        [
             ServiceDescriptor.Singleton<IReportParserProvider, ReportParserProvider>(),
             ServiceDescriptor.Singleton<IDeviceHubsProvider, DeviceHubsProvider>(serviceProvider => new DeviceHubsProvider(serviceProvider)),
-            ServiceDescriptor.Singleton<ICompositeDeviceHub, RootHub>(serviceProvider => RootHub.WithProvider(serviceProvider)),
-            ServiceDescriptor.Singleton<IDeviceConfigurationProvider, DeviceConfigurationProvider>()
-        };
+            ServiceDescriptor.Singleton<ICompositeDeviceHub, RootHub>(RootHub.WithProvider),
+            ServiceDescriptor.Singleton<IDeviceConfigurationProvider, DeviceConfigurationProvider>(),
+        ];
 
         public DriverServiceCollection()
         {

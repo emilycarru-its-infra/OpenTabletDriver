@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using OpenTabletDriver.Plugin.Attributes;
 using OpenTabletDriver.Plugin.Platform.Pointer;
@@ -13,19 +13,19 @@ namespace OpenTabletDriver.Plugin.Output
     [PluginIgnore]
     public abstract class RelativeOutputMode : OutputMode
     {
-        private HPETDeltaStopwatch stopwatch = new HPETDeltaStopwatch(true);
+        private HPETDeltaStopwatch stopwatch = new HPETDeltaStopwatch();
         private Vector2? lastTransformedPos;
         private Vector2 lastReadPos;
         private bool outOfRange;
 
         // for handling detection of low resetTimes
         private uint _resets;
-        private bool _warnedBadResets = false;
+        private bool _warnedBadResets;
 
         /// <summary>
         /// The class in which the final relative positioned output is handled.
         /// </summary>
-        public abstract IRelativePointer Pointer { set; get; }
+        public abstract IRelativePointer? Pointer { set; get; }
 
         private Vector2 sensitivity;
 
@@ -151,7 +151,7 @@ namespace OpenTabletDriver.Plugin.Output
                 pressureHandler.SetPressure(tabletReport.Pressure / (float)Tablet.Properties.Specifications.Pen.MaxPressure);
 
             // make sure to set the position last
-            if (report is IAbsolutePositionReport absReport)
+            if (Pointer != null && report is IAbsolutePositionReport absReport)
                 Pointer.SetPosition(absReport.Position);
             if (Pointer is ISynchronousPointer synchronousPointer)
             {

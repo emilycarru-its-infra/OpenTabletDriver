@@ -1,7 +1,7 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
-using Microsoft.Win32.SafeHandles;
 using OpenTabletDriver.Native.Windows.Input;
 using OpenTabletDriver.Native.Windows.Timers;
 
@@ -20,7 +20,7 @@ namespace OpenTabletDriver.Native.Windows
         public static extern bool GetMonitorInfo(IntPtr hmon, ref MonitorInfoEx mi);
 
         [DllImport("user32.dll")]
-        public static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DevMode devMode);
+        public static extern bool EnumDisplaySettings(string? deviceName, int modeNum, ref DevMode devMode);
 
         [DllImport("Shcore.dll")]
         public static extern int GetDpiForMonitor(IntPtr hmon, DpiType dpiType, out uint dpiX, out uint dpiY);
@@ -75,6 +75,8 @@ namespace OpenTabletDriver.Native.Windows
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool SetProcessInformation(IntPtr hProcess, ProcessInformationClass processInformationClass, IntPtr processInformation, int processInformationLength);
 
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global")]
         public enum ProcessInformationClass
         {
             ProcessMemoryPriority,
